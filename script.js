@@ -1,425 +1,483 @@
-/* =========================================================
-   毎朝の運勢 v0.8.0
-   外部APIなし・日付から毎日同じ結果を生成
-========================================================= */
-
+/* 毎朝の運勢 v0.8.0 */
 "use strict";
 
 const VERSION = "0.8.0";
-
 const STORAGE_KEYS = {
-  favorites: "morningFortuneFavoritesV080",
-  reviews: "morningFortuneReviewsV080",
-  settings: "morningFortuneSettingsV080"
+  favorites: "morningFortuneFavoritesV1",
+  history: "morningFortuneHistoryV1",
+  missions: "morningFortuneMissionsV1",
+  moods: "morningFortuneMoodsV1",
+  notes: "morningFortuneNotesV1",
+  settings: "morningFortuneSettingsV1",
+  badgeSeen: "morningFortuneBadgeSeenV1"
 };
 
-const MASTER = {
+const DATA = {
   themes: [
-    ["小さく整える日", "身の回りを少し整えると、気持ちにも良い余白が生まれます。"],
-    ["一歩だけ進む日", "完璧を待たず、できることを一つ始めると流れが変わります。"],
-    ["人との縁を育てる日", "やさしいひと言が、思った以上に良い空気を連れてきます。"],
-    ["自分のペースを守る日", "周りと比べず、自分に合う速さを選ぶほど運気が安定します。"],
-    ["選び直す日", "違和感を放置せず、小さく方向を変えることが幸運につながります。"],
-    ["休む勇気を持つ日", "力を抜く時間を先に確保すると、午後からの集中力が戻ります。"],
-    ["好奇心を大切にする日", "気になったことを少し調べるだけで、新しい可能性が見えてきます。"]
+    ["流れを整える", "目の前のことを一つずつ整えると、運が味方します。"],
+    ["小さく踏み出す", "完璧を待たずに始めることで、新しい流れが生まれます。"],
+    ["言葉を丁寧に", "ひと言の思いやりが、心地よいご縁を運んできます。"],
+    ["余白を楽しむ", "予定を詰めすぎないことが、良いひらめきにつながります。"],
+    ["自分を信じる", "迷ったときは、最初に感じた素直な気持ちを大切に。"],
+    ["感謝を伝える", "小さなありがとうが、今日の空気をやわらかくします。"],
+    ["軽やかに選ぶ", "抱え込まず、今の自分に必要なものを選びましょう。"]
   ],
-  categoryMessages: {
-    work: ["優先順位を一つ決めると、作業がすっきり進みます。", "午前中の集中が成果につながります。", "確認を丁寧にすると信頼が高まります。", "小さな改善案が評価されやすい日です。"],
-    money: ["買う前に一度考えると満足度が上がります。", "身近な節約が気持ちの余裕につながります。", "必要なものへの出費は前向きな投資になります。", "財布や支払い方法を整えると金運が安定します。"],
-    people: ["素直な返事が良い関係を育てます。", "相手の話を最後まで聞くと誤解を防げます。", "久しぶりの人への連絡に良い日です。", "感謝を言葉にすると空気がやわらぎます。"],
-    health: ["肩と目をこまめに休ませましょう。", "水分補給を意識すると調子が整います。", "短い散歩が気分転換になります。", "夜は少し早めに休むと回復しやすい日です。"]
+  overallComments: [
+    "小さな決断が、心地よい流れを作る日です。",
+    "自然体でいるほど、うれしい偶然が近づきます。",
+    "焦らず順番を決めると、物事がすっきり進みます。",
+    "いつもと違う選択に、運気を変えるヒントがあります。",
+    "人との会話から、前向きなきっかけを得られそうです。",
+    "自分のペースを守ることが、今日いちばんの開運です。"
+  ],
+  scoreComments: {
+    work: ["優先順位を決めると集中力が上がります。", "午前中の着手が良い結果につながります。", "丁寧な確認が評価につながる日です。"],
+    money: ["必要なものを見極めると満足度が高まります。", "小さな節約が気持ちの余裕を生みます。", "長く使えるものに目を向けると吉。"],
+    people: ["素直なひと言が、良い空気を作ります。", "相手の話を最後まで聞くと関係が深まります。", "久しぶりの連絡にうれしい反応がありそう。"],
+    health: ["深呼吸と軽いストレッチが調子を整えます。", "温かい飲み物で体をいたわりましょう。", "少し早めの休憩が集中力を守ります。"]
   },
-  guidance: {
-    wind: ["午前中に小さな用事を一つ片付ける", "机や鞄の中を3分だけ整える", "気になっていた人へ短い連絡をする", "朝の光を浴びながら深呼吸する"],
-    caution: ["返事を急ぎすぎない", "予定を詰め込みすぎない", "思い込みだけで判断しない", "疲れているのに無理を続けない"],
-    avoid: ["他人との比較", "感情だけで結論を出すこと", "夜更かししての作業", "後回しを増やしすぎること"]
-  },
+  guidance: [
+    ["午前中の小さな行動", "後回しにしていたことを一つ始めると、流れが軽くなります。", "返事を急ぎすぎない", "一度深呼吸して言葉を選ぶと、誤解を防げます。", "他人との比較", "今日は自分の昨日と比べるだけで十分です。"],
+    ["いつもより5分早い準備", "少しの余裕が、良いタイミングを引き寄せます。", "予定の詰め込み", "余白を残すと、本当に大切なことが見えてきます。", "決めつけ", "まず一度、相手の事情を想像してみましょう。"],
+    ["笑顔でのあいさつ", "あなたの明るさが、周囲の空気も軽くします。", "細かい失敗への執着", "切り替えの早さが、次の幸運につながります。", "夜更かし", "今日は少し早めに休むと明日が楽になります。"]
+  ],
+  missions: [
+    ["机の上を3分だけ整える", "視界が整うと、頭の中も自然に整理されます。"],
+    ["誰かに『ありがとう』を伝える", "感謝の言葉が、今日の運をやさしく巡らせます。"],
+    ["5分だけ外の空気を吸う", "景色を変えると、気持ちにも新しい風が入ります。"],
+    ["後回しの用事を一つ終える", "小さな完了が、大きな自信につながります。"],
+    ["鏡を見て笑顔を作る", "表情を整えると、心も少しずつ前を向きます。"],
+    ["温かい飲み物をゆっくり飲む", "急がない時間が、今日の余裕を育てます。"]
+  ],
+  actions: [
+    "朝の光を浴びながら、温かい飲み物を飲む",
+    "いつもより丁寧に靴をそろえる",
+    "好きな音楽を一曲だけ聴く",
+    "玄関やデスクを小さく整える",
+    "空を見上げて三回深呼吸する",
+    "大切な人に短いメッセージを送る"
+  ],
   colors: [
-    ["ネイビー", "#30486f"],
-    ["テラコッタ", "#bd6f4a"],
-    ["フォレストグリーン", "#4d705a"],
-    ["ラベンダー", "#8a76bd"],
-    ["サンドベージュ", "#c4a57d"],
-    ["スカイブルー", "#70a7c4"],
-    ["ワインレッド", "#8e4755"]
+    ["サンドベージュ", "#cbb28f"], ["オリーブグリーン", "#7e8b63"], ["スカイブルー", "#7fa9c4"],
+    ["コーラルピンク", "#d58d86"], ["ラベンダー", "#a99abe"], ["アイボリー", "#e8dfc9"], ["ネイビー", "#52647a"]
   ],
-  times: ["8:20〜9:00", "10:30〜11:10", "12:40〜13:20", "14:00〜15:00", "16:30〜17:10", "19:00〜20:00"],
-  items: ["お気に入りのマグ", "腕時計", "白いハンカチ", "小さなノート", "革製の小物", "イヤホン", "温かい飲み物"],
+  items: [["☕", "お気に入りのマグ"], ["🖊️", "書きやすいペン"], ["📕", "小さなノート"], ["🧣", "やわらかな布小物"], ["🔑", "いつもの鍵"], ["🎧", "イヤホン"], ["⌚", "腕時計"]],
   quotes: [
-    "急がなくても、一歩進めば流れは変わる。",
-    "整えることは、自分を大切にすること。",
-    "小さな選択が、今日の空気を変えていく。",
-    "できたことを数えると、心は少し軽くなる。",
-    "自分の速さで進む人は、遠くまで行ける。",
-    "余白があるから、新しい運が入ってくる。",
-    "やさしい言葉は、まず自分から始めよう。"
+    "大きく変えなくていい。小さく整えるだけで、今日の流れは変わる。",
+    "ゆっくりでも、前を向いているなら、それは立派な前進です。",
+    "今日できる小さなことが、明日の自分を助けてくれる。",
+    "比べるなら昨日の自分と。あなたの歩幅で進めばいい。",
+    "余白があるから、新しい幸運が入ってこられる。",
+    "やさしい言葉は、めぐりめぐって自分の心も温める。"
   ]
-};
-
-const state = {
-  activePage: "today",
-  calendarDate: startOfMonth(new Date()),
-  selectedDateKey: null,
-  selectedMood: 0,
-  favorites: loadJson(STORAGE_KEYS.favorites, {}),
-  reviews: loadJson(STORAGE_KEYS.reviews, {}),
-  settings: loadJson(STORAGE_KEYS.settings, {
-    largeText: false,
-    reduceMotion: false
-  })
 };
 
 const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => [...document.querySelectorAll(selector)];
+const today = new Date();
+const dateKey = toDateKey(today);
+const fortune = createFortune(today);
+let toastTimer;
+let calendarCursor = new Date(today.getFullYear(), today.getMonth(), 1);
+let selectedHistoryDateKey = null;
 
-const elements = {
-  pages: $$(".app-page"),
-  navItems: $$(".nav-item"),
-  appMain: $("#appMain"),
-  toast: $("#toast"),
-  todayDate: $("#todayDate"),
-  todayTheme: $("#todayTheme"),
-  todayScore: $("#todayScore"),
-  todayStars: $("#todayStars"),
-  todayMessage: $("#todayMessage"),
-  todayCategories: $("#todayCategories"),
-  todayGuidance: $("#todayGuidance"),
-  todayLucky: $("#todayLucky"),
-  todayQuote: $("#todayQuote"),
-  favoriteTodayButton: $("#favoriteTodayButton"),
-  calendarYear: $("#calendarYear"),
-  calendarMonth: $("#calendarMonth"),
-  calendarGrid: $("#calendarGrid"),
-  historyDetail: $("#historyDetail"),
-  favoritesList: $("#favoritesList"),
-  reviewText: $("#reviewText"),
-  reviewCount: $("#reviewCount"),
-  moodButtons: $$("#reviewMood button"),
-  largeTextToggle: $("#largeTextToggle"),
-  reduceMotionToggle: $("#reduceMotionToggle")
-};
-
-let toastTimer = 0;
-
-function loadJson(key, fallback) {
-  try {
-    const raw = localStorage.getItem(key);
-    return raw ? JSON.parse(raw) : fallback;
-  } catch (error) {
-    console.warn("保存データを読み込めませんでした。", error);
-    return fallback;
-  }
-}
-
-function saveJson(key, value) {
-  try {
-    localStorage.setItem(key, JSON.stringify(value));
-    return true;
-  } catch (error) {
-    console.warn("保存できませんでした。", error);
-    showToast("保存できませんでした。ブラウザの設定をご確認ください。");
-    return false;
-  }
-}
-
-function startOfMonth(date) {
-  return new Date(date.getFullYear(), date.getMonth(), 1);
-}
-
-function dateKey(date) {
+function toDateKey(date) {
   const y = date.getFullYear();
   const m = String(date.getMonth() + 1).padStart(2, "0");
   const d = String(date.getDate()).padStart(2, "0");
   return `${y}-${m}-${d}`;
 }
 
-function parseDateKey(key) {
-  const [y, m, d] = key.split("-").map(Number);
-  return new Date(y, m - 1, d);
+function hash(text) {
+  let value = 2166136261;
+  for (const char of text) {
+    value ^= char.charCodeAt(0);
+    value = Math.imul(value, 16777619);
+  }
+  return value >>> 0;
 }
 
-function formatDate(date, includeYear = true) {
-  return new Intl.DateTimeFormat("ja-JP", {
-    ...(includeYear ? { year: "numeric" } : {}),
-    month: "long",
-    day: "numeric",
-    weekday: "short"
-  }).format(date);
-}
-
-function hashDate(date) {
-  const key = Number(dateKey(date).replaceAll("-", ""));
-  let value = key ^ 0x9e3779b9;
-  value = Math.imul(value ^ (value >>> 16), 0x85ebca6b);
-  value = Math.imul(value ^ (value >>> 13), 0xc2b2ae35);
-  return (value ^ (value >>> 16)) >>> 0;
-}
-
-function seededIndex(seed, length, shift = 0) {
-  return ((seed >>> shift) + shift * 17) % length;
+function pick(list, seed, offset = 0) {
+  return list[(seed + offset * 97) % list.length];
 }
 
 function createFortune(date) {
-  const seed = hashDate(date);
-  const theme = MASTER.themes[seededIndex(seed, MASTER.themes.length)];
-  const overall = 70 + (seed % 27);
-  const scores = {
-    work: 68 + ((seed >>> 2) % 30),
-    money: 66 + ((seed >>> 5) % 31),
-    people: 70 + ((seed >>> 8) % 28),
-    health: 67 + ((seed >>> 11) % 31)
-  };
-
-  const categoryDefs = [
-    ["work", "仕事運", "💼"],
-    ["money", "金運", "👛"],
-    ["people", "対人運", "🤝"],
-    ["health", "健康運", "♡"]
-  ];
-
+  const key = toDateKey(date);
+  const seed = hash(`morning-fortune-${key}`);
+  const score = (offset) => 68 + ((seed >>> offset) % 29);
+  const scores = { work: score(1), money: score(4), people: score(7), health: score(10) };
+  const overall = Math.round(Object.values(scores).reduce((a, b) => a + b, 0) / 4);
+  const theme = pick(DATA.themes, seed, 1);
+  const guide = pick(DATA.guidance, seed, 2);
+  const mission = pick(DATA.missions, seed, 3);
+  const color = pick(DATA.colors, seed, 4);
+  const item = pick(DATA.items, seed, 5);
+  const hour = 8 + (seed % 10);
+  const minute = [10, 20, 30, 40, 50][(seed >>> 3) % 5];
   return {
-    key: dateKey(date),
-    date,
-    theme: theme[0],
-    message: theme[1],
+    dateKey: key,
     overall,
-    stars: Math.max(3, Math.round(overall / 20)),
-    categories: categoryDefs.map(([key, label, icon], index) => ({
-      key,
-      label,
-      icon,
-      score: scores[key],
-      message: MASTER.categoryMessages[key][seededIndex(seed, MASTER.categoryMessages[key].length, 4 + index * 3)]
-    })),
-    guidance: [
-      ["🍃", "今日の追い風", MASTER.guidance.wind[seededIndex(seed, MASTER.guidance.wind.length, 3)]],
-      ["⚠️", "気を付けること", MASTER.guidance.caution[seededIndex(seed, MASTER.guidance.caution.length, 7)]],
-      ["⛔", "避けたいこと", MASTER.guidance.avoid[seededIndex(seed, MASTER.guidance.avoid.length, 11)]]
-    ],
-    lucky: {
-      color: MASTER.colors[seededIndex(seed, MASTER.colors.length, 5)],
-      time: MASTER.times[seededIndex(seed, MASTER.times.length, 9)],
-      item: MASTER.items[seededIndex(seed, MASTER.items.length, 13)]
+    scores,
+    themeTitle: theme[0], themeText: theme[1],
+    overallComment: pick(DATA.overallComments, seed, 6),
+    guidance: {
+      wind: [guide[0], guide[1]], caution: [guide[2], guide[3]], avoid: [guide[4], guide[5]]
     },
-    quote: MASTER.quotes[seededIndex(seed, MASTER.quotes.length, 17)]
+    missionTitle: mission[0], missionText: mission[1],
+    action: pick(DATA.actions, seed, 7),
+    colorName: color[0], colorHex: color[1],
+    luckyTime: `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`,
+    luckyTimeText: hour < 12 ? "午前のひと息前" : hour < 15 ? "昼下がり" : "夕方の切り替え時",
+    itemEmoji: item[0], itemName: item[1],
+    quote: pick(DATA.quotes, seed, 8)
   };
 }
 
-function renderStars(count) {
-  return `${"★".repeat(count)}${"☆".repeat(5 - count)}`;
+function readStore(key, fallback) {
+  try { return JSON.parse(localStorage.getItem(key)) ?? fallback; }
+  catch { return fallback; }
+}
+
+function writeStore(key, value) {
+  try { localStorage.setItem(key, JSON.stringify(value)); }
+  catch { showToast("端末への保存に失敗しました"); }
+}
+
+function formatDate(key, withYear = true) {
+  const [y, m, d] = key.split("-").map(Number);
+  return new Intl.DateTimeFormat("ja-JP", {
+    ...(withYear ? { year: "numeric" } : {}), month: "long", day: "numeric", weekday: "short"
+  }).format(new Date(y, m - 1, d));
 }
 
 function showToast(message) {
-  window.clearTimeout(toastTimer);
-  elements.toast.textContent = message;
-  elements.toast.classList.add("is-visible");
-  toastTimer = window.setTimeout(() => {
-    elements.toast.classList.remove("is-visible");
-  }, 2200);
+  clearTimeout(toastTimer);
+  const toast = $("#toast");
+  toast.textContent = message;
+  toast.classList.add("is-visible");
+  toastTimer = setTimeout(() => toast.classList.remove("is-visible"), 2200);
 }
 
-function renderToday() {
-  const today = new Date();
-  const fortune = createFortune(today);
-  const favorite = Boolean(state.favorites[fortune.key]);
+function badgeFor(score) {
+  if (score >= 90) return "GREAT DAY";
+  if (score >= 80) return "GOOD DAY";
+  if (score >= 72) return "STEADY DAY";
+  return "SLOW DAY";
+}
 
-  elements.todayDate.textContent = formatDate(today);
-  elements.todayTheme.textContent = fortune.theme;
-  elements.todayScore.textContent = `${fortune.overall}点`;
-  elements.todayStars.textContent = renderStars(fortune.stars);
-  elements.todayMessage.textContent = fortune.message;
 
-  elements.todayCategories.innerHTML = fortune.categories.map((category) => `
-    <article class="fortune-tile">
-      <div class="fortune-tile-head">
-        <span>${category.icon} ${category.label}</span>
-        <span>${renderStars(Math.max(1, Math.round(category.score / 20)))}</span>
-      </div>
-      <strong>${category.score}点</strong>
-      <p>${category.message}</p>
-    </article>
-  `).join("");
 
-  elements.todayGuidance.innerHTML = fortune.guidance.map(([icon, title, text]) => `
-    <article class="guidance-item">
-      <span class="guidance-icon" aria-hidden="true">${icon}</span>
-      <div><strong>${title}</strong><span>${text}</span></div>
-    </article>
-  `).join("");
+function applyTimeTheme() {
+  const hour = new Date().getHours();
+  const period = hour < 10 ? "morning" : hour < 16 ? "day" : hour < 19 ? "evening" : "night";
+  document.documentElement.dataset.time = period;
+  const greeting = $("#greeting");
+  if (greeting) {
+    greeting.textContent =
+      period === "morning" ? "おはようございます" :
+      period === "day" ? "こんにちは" :
+      period === "evening" ? "おつかれさまです" : "今日もおつかれさまです";
+  }
+}
 
-  elements.todayLucky.innerHTML = `
-    <article class="lucky-tile">
-      <small>ラッキーカラー</small>
-      <i class="color-chip" style="background:${fortune.lucky.color[1]}" aria-hidden="true"></i>
-      <strong>${fortune.lucky.color[0]}</strong>
-    </article>
-    <article class="lucky-tile">
-      <small>ラッキータイム</small>
-      <strong>⏰ ${fortune.lucky.time}</strong>
-    </article>
-    <article class="lucky-tile">
-      <small>ラッキーアイテム</small>
-      <strong>🎁 ${fortune.lucky.item}</strong>
-    </article>
-  `;
+const BADGE_DEFINITIONS = [
+  { id: "start", icon: "🌱", title: "はじめの一歩", text: "運勢を1日記録", value: (s) => s.history, target: 1 },
+  { id: "streak3", icon: "🔥", title: "朝の習慣", text: "3日連続で利用", value: (s) => s.streak, target: 3 },
+  { id: "mission3", icon: "🎯", title: "小さな達成", text: "ミッションを3回達成", value: (s) => s.missions, target: 3 },
+  { id: "review3", icon: "✍️", title: "自分と向き合う", text: "振り返りを3回記録", value: (s) => s.reviews, target: 3 },
+  { id: "favorite3", icon: "💛", title: "心に残る日", text: "お気に入りを3件保存", value: (s) => s.favorites, target: 3 },
+  { id: "streak7", icon: "🏆", title: "一週間の相棒", text: "7日連続で利用", value: (s) => s.streak, target: 7 }
+];
 
-  elements.todayQuote.textContent = `“${fortune.quote}”`;
-  elements.favoriteTodayButton.textContent = favorite
-    ? "♥ お気に入りから外す"
-    : "♡ 今日の運勢をお気に入りに保存";
-  elements.favoriteTodayButton.setAttribute("aria-pressed", String(favorite));
+function getActivityStats() {
+  const history = readStore(STORAGE_KEYS.history, []);
+  const missions = readStore(STORAGE_KEYS.missions, {});
+  const moods = readStore(STORAGE_KEYS.moods, {});
+  return {
+    history: history.length,
+    streak: calculateStreak(history),
+    missions: Object.values(missions).filter(Boolean).length,
+    reviews: Object.keys(moods).length,
+    favorites: getFavorites().length
+  };
+}
+
+function getBadgeStates() {
+  const stats = getActivityStats();
+  return BADGE_DEFINITIONS.map((badge) => {
+    const current = Math.max(0, badge.value(stats));
+    return { ...badge, current, unlocked: current >= badge.target };
+  });
+}
+
+function renderBadges() {
+  const badges = getBadgeStates();
+  const unlocked = badges.filter((badge) => badge.unlocked);
+  const grid = $("#badgesGrid");
+
+  if (grid) {
+    grid.innerHTML = badges.map((badge) => `
+      <article class="badge-item ${badge.unlocked ? "is-unlocked" : "is-locked"}">
+        <span class="badge-icon" aria-hidden="true">${badge.unlocked ? badge.icon : "🔒"}</span>
+        <div><strong>${badge.title}</strong><small>${badge.text}</small></div>
+      </article>`).join("");
+  }
+
+  const progress = $("#badgeProgress");
+  if (progress) progress.textContent = `${unlocked.length} / ${badges.length} 獲得`;
+
+  const latest = [...unlocked].reverse()[0] || badges[0];
+  if ($("#badgeTeaserIcon")) {
+    $("#badgeTeaserIcon").textContent = latest.unlocked ? latest.icon : "🌱";
+    $("#badgeTeaserTitle").textContent = latest.title;
+    $("#badgeTeaserText").textContent = latest.unlocked ? `${latest.text}を達成しました。` : latest.text;
+  }
+
+  const next = badges.find((badge) => !badge.unlocked);
+  const panel = $("#nextBadgePanel");
+  if (panel) {
+    panel.hidden = !next;
+    if (next) {
+      const remaining = Math.max(0, next.target - next.current);
+      $("#nextBadgeTitle").textContent = next.title;
+      $("#nextBadgeText").textContent = `あと${remaining}回・日で「${next.text}」を達成`;
+      $("#nextBadgeBar").style.width = `${Math.min(100, (next.current / next.target) * 100)}%`;
+    }
+  }
+}
+
+function checkNewBadgeUnlock() {
+  const badges = getBadgeStates();
+  const unlockedIds = badges.filter((badge) => badge.unlocked).map((badge) => badge.id);
+  const seenIds = readStore(STORAGE_KEYS.badgeSeen, []);
+  const newlyUnlocked = badges.find((badge) => badge.unlocked && !seenIds.includes(badge.id));
+
+  writeStore(STORAGE_KEYS.badgeSeen, unlockedIds);
+  if (!newlyUnlocked) return;
+
+  $("#celebrationIcon").textContent = newlyUnlocked.icon;
+  $("#celebrationTitle").textContent = newlyUnlocked.title;
+  $("#celebrationText").textContent = newlyUnlocked.text;
+  const layer = $("#badgeCelebration");
+  layer.hidden = false;
+  requestAnimationFrame(() => layer.classList.add("is-visible"));
+}
+
+function closeBadgeCelebration() {
+  const layer = $("#badgeCelebration");
+  layer.classList.remove("is-visible");
+  setTimeout(() => { layer.hidden = true; }, 260);
+}
+
+function scoreTone(score) {
+  if (score >= 90) return "great";
+  if (score >= 80) return "good";
+  if (score >= 72) return "steady";
+  return "slow";
 }
 
 function renderCalendar() {
-  const year = state.calendarDate.getFullYear();
-  const month = state.calendarDate.getMonth();
-  const first = new Date(year, month, 1);
-  const start = new Date(year, month, 1 - first.getDay());
-  const todayKey = dateKey(new Date());
+  const title = $("#calendarTitle");
+  const grid = $("#calendarGrid");
+  if (!title || !grid) return;
 
-  elements.calendarYear.textContent = `${year}年`;
-  elements.calendarMonth.textContent = `${month + 1}月`;
+  const year = calendarCursor.getFullYear();
+  const month = calendarCursor.getMonth();
+  title.textContent = `${year}年${month + 1}月`;
 
-  const days = [];
-  for (let index = 0; index < 42; index += 1) {
-    const day = new Date(start);
-    day.setDate(start.getDate() + index);
-    const key = dateKey(day);
-    const isOutside = day.getMonth() !== month;
-    const hasRecord = Boolean(state.reviews[key] || state.favorites[key]);
+  const history = readStore(STORAGE_KEYS.history, []);
+  const historyMap = new Map(history.map((item) => [item.dateKey, item]));
+  const moods = readStore(STORAGE_KEYS.moods, {});
+  const missions = readStore(STORAGE_KEYS.missions, {});
+  const firstDay = new Date(year, month, 1).getDay();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const previousMonthDays = new Date(year, month, 0).getDate();
+  const totalCells = Math.ceil((firstDay + daysInMonth) / 7) * 7;
+  const cells = [];
 
-    days.push(`
-      <button
-        class="calendar-day${isOutside ? " is-outside" : ""}${key === todayKey ? " is-today" : ""}${key === state.selectedDateKey ? " is-selected" : ""}${hasRecord ? " has-record" : ""}"
-        type="button"
-        data-date="${key}"
-        aria-label="${formatDate(day)}${hasRecord ? "、記録あり" : ""}"
-        ${key === state.selectedDateKey ? 'aria-pressed="true"' : 'aria-pressed="false"'}
-      >${day.getDate()}</button>
-    `);
+  for (let index = 0; index < totalCells; index += 1) {
+    const dayNumber = index - firstDay + 1;
+    let cellDate;
+    let outside = false;
+
+    if (dayNumber < 1) {
+      cellDate = new Date(year, month - 1, previousMonthDays + dayNumber);
+      outside = true;
+    } else if (dayNumber > daysInMonth) {
+      cellDate = new Date(year, month + 1, dayNumber - daysInMonth);
+      outside = true;
+    } else {
+      cellDate = new Date(year, month, dayNumber);
+    }
+
+    const key = toDateKey(cellDate);
+    const record = historyMap.get(key);
+    const mood = MOOD_LABELS[moods[key]]?.[0] || "";
+    const mission = Boolean(missions[key]);
+    const isToday = key === dateKey;
+    const isSelected = key === selectedHistoryDateKey;
+    const label = record
+      ? `${formatDate(key)}、運勢${record.overall}点${mood ? `、気分${mood}` : ""}${mission ? "、ミッション達成" : ""}`
+      : `${formatDate(key)}、記録なし`;
+
+    cells.push(`
+      <button class="calendar-cell ${outside ? "is-outside" : ""} ${record ? "has-record" : ""} ${isToday ? "is-today" : ""} ${isSelected ? "is-selected" : ""}"
+        type="button" data-calendar-date="${key}" aria-label="${label}" aria-pressed="${isSelected}">
+        <span class="calendar-day">${cellDate.getDate()}</span>
+        ${record ? `<strong class="calendar-score tone-${scoreTone(record.overall)}">${record.overall}</strong>` : '<span class="calendar-no-record" aria-hidden="true">·</span>'}
+        <span class="calendar-marks">${mood ? `<i>${mood}</i>` : ""}${mission ? '<i class="mission-mark">✓</i>' : ""}</span>
+      </button>`);
   }
 
-  elements.calendarGrid.innerHTML = days.join("");
+  grid.innerHTML = cells.join("");
+  $("#nextMonthButton").disabled = year === today.getFullYear() && month >= today.getMonth();
 }
 
-function renderHistoryDetail(key) {
-  const date = parseDateKey(key);
-  const fortune = createFortune(date);
-  const review = state.reviews[key];
+function selectCalendarDate(key) {
+  const history = readStore(STORAGE_KEYS.history, []);
+  const record = history.find((item) => item.dateKey === key);
+  selectedHistoryDateKey = key;
+  renderCalendar();
+  renderHistoryDayDetail(record, key);
 
-  elements.historyDetail.innerHTML = `
-    <div class="detail-header">
-      <div>
-        <p class="section-kicker">DAILY DETAIL</p>
-        <h3>${formatDate(date)}</h3>
-      </div>
-      <div class="detail-score">${fortune.overall}点</div>
-    </div>
-    <div class="stars" aria-label="星評価 ${fortune.stars}">${renderStars(fortune.stars)}</div>
-    <p class="detail-message"><strong>${fortune.theme}</strong><br>${fortune.message}</p>
-    <div class="detail-mini-grid">
-      ${fortune.categories.map((item) => `
-        <div class="detail-mini"><small>${item.icon} ${item.label}</small><strong>${item.score}点</strong></div>
-      `).join("")}
-    </div>
-    ${review ? `
-      <div class="detail-review">
-        <strong>振り返り ${"★".repeat(review.mood)}${"☆".repeat(5 - review.mood)}</strong>
-        <p>${escapeHtml(review.text || "コメントなし")}</p>
-      </div>
-    ` : `
-      <div class="detail-review">
-        <strong>振り返り</strong>
-        <p>この日の振り返りはまだありません。</p>
-      </div>
-    `}
-  `;
+  requestAnimationFrame(() => {
+    $("#historyDayDetail")?.scrollIntoView({
+      behavior: getSettings().reduceMotion ? "auto" : "smooth",
+      block: "nearest"
+    });
+  });
 }
 
-function renderFavorites() {
-  const keys = Object.keys(state.favorites)
-    .filter((key) => state.favorites[key])
-    .sort()
-    .reverse();
+function renderHistoryDayDetail(record, key) {
+  const target = $("#historyDayDetail");
+  if (!target) return;
 
-  if (keys.length === 0) {
-    elements.favoritesList.innerHTML = `
-      <div class="empty-state">
-        <div><div style="font-size:2rem">♡</div><strong>お気に入りはまだありません</strong><p>「今日」画面から保存できます。</p></div>
-      </div>
-    `;
+  if (!record) {
+    target.innerHTML = `
+      <div class="history-detail-placeholder">
+        <span aria-hidden="true">○</span>
+        <strong>${formatDate(key)}</strong>
+        <p>この日の運勢記録はありません。</p>
+      </div>`;
     return;
   }
 
-  elements.favoritesList.innerHTML = keys.map((key) => {
-    const date = parseDateKey(key);
-    const fortune = createFortune(date);
-    return `
-      <article class="list-card">
-        <div class="list-card-head">
-          <div>
-            <p class="section-kicker">${formatDate(date)}</p>
-            <h3>${fortune.theme}</h3>
-          </div>
-          <strong class="detail-score">${fortune.overall}点</strong>
-        </div>
-        <p>${fortune.quote}</p>
-        <button class="text-button favorite-remove-button" type="button" data-date="${key}">削除</button>
-      </article>
-    `;
-  }).join("");
+  const moods = readStore(STORAGE_KEYS.moods, {});
+  const missions = readStore(STORAGE_KEYS.missions, {});
+  const notes = readStore(STORAGE_KEYS.notes, {});
+  const moodKey = moods[record.dateKey];
+  const mood = moodKey ? MOOD_LABELS[moodKey] : null;
+  const note = notes[record.dateKey]?.trim();
+  const labels = [
+    ["仕事運", record.scores.work],
+    ["金運", record.scores.money],
+    ["対人運", record.scores.people],
+    ["健康運", record.scores.health]
+  ];
+
+  target.innerHTML = `
+    <div class="history-detail-head">
+      <div><p class="section-kicker">DAILY RECORD</p><h3>${formatDate(record.dateKey)}</h3></div>
+      <div class="history-detail-overall"><strong>${record.overall}</strong><span>点</span></div>
+    </div>
+    <div class="history-detail-theme">
+      <small>${badgeFor(record.overall)}</small>
+      <strong>${escapeHtml(record.themeTitle)}</strong>
+      <p>${escapeHtml(record.overallComment)}</p>
+    </div>
+    <div class="detail-score-grid">
+      ${labels.map(([label, score]) => `<div><span>${label}</span><strong>${score}</strong></div>`).join("")}
+    </div>
+    <div class="detail-status-grid">
+      <div><span>気分</span><strong>${mood ? `${mood[0]} ${mood[1]}` : "未記録"}</strong></div>
+      <div><span>ミッション</span><strong>${missions[record.dateKey] ? "✓ 達成済み" : "未達成"}</strong></div>
+    </div>
+    ${note ? `<div class="detail-note-box"><span>ひとことメモ</span><p>${escapeHtml(note)}</p></div>` : ""}`;
 }
 
-function renderReview() {
-  const key = dateKey(new Date());
-  const saved = state.reviews[key];
-  state.selectedMood = saved?.mood || 0;
-  elements.reviewText.value = saved?.text || "";
-  updateReviewCount();
-  renderMood();
+function moveCalendarMonth(offset) {
+  const next = new Date(calendarCursor.getFullYear(), calendarCursor.getMonth() + offset, 1);
+  const currentMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+  if (next > currentMonth) return;
+  calendarCursor = next;
+  selectedHistoryDateKey = null;
+  renderCalendar();
+  const target = $("#historyDayDetail");
+  if (target) target.innerHTML = '<div class="history-detail-placeholder"><span aria-hidden="true">☝</span><p>記録のある日をタップしてください。</p></div>';
 }
 
-function renderMood() {
-  elements.moodButtons.forEach((button) => {
-    const selected = Number(button.dataset.mood) === state.selectedMood;
-    button.classList.toggle("is-selected", selected);
-    button.setAttribute("aria-checked", String(selected));
-  });
+function jumpToCurrentMonth() {
+  calendarCursor = new Date(today.getFullYear(), today.getMonth(), 1);
+  selectedHistoryDateKey = dateKey;
+  renderCalendar();
+  const history = readStore(STORAGE_KEYS.history, []);
+  renderHistoryDayDetail(history.find((item) => item.dateKey === dateKey), dateKey);
 }
 
-function updateReviewCount() {
-  elements.reviewCount.textContent = String(elements.reviewText.value.length);
+function getSettings() {
+  return { fontSize: "normal", reduceMotion: false, ...readStore(STORAGE_KEYS.settings, {}) };
 }
 
 function applySettings() {
-  document.body.classList.toggle("is-large-text", Boolean(state.settings.largeText));
-  document.body.classList.toggle("is-reduced-motion", Boolean(state.settings.reduceMotion));
-  elements.largeTextToggle.checked = Boolean(state.settings.largeText);
-  elements.reduceMotionToggle.checked = Boolean(state.settings.reduceMotion);
+  const settings = getSettings();
+  document.documentElement.dataset.fontSize = settings.fontSize;
+  document.documentElement.classList.toggle("reduce-motion", settings.reduceMotion);
+  const fontSelect = $("#fontSizeSelect");
+  const motionToggle = $("#motionToggle");
+  if (fontSelect) fontSelect.value = settings.fontSize;
+  if (motionToggle) motionToggle.checked = settings.reduceMotion;
 }
 
-function switchPage(target) {
-  state.activePage = target;
-
-  elements.pages.forEach((page) => {
-    page.classList.toggle("is-active", page.dataset.page === target);
-  });
-
-  elements.navItems.forEach((item) => {
-    const active = item.dataset.target === target;
-    item.classList.toggle("is-active", active);
-    active ? item.setAttribute("aria-current", "page") : item.removeAttribute("aria-current");
-  });
-
-  if (target === "history") {
-    renderCalendar();
-  } else if (target === "favorites") {
-    renderFavorites();
-  } else if (target === "review") {
-    renderReview();
+function calculateStreak(history) {
+  if (!history.length) return 0;
+  const keys = new Set(history.map((item) => item.dateKey));
+  const cursor = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  let streak = 0;
+  while (keys.has(toDateKey(cursor))) {
+    streak += 1;
+    cursor.setDate(cursor.getDate() - 1);
   }
+  return streak;
+}
 
-  window.scrollTo({ top: 0, behavior: state.settings.reduceMotion ? "auto" : "smooth" });
+function renderActivitySummary() {
+  const history = readStore(STORAGE_KEYS.history, []);
+  const missions = readStore(STORAGE_KEYS.missions, {});
+  const moods = readStore(STORAGE_KEYS.moods, {});
+  $("#streakDays").textContent = `${Math.max(1, calculateStreak(history))}日`;
+  $("#missionCount").textContent = `${Object.values(missions).filter(Boolean).length}回`;
+  $("#reviewCount").textContent = `${Object.keys(moods).length}回`;
+  renderBadges();
+}
+
+function renderHistorySummary() {
+  const history = readStore(STORAGE_KEYS.history, []);
+  const scores = history.map((item) => Number(item.overall)).filter(Number.isFinite);
+  $("#historyDays").textContent = history.length;
+  $("#historyAverage").textContent = scores.length ? Math.round(scores.reduce((sum, score) => sum + score, 0) / scores.length) : "--";
+  $("#historyBest").textContent = scores.length ? Math.max(...scores) : "--";
+}
+
+const MOOD_LABELS = {
+  great: ["😊", "とても良い"],
+  good: ["🙂", "良い"],
+  normal: ["😐", "ふつう"],
+  tired: ["😮‍💨", "お疲れ"]
+};
+
+function renderReviewHistory() {
+  const moods = readStore(STORAGE_KEYS.moods, {});
+  const notes = readStore(STORAGE_KEYS.notes, {});
+  const keys = [...new Set([...Object.keys(moods), ...Object.keys(notes)])]
+    .sort((a, b) => b.localeCompare(a))
+    .slice(0, 7);
+  const target = $("#reviewHistoryList");
+  if (!target) return;
+  target.innerHTML = keys.length ? keys.map((key) => {
+    const mood = MOOD_LABELS[moods[key]] || ["✎", "メモ"];
+    const note = notes[key]?.trim() || "ひと言メモはありません。";
+    return `<article class="review-record"><div class="review-record-icon" aria-hidden="true">${mood[0]}</div><div><span>${formatDate(key)}</span><strong>${mood[1]}</strong><p>${escapeHtml(note)}</p></div></article>`;
+  }).join("") : '<div class="empty-state">振り返りはまだありません。<br>今日の気分やメモを残してみましょう。</div>';
 }
 
 function escapeHtml(value) {
@@ -431,166 +489,312 @@ function escapeHtml(value) {
     .replaceAll("'", "&#039;");
 }
 
-elements.navItems.forEach((item) => {
-  item.addEventListener("click", () => switchPage(item.dataset.target));
-});
-
-elements.favoriteTodayButton.addEventListener("click", () => {
-  const key = dateKey(new Date());
-  const next = !state.favorites[key];
-
-  if (next) {
-    state.favorites[key] = true;
-  } else {
-    delete state.favorites[key];
-  }
-
-  if (saveJson(STORAGE_KEYS.favorites, state.favorites)) {
-    renderToday();
-    showToast(next ? "お気に入りに保存しました" : "お気に入りから外しました");
-  }
-});
-
-$("#prevMonthButton").addEventListener("click", () => {
-  state.calendarDate = new Date(
-    state.calendarDate.getFullYear(),
-    state.calendarDate.getMonth() - 1,
-    1
-  );
-  renderCalendar();
-});
-
-$("#nextMonthButton").addEventListener("click", () => {
-  state.calendarDate = new Date(
-    state.calendarDate.getFullYear(),
-    state.calendarDate.getMonth() + 1,
-    1
-  );
-  renderCalendar();
-});
-
-function jumpToCurrentMonth() {
-  state.calendarDate = startOfMonth(new Date());
-  renderCalendar();
+function renderReviewNote() {
+  const notes = readStore(STORAGE_KEYS.notes, {});
+  const input = $("#reviewNote");
+  if (!input) return;
+  input.value = notes[dateKey] || "";
+  updateNoteCount();
 }
 
-$("#jumpTodayButton").addEventListener("click", jumpToCurrentMonth);
-$("#monthTitleButton").addEventListener("click", jumpToCurrentMonth);
+function updateNoteCount() {
+  const input = $("#reviewNote");
+  const count = $("#noteCount");
+  if (input && count) count.textContent = `${input.value.length} / 120`;
+}
 
-elements.calendarGrid.addEventListener("click", (event) => {
-  const button = event.target.closest(".calendar-day");
-  if (!button) return;
+function saveReview() {
+  const input = $("#reviewNote");
+  const notes = readStore(STORAGE_KEYS.notes, {});
+  const value = input.value.trim();
+  if (value) notes[dateKey] = value;
+  else delete notes[dateKey];
+  writeStore(STORAGE_KEYS.notes, notes);
+  renderReviewHistory();
+  renderActivitySummary();
+  showToast("振り返りを保存しました");
+}
 
-  state.selectedDateKey = button.dataset.date;
-  const selectedDate = parseDateKey(state.selectedDateKey);
+function saveSetting(name, value) {
+  const settings = getSettings();
+  settings[name] = value;
+  writeStore(STORAGE_KEYS.settings, settings);
+  applySettings();
+}
 
-  if (
-    selectedDate.getFullYear() !== state.calendarDate.getFullYear() ||
-    selectedDate.getMonth() !== state.calendarDate.getMonth()
-  ) {
-    state.calendarDate = startOfMonth(selectedDate);
-  }
-
-  renderCalendar();
-  renderHistoryDetail(state.selectedDateKey);
-
-  requestAnimationFrame(() => {
-    elements.historyDetail.scrollIntoView({
-      behavior: state.settings.reduceMotion ? "auto" : "smooth",
-      block: "nearest"
-    });
-  });
-});
-
-elements.favoritesList.addEventListener("click", (event) => {
-  const button = event.target.closest(".favorite-remove-button");
-  if (!button) return;
-
-  delete state.favorites[button.dataset.date];
-  if (saveJson(STORAGE_KEYS.favorites, state.favorites)) {
-    renderFavorites();
-    renderCalendar();
-    renderToday();
-    showToast("お気に入りから削除しました");
-  }
-});
-
-elements.moodButtons.forEach((button) => {
-  button.addEventListener("click", () => {
-    state.selectedMood = Number(button.dataset.mood);
-    renderMood();
-  });
-});
-
-elements.reviewText.addEventListener("input", updateReviewCount);
-
-$("#saveReviewButton").addEventListener("click", () => {
-  if (state.selectedMood === 0) {
-    showToast("満足度を選んでください");
-    return;
-  }
-
-  const key = dateKey(new Date());
-  state.reviews[key] = {
-    mood: state.selectedMood,
-    text: elements.reviewText.value.trim(),
-    savedAt: new Date().toISOString()
+function exportData() {
+  const data = {
+    app: "毎朝の運勢",
+    version: VERSION,
+    exportedAt: new Date().toISOString(),
+    data: Object.fromEntries(Object.entries(STORAGE_KEYS).map(([name, key]) => [name, readStore(key, name === "history" || name === "favorites" ? [] : {})]))
   };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `morning-fortune-backup-${dateKey}.json`;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+  showToast("バックアップを書き出しました");
+}
 
-  if (saveJson(STORAGE_KEYS.reviews, state.reviews)) {
-    renderCalendar();
-    showToast("今日の振り返りを保存しました");
+async function importData(file) {
+  if (!file) return;
+  try {
+    const parsed = JSON.parse(await file.text());
+    if (!parsed?.data || typeof parsed.data !== "object") throw new Error("invalid");
+    Object.entries(STORAGE_KEYS).forEach(([name, key]) => {
+      if (Object.prototype.hasOwnProperty.call(parsed.data, name)) writeStore(key, parsed.data[name]);
+    });
+    saveTodayToHistory();
+    renderToday();
+    renderRecords();
+    renderHistorySummary();
+    renderReviewHistory();
+    renderActivitySummary();
+    applySettings();
+    showToast("バックアップを復元しました");
+  } catch {
+    showToast("バックアップを読み込めませんでした");
+  } finally {
+    $("#importFile").value = "";
   }
-});
+}
 
-elements.largeTextToggle.addEventListener("change", () => {
-  state.settings.largeText = elements.largeTextToggle.checked;
-  saveJson(STORAGE_KEYS.settings, state.settings);
-  applySettings();
-});
+function renderToday() {
+  $("#todayDate").textContent = new Intl.DateTimeFormat("ja-JP", { year: "numeric", month: "long", day: "numeric", weekday: "long" }).format(today);
+  $("#themeTitle").textContent = fortune.themeTitle;
+  $("#themeText").textContent = fortune.themeText;
+  $("#scoreBadge").textContent = badgeFor(fortune.overall);
+  $("#overallComment").textContent = fortune.overallComment;
+  $("#overallScore").textContent = fortune.overall;
+  $("#overallRing").setAttribute("aria-label", `総合運 ${fortune.overall}点`);
 
-elements.reduceMotionToggle.addEventListener("change", () => {
-  state.settings.reduceMotion = elements.reduceMotionToggle.checked;
-  saveJson(STORAGE_KEYS.settings, state.settings);
-  applySettings();
-});
+  const cards = [
+    ["⌘", "仕事運", "work"], ["¥", "金運", "money"], ["☻", "対人運", "people"], ["＋", "健康運", "health"]
+  ];
+  $("#fortuneGrid").innerHTML = cards.map(([icon, label, key]) => {
+    const score = fortune.scores[key];
+    const comment = pick(DATA.scoreComments[key], hash(dateKey), cards.findIndex((c) => c[2] === key));
+    return `<article class="fortune-card"><div class="fortune-card-head"><span class="fortune-icon" aria-hidden="true">${icon}</span><span>${label}</span></div><strong>${score}</strong><div class="score-bar"><span style="--score:${score}%"></span></div><p>${comment}</p></article>`;
+  }).join("");
 
-$("#resetDataButton").addEventListener("click", () => {
-  const approved = window.confirm("お気に入り・振り返り・設定をすべて初期化します。よろしいですか？");
-  if (!approved) return;
+  const guidance = [
+    ["accent-green", "↗", "今日の追い風", ...fortune.guidance.wind],
+    ["accent-amber", "!", "気を付けること", ...fortune.guidance.caution],
+    ["accent-rose", "×", "避けたいこと", ...fortune.guidance.avoid]
+  ];
+  $("#guidanceList").innerHTML = guidance.map(([cls, symbol, label, title, text]) => `<article class="guidance-card ${cls}"><span class="guidance-symbol" aria-hidden="true">${symbol}</span><div><p>${label}</p><strong>${title}</strong><span>${text}</span></div></article>`).join("");
 
-  Object.values(STORAGE_KEYS).forEach((key) => localStorage.removeItem(key));
-  state.favorites = {};
-  state.reviews = {};
-  state.settings = { largeText: false, reduceMotion: false };
-  state.selectedMood = 0;
-  state.selectedDateKey = null;
+  $("#missionTitle").textContent = fortune.missionTitle;
+  $("#missionText").textContent = fortune.missionText;
+  $("#luckyAction").textContent = fortune.action;
+  $("#colorDot").style.background = fortune.colorHex;
+  $("#luckyColor").textContent = fortune.colorName;
+  $("#luckyTime").textContent = fortune.luckyTime;
+  $("#luckyTimeText").textContent = fortune.luckyTimeText;
+  $("#luckyEmoji").textContent = fortune.itemEmoji;
+  $("#luckyItem").textContent = fortune.itemName;
+  $("#quoteText").textContent = fortune.quote;
+  renderFavoriteState();
+  renderMissionState();
+  renderMoodState();
+  renderReviewNote();
+  renderActivitySummary();
+}
 
-  applySettings();
-  renderToday();
+function saveTodayToHistory() {
+  const history = readStore(STORAGE_KEYS.history, []);
+  const record = { ...fortune, savedAt: Date.now() };
+  const updated = [record, ...history.filter((item) => item.dateKey !== dateKey)].slice(0, 30);
+  writeStore(STORAGE_KEYS.history, updated);
+}
+
+function getFavorites() { return readStore(STORAGE_KEYS.favorites, []); }
+function isFavorite() { return getFavorites().some((item) => item.dateKey === dateKey); }
+
+function renderFavoriteState() {
+  const active = isFavorite();
+  const button = $("#favoriteButton");
+  button.classList.toggle("is-favorite", active);
+  button.setAttribute("aria-pressed", String(active));
+  button.setAttribute("aria-label", active ? "今日の運勢をお気に入りから外す" : "今日の運勢をお気に入りに追加");
+  button.querySelector("span").textContent = active ? "♥" : "♡";
+}
+
+function toggleFavorite() {
+  const favorites = getFavorites();
+  const active = isFavorite();
+  const updated = active ? favorites.filter((item) => item.dateKey !== dateKey) : [{ ...fortune, savedAt: Date.now() }, ...favorites].slice(0, 60);
+  writeStore(STORAGE_KEYS.favorites, updated);
+  renderFavoriteState();
+  renderRecords();
+  renderActivitySummary();
+  checkNewBadgeUnlock();
+  showToast(active ? "お気に入りから外しました" : "お気に入りに追加しました");
+}
+
+function renderMissionState() {
+  const missions = readStore(STORAGE_KEYS.missions, {});
+  const complete = Boolean(missions[dateKey]);
+  const button = $("#missionButton");
+  button.classList.toggle("is-complete", complete);
+  button.innerHTML = complete ? '<span>達成済み</span><span aria-hidden="true">✓</span>' : '<span>達成した</span><span aria-hidden="true">✓</span>';
+}
+
+function toggleMission() {
+  const missions = readStore(STORAGE_KEYS.missions, {});
+  missions[dateKey] = !missions[dateKey];
+  writeStore(STORAGE_KEYS.missions, missions);
+  renderMissionState();
+  showToast(missions[dateKey] ? "今日のミッション達成。いい流れです" : "ミッションを未達成に戻しました");
+}
+
+function recordCard(record, favoriteMode = false) {
+  return `<article class="record-card"><div><span>${formatDate(record.dateKey)}</span><strong>${record.themeTitle}</strong><p>${record.overallComment}</p></div><div class="record-score"><b>${record.overall}</b><small>点</small></div>${favoriteMode ? `<button class="record-remove" type="button" data-remove-favorite="${record.dateKey}" aria-label="お気に入りから削除">×</button>` : ""}</article>`;
+}
+
+function renderRecords() {
+  const history = readStore(STORAGE_KEYS.history, []);
+  const favorites = getFavorites();
+  $("#historyList").innerHTML = history.length ? history.map((r) => recordCard(r)).join("") : '<div class="empty-state">まだ履歴はありません。<br>今日の運勢を開くと自動で保存されます。</div>';
+  $("#favoritesList").innerHTML = favorites.length ? favorites.map((r) => recordCard(r, true)).join("") : '<div class="empty-state">お気に入りはまだありません。<br>右上の♡を押して保存できます。</div>';
+  renderHistorySummary();
   renderCalendar();
-  renderFavorites();
-  renderReview();
-  showToast("保存データを初期化しました");
-});
+  $$('[data-remove-favorite]').forEach((button) => button.addEventListener("click", () => {
+    writeStore(STORAGE_KEYS.favorites, getFavorites().filter((item) => item.dateKey !== button.dataset.removeFavorite));
+    renderFavoriteState();
+    renderRecords();
+    showToast("お気に入りから削除しました");
+  }));
+}
+
+function renderMoodState() {
+  const moods = readStore(STORAGE_KEYS.moods, {});
+  const current = moods[dateKey];
+  $$("#moodButtons button").forEach((button) => button.classList.toggle("is-selected", button.dataset.mood === current));
+  $("#reviewStatus").textContent = current ? "今日の気分を記録しました。お疲れさまでした。" : "まだ記録されていません。";
+}
+
+function saveMood(mood) {
+  const moods = readStore(STORAGE_KEYS.moods, {});
+  moods[dateKey] = mood;
+  writeStore(STORAGE_KEYS.moods, moods);
+  renderMoodState();
+  renderReviewHistory();
+  renderActivitySummary();
+  renderCalendar();
+  checkNewBadgeUnlock();
+  showToast("今日の気分を保存しました");
+}
+
+async function shareFortune() {
+  const text = `🌅 ${formatDate(dateKey)}の運勢\n総合運 ${fortune.overall}点｜${fortune.themeTitle}\n${fortune.overallComment}\nラッキーカラー：${fortune.colorName}\n#毎朝の運勢`;
+  const shareData = { title: "毎朝の運勢", text, url: location.href.split("#")[0] };
+  try {
+    if (navigator.share) {
+      await navigator.share(shareData);
+      showToast("シェア画面を開きました");
+    } else if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(`${text}\n${shareData.url}`);
+      showToast("運勢をコピーしました");
+    } else {
+      const area = document.createElement("textarea");
+      area.value = `${text}\n${shareData.url}`;
+      area.style.position = "fixed"; area.style.opacity = "0";
+      document.body.appendChild(area); area.select(); document.execCommand("copy"); area.remove();
+      showToast("運勢をコピーしました");
+    }
+  } catch (error) {
+    if (error?.name !== "AbortError") showToast("シェアを開始できませんでした");
+  }
+}
+
+function openPage(page) {
+  $$("[data-page-panel]").forEach((panel) => {
+    const active = panel.dataset.pagePanel === page;
+    panel.classList.toggle("is-active", active);
+    if (active) {
+      panel.classList.remove("page-enter");
+      requestAnimationFrame(() => panel.classList.add("page-enter"));
+    }
+  });
+  $$(".nav-item").forEach((item) => item.classList.toggle("is-active", item.dataset.page === page));
+  $("#favoriteButton").hidden = page !== "today";
+  const titles = { today: "毎朝の運勢", history: "運勢の履歴", favorites: "お気に入り", review: "今日の振り返り", settings: "設定" };
+  $("#pageTitle").textContent = titles[page];
+  if (page === "history" || page === "favorites") renderRecords();
+  if (page === "review") { renderMoodState(); renderReviewNote(); renderReviewHistory(); }
+  if (page === "settings") { applySettings(); renderBadges(); }
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function clearAllData() {
+  if (!window.confirm("履歴・お気に入り・ミッション・振り返りをすべて削除しますか？")) return;
+  Object.values(STORAGE_KEYS).forEach((key) => localStorage.removeItem(key));
+  saveTodayToHistory();
+  renderToday();
+  renderRecords();
+  renderReviewHistory();
+  renderActivitySummary();
+  selectedHistoryDateKey = dateKey;
+  renderCalendar();
+  renderHistoryDayDetail(readStore(STORAGE_KEYS.history, []).find((item) => item.dateKey === dateKey), dateKey);
+  closeBadgeCelebration();
+  showToast("保存データを削除しました");
+}
 
 function registerServiceWorker() {
-  if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
-    window.addEventListener("load", () => {
-      navigator.serviceWorker.register("./sw.js").catch((error) => {
-        console.warn("Service Workerを登録できませんでした。", error);
-      });
-    });
-  }
+  if (!("serviceWorker" in navigator)) return;
+  window.addEventListener("load", async () => {
+    try {
+      const registration = await navigator.serviceWorker.register("./sw.js?v=0.8.0");
+      registration.update();
+    } catch (error) {
+      console.warn("Service Workerの登録に失敗しました。", error);
+    }
+  });
 }
 
-function init() {
-  applySettings();
-  renderToday();
-  renderCalendar();
-  renderReview();
-  registerServiceWorker();
-  console.info(`毎朝の運勢 v${VERSION} を起動しました。`);
+function bindEvents() {
+  $("#favoriteButton").addEventListener("click", toggleFavorite);
+  $("#missionButton").addEventListener("click", toggleMission);
+  $("#shareButton").addEventListener("click", shareFortune);
+  $("#clearDataButton").addEventListener("click", clearAllData);
+  $("#saveReviewButton").addEventListener("click", saveReview);
+  $("#reviewNote").addEventListener("input", updateNoteCount);
+  $("#fontSizeSelect").addEventListener("change", (event) => saveSetting("fontSize", event.target.value));
+  $("#motionToggle").addEventListener("change", (event) => saveSetting("reduceMotion", event.target.checked));
+  $("#exportButton").addEventListener("click", exportData);
+  $("#importButton").addEventListener("click", () => $("#importFile").click());
+  $("#importFile").addEventListener("change", (event) => importData(event.target.files[0]));
+  $("#prevMonthButton").addEventListener("click", () => moveCalendarMonth(-1));
+  $("#nextMonthButton").addEventListener("click", () => moveCalendarMonth(1));
+  $("#currentMonthButton").addEventListener("click", jumpToCurrentMonth);
+  $("#calendarGrid").addEventListener("click", (event) => {
+    const button = event.target.closest("[data-calendar-date]");
+    if (!button) return;
+    selectCalendarDate(button.dataset.calendarDate);
+  });
+  $("#badgeTeaser").addEventListener("click", () => openPage("settings"));
+  $("#closeCelebrationButton").addEventListener("click", closeBadgeCelebration);
+  $$(".nav-item").forEach((item) => item.addEventListener("click", () => openPage(item.dataset.page)));
+  $$("#moodButtons button").forEach((button) => button.addEventListener("click", () => saveMood(button.dataset.mood)));
+  window.addEventListener("load", () => setTimeout(() => $("#splashScreen").classList.add("is-hidden"), 500));
 }
 
-init();
+applyTimeTheme();
+applySettings();
+saveTodayToHistory();
+renderToday();
+renderRecords();
+renderCalendar();
+renderReviewHistory();
+renderActivitySummary();
+bindEvents();
+setTimeout(checkNewBadgeUnlock, 850);
+registerServiceWorker();
+console.info(`毎朝の運勢 v${VERSION}`);

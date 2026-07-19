@@ -1,12 +1,14 @@
-# 自己レビュー結果
+# v0.8.0 自己レビュー
 
-- OK: required_files
-- OK: html_script_link
-- OK: html_css_link
-- OK: calendar_buttons
-- OK: five_pages
-- OK: external_api_absent
-- OK: version_consistent
-- OK: javascript_syntax
+- [x] v0.7.1の今日・お気に入り・振り返り・設定・バッジ機能を維持
+- [x] 履歴画面のカレンダーを最上部の主要要素として大型化
+- [x] 月移動、今月へ戻る、日付選択を実装
+- [x] 再描画後も日付タップが動くイベント委譲方式を採用
+- [x] 記録あり・なしの両方の日付で詳細領域が更新されることをコード確認
+- [x] 320px幅を想定したCSSを追加
+- [x] JavaScript構文チェック通過
+- [x] HTML内の主要ID重複なし
+- [x] 外部API・外部ライブラリ不使用
+- [x] Service Workerのキャッシュをv0.8.0へ更新
 
-JavaScript構文確認: エラーなし
+実機Safariでの最終確認項目：月移動、日付タップ、詳細表示、下部ナビ、PWA再追加後のキャッシュ更新。
