@@ -3,17 +3,27 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="theme-color" content="#f7f2ea" />
+  <meta name="theme-color" content="#f5efe6" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <meta name="apple-mobile-web-app-title" content="朝の運勢" />
   <meta name="format-detection" content="telephone=no" />
 
   <title>毎朝の運勢</title>
+
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icon-192.png" />
+  <link rel="icon" href="icon-192.png" />
   <link rel="stylesheet" href="style.css" />
 </head>
 
 <body>
+  <div id="splashScreen" class="splash-screen" aria-hidden="true">
+    <div class="splash-mark">☀</div>
+    <strong>毎朝の運勢</strong>
+    <span>今日を、少し前向きに。</span>
+  </div>
+
   <div class="app-shell">
     <header class="topbar">
       <div>
@@ -34,8 +44,8 @@
 
     <main class="main-content">
       <section class="hero-card" aria-labelledby="greeting">
-        <div class="hero-glow hero-glow-one" aria-hidden="true"></div>
-        <div class="hero-glow hero-glow-two" aria-hidden="true"></div>
+        <div class="hero-orb hero-orb-one" aria-hidden="true"></div>
+        <div class="hero-orb hero-orb-two" aria-hidden="true"></div>
 
         <div class="hero-content">
           <p id="todayDate" class="today-date"></p>
@@ -44,10 +54,8 @@
 
           <div class="theme-panel">
             <span class="theme-label">今日のテーマ</span>
-            <strong id="todayTheme">流れを整える</strong>
-            <p id="themeDescription">
-              急がず、目の前のことを一つずつ整えると、運が味方します。
-            </p>
+            <strong>流れを整える</strong>
+            <p>目の前のことを一つずつ整えると、運が味方します。</p>
           </div>
         </div>
       </section>
@@ -64,13 +72,11 @@
         <article class="overall-card">
           <div>
             <p class="fortune-label">総合運</p>
-            <p class="fortune-comment">
-              小さな決断が、心地よい流れを作る日です。
-            </p>
+            <p class="fortune-comment">小さな決断が、心地よい流れを作る日です。</p>
           </div>
 
           <div class="score-ring" aria-label="総合運 88点">
-            <span id="overallScore">88</span>
+            <span>88</span>
             <small>点</small>
           </div>
         </article>
@@ -81,7 +87,7 @@
               <span class="fortune-icon" aria-hidden="true">⌘</span>
               <span>仕事運</span>
             </div>
-            <strong id="workScore">84</strong>
+            <strong>84</strong>
             <div class="score-bar"><span style="--score: 84%"></span></div>
             <p>優先順位を決めると集中力が上がります。</p>
           </article>
@@ -91,7 +97,7 @@
               <span class="fortune-icon" aria-hidden="true">¥</span>
               <span>金運</span>
             </div>
-            <strong id="moneyScore">76</strong>
+            <strong>76</strong>
             <div class="score-bar"><span style="--score: 76%"></span></div>
             <p>必要なものを見極めると満足度が高まります。</p>
           </article>
@@ -101,7 +107,7 @@
               <span class="fortune-icon" aria-hidden="true">☻</span>
               <span>対人運</span>
             </div>
-            <strong id="relationshipScore">91</strong>
+            <strong>91</strong>
             <div class="score-bar"><span style="--score: 91%"></span></div>
             <p>素直なひと言が、良い空気を作ります。</p>
           </article>
@@ -111,7 +117,7 @@
               <span class="fortune-icon" aria-hidden="true">＋</span>
               <span>健康運</span>
             </div>
-            <strong id="healthScore">82</strong>
+            <strong>82</strong>
             <div class="score-bar"><span style="--score: 82%"></span></div>
             <p>深呼吸と軽いストレッチが調子を整えます。</p>
           </article>
@@ -141,7 +147,7 @@
             <div>
               <p>気を付けること</p>
               <strong>返事を急ぎすぎない</strong>
-              <span>一度深呼吸してから言葉を選ぶと、誤解を防げます。</span>
+              <span>一度深呼吸して言葉を選ぶと、誤解を防げます。</span>
             </div>
           </article>
 
@@ -161,7 +167,7 @@
         <div class="mission-copy">
           <p class="section-kicker">TODAY'S MISSION</p>
           <h2 id="missionTitle">机の上を3分だけ整える</h2>
-          <p>視界が整うと、頭の中も自然に整理されていきます。</p>
+          <p>視界が整うと、頭の中も自然に整理されます。</p>
         </div>
 
         <button id="missionButton" class="primary-button" type="button">
@@ -225,22 +231,18 @@
         <span class="nav-icon" aria-hidden="true">☀</span>
         <span>今日</span>
       </button>
-
       <button class="nav-item" type="button" data-page="history">
         <span class="nav-icon" aria-hidden="true">◷</span>
         <span>履歴</span>
       </button>
-
       <button class="nav-item" type="button" data-page="favorites">
         <span class="nav-icon" aria-hidden="true">♡</span>
         <span>お気に入り</span>
       </button>
-
       <button class="nav-item" type="button" data-page="review">
         <span class="nav-icon" aria-hidden="true">✓</span>
         <span>振り返り</span>
       </button>
-
       <button class="nav-item" type="button" data-page="settings">
         <span class="nav-icon" aria-hidden="true">⚙</span>
         <span>設定</span>
