@@ -1,4 +1,4 @@
-/* 毎朝の運勢 v0.7.0 */
+/* 毎朝の運勢 v0.7.1 */
 
 :root {
   --bg: #f4efe7;
@@ -1421,4 +1421,13 @@ button:not(:disabled):active { transform: scale(.965); }
   .detail-score-circle { width: 70px; height: 70px; }
   .detail-score-grid { gap: 4px; }
   .detail-score-grid div { padding-inline: 2px; }
+}
+
+
+/* v0.7.1 緊急修正：
+   hidden属性の達成演出が透明なまま画面全体を覆い、
+   タップを遮断する問題を修正 */
+.badge-celebration[hidden],
+#badgeCelebration[hidden] {
+  display: none !important;
 }

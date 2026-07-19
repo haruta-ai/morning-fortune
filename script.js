@@ -1,7 +1,7 @@
-/* 毎朝の運勢 v0.7.0 */
+/* 毎朝の運勢 v0.7.1 */
 "use strict";
 
-const VERSION = "0.7.0";
+const VERSION = "0.7.1";
 const STORAGE_KEYS = {
   favorites: "morningFortuneFavoritesV1",
   history: "morningFortuneHistoryV1",
@@ -703,7 +703,7 @@ function registerServiceWorker() {
   if (!("serviceWorker" in navigator)) return;
   window.addEventListener("load", async () => {
     try {
-      const registration = await navigator.serviceWorker.register("./sw.js?v=0.7.0");
+      const registration = await navigator.serviceWorker.register("./sw.js?v=0.7.1");
       registration.update();
     } catch (error) {
       console.warn("Service Workerの登録に失敗しました。", error);
