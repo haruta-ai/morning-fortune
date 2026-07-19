@@ -1,14 +1,15 @@
-/* 毎朝の運勢 v0.5.0 */
+/* 毎朝の運勢 v0.7.0 */
 "use strict";
 
-const VERSION = "0.5.0";
+const VERSION = "0.7.0";
 const STORAGE_KEYS = {
   favorites: "morningFortuneFavoritesV1",
   history: "morningFortuneHistoryV1",
   missions: "morningFortuneMissionsV1",
   moods: "morningFortuneMoodsV1",
   notes: "morningFortuneNotesV1",
-  settings: "morningFortuneSettingsV1"
+  settings: "morningFortuneSettingsV1",
+  badgeSeen: "morningFortuneBadgeSeenV1"
 };
 
 const DATA = {
@@ -77,6 +78,7 @@ const today = new Date();
 const dateKey = toDateKey(today);
 const fortune = createFortune(today);
 let toastTimer;
+let calendarCursor = new Date(today.getFullYear(), today.getMonth(), 1);
 
 function toDateKey(date) {
   const y = date.getFullYear();
@@ -163,6 +165,209 @@ function badgeFor(score) {
 }
 
 
+
+function applyTimeTheme() {
+  const hour = new Date().getHours();
+  const period = hour < 10 ? "morning" : hour < 16 ? "day" : hour < 19 ? "evening" : "night";
+  document.documentElement.dataset.time = period;
+  const greeting = $("#greeting");
+  if (greeting) {
+    greeting.textContent =
+      period === "morning" ? "おはようございます" :
+      period === "day" ? "こんにちは" :
+      period === "evening" ? "おつかれさまです" : "今日もおつかれさまです";
+  }
+}
+
+const BADGE_DEFINITIONS = [
+  { id: "start", icon: "🌱", title: "はじめの一歩", text: "運勢を1日記録", value: (s) => s.history, target: 1 },
+  { id: "streak3", icon: "🔥", title: "朝の習慣", text: "3日連続で利用", value: (s) => s.streak, target: 3 },
+  { id: "mission3", icon: "🎯", title: "小さな達成", text: "ミッションを3回達成", value: (s) => s.missions, target: 3 },
+  { id: "review3", icon: "✍️", title: "自分と向き合う", text: "振り返りを3回記録", value: (s) => s.reviews, target: 3 },
+  { id: "favorite3", icon: "💛", title: "心に残る日", text: "お気に入りを3件保存", value: (s) => s.favorites, target: 3 },
+  { id: "streak7", icon: "🏆", title: "一週間の相棒", text: "7日連続で利用", value: (s) => s.streak, target: 7 }
+];
+
+function getActivityStats() {
+  const history = readStore(STORAGE_KEYS.history, []);
+  const missions = readStore(STORAGE_KEYS.missions, {});
+  const moods = readStore(STORAGE_KEYS.moods, {});
+  return {
+    history: history.length,
+    streak: calculateStreak(history),
+    missions: Object.values(missions).filter(Boolean).length,
+    reviews: Object.keys(moods).length,
+    favorites: getFavorites().length
+  };
+}
+
+function getBadgeStates() {
+  const stats = getActivityStats();
+  return BADGE_DEFINITIONS.map((badge) => {
+    const current = Math.max(0, badge.value(stats));
+    return { ...badge, current, unlocked: current >= badge.target };
+  });
+}
+
+function renderBadges() {
+  const badges = getBadgeStates();
+  const unlocked = badges.filter((badge) => badge.unlocked);
+  const grid = $("#badgesGrid");
+
+  if (grid) {
+    grid.innerHTML = badges.map((badge) => `
+      <article class="badge-item ${badge.unlocked ? "is-unlocked" : "is-locked"}">
+        <span class="badge-icon" aria-hidden="true">${badge.unlocked ? badge.icon : "🔒"}</span>
+        <div><strong>${badge.title}</strong><small>${badge.text}</small></div>
+      </article>`).join("");
+  }
+
+  const progress = $("#badgeProgress");
+  if (progress) progress.textContent = `${unlocked.length} / ${badges.length} 獲得`;
+
+  const latest = [...unlocked].reverse()[0] || badges[0];
+  if ($("#badgeTeaserIcon")) {
+    $("#badgeTeaserIcon").textContent = latest.unlocked ? latest.icon : "🌱";
+    $("#badgeTeaserTitle").textContent = latest.title;
+    $("#badgeTeaserText").textContent = latest.unlocked ? `${latest.text}を達成しました。` : latest.text;
+  }
+
+  const next = badges.find((badge) => !badge.unlocked);
+  const panel = $("#nextBadgePanel");
+  if (panel) {
+    panel.hidden = !next;
+    if (next) {
+      const remaining = Math.max(0, next.target - next.current);
+      $("#nextBadgeTitle").textContent = next.title;
+      $("#nextBadgeText").textContent = `あと${remaining}回・日で「${next.text}」を達成`;
+      $("#nextBadgeBar").style.width = `${Math.min(100, (next.current / next.target) * 100)}%`;
+    }
+  }
+}
+
+function checkNewBadgeUnlock() {
+  const badges = getBadgeStates();
+  const unlockedIds = badges.filter((badge) => badge.unlocked).map((badge) => badge.id);
+  const seenIds = readStore(STORAGE_KEYS.badgeSeen, []);
+  const newlyUnlocked = badges.find((badge) => badge.unlocked && !seenIds.includes(badge.id));
+
+  writeStore(STORAGE_KEYS.badgeSeen, unlockedIds);
+  if (!newlyUnlocked) return;
+
+  $("#celebrationIcon").textContent = newlyUnlocked.icon;
+  $("#celebrationTitle").textContent = newlyUnlocked.title;
+  $("#celebrationText").textContent = newlyUnlocked.text;
+  const layer = $("#badgeCelebration");
+  layer.hidden = false;
+  requestAnimationFrame(() => layer.classList.add("is-visible"));
+}
+
+function closeBadgeCelebration() {
+  const layer = $("#badgeCelebration");
+  layer.classList.remove("is-visible");
+  setTimeout(() => { layer.hidden = true; }, 260);
+}
+
+function scoreTone(score) {
+  if (score >= 90) return "great";
+  if (score >= 80) return "good";
+  if (score >= 72) return "steady";
+  return "slow";
+}
+
+function renderCalendar() {
+  const title = $("#calendarTitle");
+  const grid = $("#calendarGrid");
+  if (!title || !grid) return;
+
+  const year = calendarCursor.getFullYear();
+  const month = calendarCursor.getMonth();
+  title.textContent = `${year}年${month + 1}月`;
+
+  const history = readStore(STORAGE_KEYS.history, []);
+  const historyMap = new Map(history.map((item) => [item.dateKey, item]));
+  const moods = readStore(STORAGE_KEYS.moods, {});
+  const missions = readStore(STORAGE_KEYS.missions, {});
+  const firstDay = new Date(year, month, 1).getDay();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const cells = [];
+
+  for (let i = 0; i < firstDay; i += 1) cells.push('<span class="calendar-cell is-empty" aria-hidden="true"></span>');
+
+  for (let day = 1; day <= daysInMonth; day += 1) {
+    const key = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+    const record = historyMap.get(key);
+    const mood = MOOD_LABELS[moods[key]]?.[0] || "";
+    const mission = Boolean(missions[key]);
+    const isToday = key === dateKey;
+    const label = record ? `${day}日、運勢${record.overall}点${mood ? `、気分${mood}` : ""}${mission ? "、ミッション達成" : ""}` : `${day}日、記録なし`;
+
+    cells.push(`
+      <button class="calendar-cell ${record ? "has-record" : ""} ${isToday ? "is-today" : ""}" type="button"
+        data-calendar-date="${key}" aria-label="${label}" ${record ? "" : "disabled"}>
+        <span class="calendar-day">${day}</span>
+        ${record ? `<strong class="calendar-score tone-${scoreTone(record.overall)}">${record.overall}</strong>` : ""}
+        <span class="calendar-marks">${mood ? `<i>${mood}</i>` : ""}${mission ? '<i class="mission-mark">✓</i>' : ""}</span>
+      </button>`);
+  }
+
+  grid.innerHTML = cells.join("");
+  $("#nextMonthButton").disabled = year === today.getFullYear() && month >= today.getMonth();
+
+  $$("[data-calendar-date]").forEach((button) => button.addEventListener("click", () => {
+    const record = historyMap.get(button.dataset.calendarDate);
+    if (record) openDayDetail(record);
+  }));
+}
+
+
+function openDayDetail(record) {
+  const moods = readStore(STORAGE_KEYS.moods, {});
+  const missions = readStore(STORAGE_KEYS.missions, {});
+  const notes = readStore(STORAGE_KEYS.notes, {});
+  const moodKey = moods[record.dateKey];
+  const mood = moodKey ? MOOD_LABELS[moodKey] : null;
+
+  $("#detailDate").textContent = formatDate(record.dateKey);
+  $("#detailOverall").textContent = record.overall;
+  $("#detailBadge").textContent = badgeFor(record.overall);
+  $("#detailTheme").textContent = record.themeTitle;
+  $("#detailComment").textContent = record.overallComment;
+  $("#detailMood").textContent = mood ? `${mood[0]} ${mood[1]}` : "未記録";
+  $("#detailMission").textContent = missions[record.dateKey] ? "✓ 達成済み" : "未達成";
+
+  const labels = [
+    ["仕事運", record.scores.work],
+    ["金運", record.scores.money],
+    ["対人運", record.scores.people],
+    ["健康運", record.scores.health]
+  ];
+  $("#detailScoreGrid").innerHTML = labels.map(([label, score]) =>
+    `<div><span>${label}</span><strong>${score}</strong></div>`).join("");
+
+  const note = notes[record.dateKey]?.trim();
+  $("#detailNoteBox").hidden = !note;
+  $("#detailNote").textContent = note || "";
+
+  const dialog = $("#dayDetailDialog");
+  if (typeof dialog.showModal === "function") dialog.showModal();
+  else dialog.setAttribute("open", "");
+}
+
+function closeDayDetail() {
+  const dialog = $("#dayDetailDialog");
+  if (typeof dialog.close === "function") dialog.close();
+  else dialog.removeAttribute("open");
+}
+
+function moveCalendarMonth(offset) {
+  const next = new Date(calendarCursor.getFullYear(), calendarCursor.getMonth() + offset, 1);
+  const currentMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+  if (next > currentMonth) return;
+  calendarCursor = next;
+  renderCalendar();
+}
+
 function getSettings() {
   return { fontSize: "normal", reduceMotion: false, ...readStore(STORAGE_KEYS.settings, {}) };
 }
@@ -196,6 +401,7 @@ function renderActivitySummary() {
   $("#streakDays").textContent = `${Math.max(1, calculateStreak(history))}日`;
   $("#missionCount").textContent = `${Object.values(missions).filter(Boolean).length}回`;
   $("#reviewCount").textContent = `${Object.keys(moods).length}回`;
+  renderBadges();
 }
 
 function renderHistorySummary() {
@@ -380,6 +586,8 @@ function toggleFavorite() {
   writeStore(STORAGE_KEYS.favorites, updated);
   renderFavoriteState();
   renderRecords();
+  renderActivitySummary();
+  checkNewBadgeUnlock();
   showToast(active ? "お気に入りから外しました" : "お気に入りに追加しました");
 }
 
@@ -409,6 +617,7 @@ function renderRecords() {
   $("#historyList").innerHTML = history.length ? history.map((r) => recordCard(r)).join("") : '<div class="empty-state">まだ履歴はありません。<br>今日の運勢を開くと自動で保存されます。</div>';
   $("#favoritesList").innerHTML = favorites.length ? favorites.map((r) => recordCard(r, true)).join("") : '<div class="empty-state">お気に入りはまだありません。<br>右上の♡を押して保存できます。</div>';
   renderHistorySummary();
+  renderCalendar();
   $$('[data-remove-favorite]').forEach((button) => button.addEventListener("click", () => {
     writeStore(STORAGE_KEYS.favorites, getFavorites().filter((item) => item.dateKey !== button.dataset.removeFavorite));
     renderFavoriteState();
@@ -431,6 +640,8 @@ function saveMood(mood) {
   renderMoodState();
   renderReviewHistory();
   renderActivitySummary();
+  renderCalendar();
+  checkNewBadgeUnlock();
   showToast("今日の気分を保存しました");
 }
 
@@ -457,14 +668,21 @@ async function shareFortune() {
 }
 
 function openPage(page) {
-  $$("[data-page-panel]").forEach((panel) => panel.classList.toggle("is-active", panel.dataset.pagePanel === page));
+  $$("[data-page-panel]").forEach((panel) => {
+    const active = panel.dataset.pagePanel === page;
+    panel.classList.toggle("is-active", active);
+    if (active) {
+      panel.classList.remove("page-enter");
+      requestAnimationFrame(() => panel.classList.add("page-enter"));
+    }
+  });
   $$(".nav-item").forEach((item) => item.classList.toggle("is-active", item.dataset.page === page));
   $("#favoriteButton").hidden = page !== "today";
   const titles = { today: "毎朝の運勢", history: "運勢の履歴", favorites: "お気に入り", review: "今日の振り返り", settings: "設定" };
   $("#pageTitle").textContent = titles[page];
   if (page === "history" || page === "favorites") renderRecords();
   if (page === "review") { renderMoodState(); renderReviewNote(); renderReviewHistory(); }
-  if (page === "settings") applySettings();
+  if (page === "settings") { applySettings(); renderBadges(); }
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
@@ -474,6 +692,10 @@ function clearAllData() {
   saveTodayToHistory();
   renderToday();
   renderRecords();
+  renderReviewHistory();
+  renderActivitySummary();
+  closeBadgeCelebration();
+  closeDayDetail();
   showToast("保存データを削除しました");
 }
 
@@ -481,7 +703,7 @@ function registerServiceWorker() {
   if (!("serviceWorker" in navigator)) return;
   window.addEventListener("load", async () => {
     try {
-      const registration = await navigator.serviceWorker.register("./sw.js?v=0.5.0");
+      const registration = await navigator.serviceWorker.register("./sw.js?v=0.7.0");
       registration.update();
     } catch (error) {
       console.warn("Service Workerの登録に失敗しました。", error);
@@ -501,17 +723,28 @@ function bindEvents() {
   $("#exportButton").addEventListener("click", exportData);
   $("#importButton").addEventListener("click", () => $("#importFile").click());
   $("#importFile").addEventListener("change", (event) => importData(event.target.files[0]));
+  $("#prevMonthButton").addEventListener("click", () => moveCalendarMonth(-1));
+  $("#nextMonthButton").addEventListener("click", () => moveCalendarMonth(1));
+  $("#badgeTeaser").addEventListener("click", () => openPage("settings"));
+  $("#closeDayDetailButton").addEventListener("click", closeDayDetail);
+  $("#dayDetailDialog").addEventListener("click", (event) => {
+    if (event.target === $("#dayDetailDialog")) closeDayDetail();
+  });
+  $("#closeCelebrationButton").addEventListener("click", closeBadgeCelebration);
   $$(".nav-item").forEach((item) => item.addEventListener("click", () => openPage(item.dataset.page)));
   $$("#moodButtons button").forEach((button) => button.addEventListener("click", () => saveMood(button.dataset.mood)));
   window.addEventListener("load", () => setTimeout(() => $("#splashScreen").classList.add("is-hidden"), 500));
 }
 
+applyTimeTheme();
 applySettings();
 saveTodayToHistory();
 renderToday();
 renderRecords();
+renderCalendar();
 renderReviewHistory();
 renderActivitySummary();
 bindEvents();
+setTimeout(checkNewBadgeUnlock, 850);
 registerServiceWorker();
 console.info(`毎朝の運勢 v${VERSION}`);

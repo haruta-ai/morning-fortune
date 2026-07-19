@@ -13,7 +13,7 @@
   <link rel="manifest" href="manifest.json" />
   <link rel="apple-touch-icon" href="icon-192.png" />
   <link rel="icon" href="icon-192.png" />
-  <link rel="stylesheet" href="style.css?v=0.5.0" />
+  <link rel="stylesheet" href="style.css?v=0.7.0" />
 </head>
 <body>
   <div id="splashScreen" class="splash-screen" aria-hidden="true">
@@ -54,6 +54,12 @@
           <div><span class="streak-icon" aria-hidden="true">🔥</span><strong id="streakDays">1日</strong><small>連続利用</small></div>
           <div><span class="streak-icon" aria-hidden="true">✓</span><strong id="missionCount">0回</strong><small>ミッション達成</small></div>
           <div><span class="streak-icon" aria-hidden="true">✎</span><strong id="reviewCount">0回</strong><small>振り返り記録</small></div>
+        </section>
+
+        <section id="badgeTeaser" class="badge-teaser" aria-label="最新のバッジ">
+          <span id="badgeTeaserIcon" class="badge-teaser-icon" aria-hidden="true">🌱</span>
+          <div><small>MY ACHIEVEMENT</small><strong id="badgeTeaserTitle">はじめの一歩</strong><p id="badgeTeaserText">今日から記録が始まりました。</p></div>
+          <span class="badge-teaser-mark" aria-hidden="true">›</span>
         </section>
 
         <section class="section-block" aria-labelledby="fortuneTitle">
@@ -117,6 +123,25 @@
           <div><span>平均点</span><strong id="historyAverage">--</strong><small>点</small></div>
           <div><span>最高点</span><strong id="historyBest">--</strong><small>点</small></div>
         </section>
+
+        <section class="calendar-card" aria-labelledby="calendarTitle">
+          <div class="calendar-head">
+            <button id="prevMonthButton" type="button" aria-label="前の月">‹</button>
+            <div><p class="section-kicker">MONTHLY CALENDAR</p><h3 id="calendarTitle"></h3></div>
+            <button id="nextMonthButton" type="button" aria-label="次の月">›</button>
+          </div>
+          <div class="calendar-weekdays" aria-hidden="true">
+            <span>日</span><span>月</span><span>火</span><span>水</span><span>木</span><span>金</span><span>土</span>
+          </div>
+          <div id="calendarGrid" class="calendar-grid"></div>
+          <div class="calendar-legend">
+            <span><i class="legend-score"></i>運勢点</span>
+            <span><i class="legend-mission"></i>達成</span>
+            <span>😊 気分</span>
+          </div>
+        </section>
+
+        <div class="section-heading history-list-heading"><div><p class="section-kicker">RECORDS</p><h2>記録一覧</h2></div></div>
         <div id="historyList" class="record-list"></div>
       </section>
 
@@ -168,7 +193,16 @@
             <button id="importButton" class="mini-button" type="button">読み込む</button>
             <input id="importFile" type="file" accept="application/json,.json" hidden>
           </div>
-          <div class="version-row"><strong>バージョン</strong><span>v0.5.0</span></div>
+          <section class="badges-section" aria-labelledby="badgesTitle">
+            <div class="badges-heading"><div><strong id="badgesTitle">獲得バッジ</strong><span id="badgeProgress">0 / 6 獲得</span></div></div>
+            <div id="badgesGrid" class="badges-grid"></div>
+            <div id="nextBadgePanel" class="next-badge-panel" hidden>
+              <div><span>次のバッジ</span><strong id="nextBadgeTitle"></strong></div>
+              <small id="nextBadgeText"></small>
+              <div class="badge-progress-track" aria-hidden="true"><span id="nextBadgeBar"></span></div>
+            </div>
+          </section>
+          <div class="version-row"><strong>バージョン</strong><span>v0.7.0</span></div>
           <button id="clearDataButton" class="danger-button" type="button">保存データをすべて削除</button>
         </article>
       </section>
@@ -181,8 +215,39 @@
       <button class="nav-item" type="button" data-page="review"><span class="nav-icon" aria-hidden="true">✓</span><span>振り返り</span></button>
       <button class="nav-item" type="button" data-page="settings"><span class="nav-icon" aria-hidden="true">⚙</span><span>設定</span></button>
     </nav>
+    <dialog id="dayDetailDialog" class="day-detail-dialog">
+      <article class="day-detail-sheet">
+        <button id="closeDayDetailButton" class="dialog-close" type="button" aria-label="閉じる">×</button>
+        <p class="section-kicker">DAILY RECORD</p>
+        <h2 id="detailDate"></h2>
+        <section class="detail-score-row">
+          <div class="detail-score-circle"><strong id="detailOverall"></strong><span>点</span></div>
+          <div><small id="detailBadge"></small><h3 id="detailTheme"></h3><p id="detailComment"></p></div>
+        </section>
+        <section id="detailScoreGrid" class="detail-score-grid"></section>
+        <section class="detail-status-grid">
+          <div><span>気分</span><strong id="detailMood">未記録</strong></div>
+          <div><span>ミッション</span><strong id="detailMission">未達成</strong></div>
+        </section>
+        <section id="detailNoteBox" class="detail-note-box" hidden>
+          <span>ひとことメモ</span><p id="detailNote"></p>
+        </section>
+      </article>
+    </dialog>
+
+    <div id="badgeCelebration" class="badge-celebration" role="status" aria-live="polite" hidden>
+      <div class="celebration-rays" aria-hidden="true"></div>
+      <article>
+        <span id="celebrationIcon" class="celebration-icon">🏆</span>
+        <small>NEW ACHIEVEMENT</small>
+        <h2 id="celebrationTitle"></h2>
+        <p id="celebrationText"></p>
+        <button id="closeCelebrationButton" type="button">受け取る</button>
+      </article>
+    </div>
+
     <div id="toast" class="toast" role="status" aria-live="polite"></div>
   </div>
-  <script src="script.js?v=0.5.0"></script>
+  <script src="script.js?v=0.7.0"></script>
 </body>
 </html>
