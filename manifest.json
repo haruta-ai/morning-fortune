@@ -8,7 +8,8 @@
   "background_color": "#f5efe6",
   "theme_color": "#f5efe6",
   "lang": "ja",
-  "orientation": "portrait",
+  "orientation": "portrait-primary",
+  "id": "./",
   "icons": [
     {
       "src": "icon-192.png",

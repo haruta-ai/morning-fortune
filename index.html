@@ -8,15 +8,13 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <meta name="apple-mobile-web-app-title" content="朝の運勢" />
   <meta name="format-detection" content="telephone=no" />
-
+  <meta name="description" content="朝30秒で、一日を前向きに始める運勢アプリ" />
   <title>毎朝の運勢</title>
-
   <link rel="manifest" href="manifest.json" />
   <link rel="apple-touch-icon" href="icon-192.png" />
   <link rel="icon" href="icon-192.png" />
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css?v=0.4.0" />
 </head>
-
 <body>
   <div id="splashScreen" class="splash-screen" aria-hidden="true">
     <div class="splash-mark">☀</div>
@@ -28,230 +26,126 @@
     <header class="topbar">
       <div>
         <p class="eyebrow">MORNING FORTUNE</p>
-        <h1>毎朝の運勢</h1>
+        <h1 id="pageTitle">毎朝の運勢</h1>
       </div>
-
-      <button
-        id="favoriteButton"
-        class="icon-button"
-        type="button"
-        aria-label="今日の運勢をお気に入りに追加"
-        aria-pressed="false"
-      >
+      <button id="favoriteButton" class="icon-button" type="button" aria-label="今日の運勢をお気に入りに追加" aria-pressed="false">
         <span aria-hidden="true">♡</span>
       </button>
     </header>
 
     <main class="main-content">
-      <section class="hero-card" aria-labelledby="greeting">
-        <div class="hero-orb hero-orb-one" aria-hidden="true"></div>
-        <div class="hero-orb hero-orb-two" aria-hidden="true"></div>
-
-        <div class="hero-content">
-          <p id="todayDate" class="today-date"></p>
-          <h2 id="greeting">おはようございます</h2>
-          <p class="hero-message">今日も、自分のペースでいい一日に。</p>
-
-          <div class="theme-panel">
-            <span class="theme-label">今日のテーマ</span>
-            <strong>流れを整える</strong>
-            <p>目の前のことを一つずつ整えると、運が味方します。</p>
+      <section id="todayPage" class="page is-active" data-page-panel="today">
+        <section class="hero-card" aria-labelledby="greeting">
+          <div class="hero-orb hero-orb-one" aria-hidden="true"></div>
+          <div class="hero-orb hero-orb-two" aria-hidden="true"></div>
+          <div class="hero-content">
+            <p id="todayDate" class="today-date"></p>
+            <h2 id="greeting">おはようございます</h2>
+            <p class="hero-message">今日も、自分のペースでいい一日に。</p>
+            <div class="theme-panel">
+              <span class="theme-label">今日のテーマ</span>
+              <strong id="themeTitle"></strong>
+              <p id="themeText"></p>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      <section class="section-block" aria-labelledby="fortuneTitle">
-        <div class="section-heading">
-          <div>
-            <p class="section-kicker">TODAY'S SCORE</p>
-            <h2 id="fortuneTitle">今日の運勢</h2>
+        <section class="section-block" aria-labelledby="fortuneTitle">
+          <div class="section-heading">
+            <div><p class="section-kicker">TODAY'S SCORE</p><h2 id="fortuneTitle">今日の運勢</h2></div>
+            <span id="scoreBadge" class="score-badge"></span>
           </div>
-          <span class="score-badge">GOOD DAY</span>
-        </div>
+          <article class="overall-card">
+            <div><p class="fortune-label">総合運</p><p id="overallComment" class="fortune-comment"></p></div>
+            <div id="overallRing" class="score-ring" aria-label="総合運">
+              <span id="overallScore"></span><small>点</small>
+            </div>
+          </article>
+          <div id="fortuneGrid" class="fortune-grid"></div>
+        </section>
 
-        <article class="overall-card">
-          <div>
-            <p class="fortune-label">総合運</p>
-            <p class="fortune-comment">小さな決断が、心地よい流れを作る日です。</p>
+        <section class="section-block" aria-labelledby="guidanceTitle">
+          <div class="section-heading"><div><p class="section-kicker">GUIDANCE</p><h2 id="guidanceTitle">今日のヒント</h2></div></div>
+          <div id="guidanceList" class="guidance-list"></div>
+        </section>
+
+        <section class="mission-card" aria-labelledby="missionTitle">
+          <div class="mission-number">01</div>
+          <div class="mission-copy">
+            <p class="section-kicker">TODAY'S MISSION</p>
+            <h2 id="missionTitle"></h2>
+            <p id="missionText"></p>
           </div>
+          <button id="missionButton" class="primary-button" type="button"><span>達成した</span><span aria-hidden="true">✓</span></button>
+        </section>
 
-          <div class="score-ring" aria-label="総合運 88点">
-            <span>88</span>
-            <small>点</small>
+        <section class="section-block" aria-labelledby="luckyTitle">
+          <div class="section-heading"><div><p class="section-kicker">LUCKY ITEMS</p><h2 id="luckyTitle">今日の開運ポイント</h2></div></div>
+          <article class="action-card">
+            <span class="action-icon" aria-hidden="true">✦</span>
+            <div><p>開運アクション</p><strong id="luckyAction"></strong></div>
+          </article>
+          <div class="lucky-grid">
+            <article class="lucky-card"><span class="lucky-label">カラー</span><span id="colorDot" class="color-dot" aria-hidden="true"></span><strong id="luckyColor"></strong></article>
+            <article class="lucky-card"><span class="lucky-label">タイム</span><span id="luckyTime" class="lucky-value"></span><strong id="luckyTimeText"></strong></article>
+            <article class="lucky-card"><span class="lucky-label">アイテム</span><span id="luckyEmoji" class="lucky-value lucky-emoji" aria-hidden="true"></span><strong id="luckyItem"></strong></article>
           </div>
-        </article>
+        </section>
 
-        <div class="fortune-grid">
-          <article class="fortune-card">
-            <div class="fortune-card-head">
-              <span class="fortune-icon" aria-hidden="true">⌘</span>
-              <span>仕事運</span>
-            </div>
-            <strong>84</strong>
-            <div class="score-bar"><span style="--score: 84%"></span></div>
-            <p>優先順位を決めると集中力が上がります。</p>
-          </article>
+        <section class="quote-card" aria-labelledby="quoteTitle">
+          <span class="quote-mark" aria-hidden="true">“</span>
+          <p class="section-kicker">TODAY'S WORD</p><h2 id="quoteTitle">今日のひと言</h2>
+          <blockquote id="quoteText"></blockquote>
+        </section>
 
-          <article class="fortune-card">
-            <div class="fortune-card-head">
-              <span class="fortune-icon" aria-hidden="true">¥</span>
-              <span>金運</span>
-            </div>
-            <strong>76</strong>
-            <div class="score-bar"><span style="--score: 76%"></span></div>
-            <p>必要なものを見極めると満足度が高まります。</p>
-          </article>
-
-          <article class="fortune-card">
-            <div class="fortune-card-head">
-              <span class="fortune-icon" aria-hidden="true">☻</span>
-              <span>対人運</span>
-            </div>
-            <strong>91</strong>
-            <div class="score-bar"><span style="--score: 91%"></span></div>
-            <p>素直なひと言が、良い空気を作ります。</p>
-          </article>
-
-          <article class="fortune-card">
-            <div class="fortune-card-head">
-              <span class="fortune-icon" aria-hidden="true">＋</span>
-              <span>健康運</span>
-            </div>
-            <strong>82</strong>
-            <div class="score-bar"><span style="--score: 82%"></span></div>
-            <p>深呼吸と軽いストレッチが調子を整えます。</p>
-          </article>
-        </div>
-      </section>
-
-      <section class="section-block" aria-labelledby="guidanceTitle">
-        <div class="section-heading">
-          <div>
-            <p class="section-kicker">GUIDANCE</p>
-            <h2 id="guidanceTitle">今日のヒント</h2>
-          </div>
-        </div>
-
-        <div class="guidance-list">
-          <article class="guidance-card accent-green">
-            <span class="guidance-symbol" aria-hidden="true">↗</span>
-            <div>
-              <p>今日の追い風</p>
-              <strong>午前中の小さな行動</strong>
-              <span>後回しにしていたことを一つ始めると、流れが軽くなります。</span>
-            </div>
-          </article>
-
-          <article class="guidance-card accent-amber">
-            <span class="guidance-symbol" aria-hidden="true">!</span>
-            <div>
-              <p>気を付けること</p>
-              <strong>返事を急ぎすぎない</strong>
-              <span>一度深呼吸して言葉を選ぶと、誤解を防げます。</span>
-            </div>
-          </article>
-
-          <article class="guidance-card accent-rose">
-            <span class="guidance-symbol" aria-hidden="true">×</span>
-            <div>
-              <p>避けたいこと</p>
-              <strong>他人との比較</strong>
-              <span>今日は自分の昨日と比べるだけで十分です。</span>
-            </div>
-          </article>
-        </div>
-      </section>
-
-      <section class="mission-card" aria-labelledby="missionTitle">
-        <div class="mission-number">01</div>
-        <div class="mission-copy">
-          <p class="section-kicker">TODAY'S MISSION</p>
-          <h2 id="missionTitle">机の上を3分だけ整える</h2>
-          <p>視界が整うと、頭の中も自然に整理されます。</p>
-        </div>
-
-        <button id="missionButton" class="primary-button" type="button">
-          <span>達成した</span>
-          <span aria-hidden="true">✓</span>
+        <button id="shareButton" class="share-button" type="button">
+          <span aria-hidden="true">↗</span><span>今日の運勢をシェア</span>
         </button>
+        <p class="footer-note">今日も、あなたらしい一日を。</p>
       </section>
 
-      <section class="section-block" aria-labelledby="luckyTitle">
-        <div class="section-heading">
-          <div>
-            <p class="section-kicker">LUCKY ITEMS</p>
-            <h2 id="luckyTitle">今日の開運ポイント</h2>
-          </div>
-        </div>
+      <section class="page" data-page-panel="history" aria-labelledby="historyTitle">
+        <div class="page-intro"><p class="section-kicker">HISTORY</p><h2 id="historyTitle">運勢の履歴</h2><p>アプリを開いた日の運勢を、端末内に30日分保存します。</p></div>
+        <div id="historyList" class="record-list"></div>
+      </section>
 
-        <article class="action-card">
-          <span class="action-icon" aria-hidden="true">✦</span>
-          <div>
-            <p>開運アクション</p>
-            <strong>朝の光を浴びながら、温かい飲み物を飲む</strong>
+      <section class="page" data-page-panel="favorites" aria-labelledby="favoritesTitle">
+        <div class="page-intro"><p class="section-kicker">FAVORITES</p><h2 id="favoritesTitle">お気に入り</h2><p>心に残った日の運勢をいつでも振り返れます。</p></div>
+        <div id="favoritesList" class="record-list"></div>
+      </section>
+
+      <section class="page" data-page-panel="review" aria-labelledby="reviewTitle">
+        <div class="page-intro"><p class="section-kicker">REVIEW</p><h2 id="reviewTitle">今日の振り返り</h2><p>一日の終わりに、今日の気分を記録しましょう。</p></div>
+        <article class="simple-card">
+          <p class="card-label">今日の気分</p>
+          <div id="moodButtons" class="mood-grid">
+            <button type="button" data-mood="great">😊<span>とても良い</span></button>
+            <button type="button" data-mood="good">🙂<span>良い</span></button>
+            <button type="button" data-mood="normal">😐<span>ふつう</span></button>
+            <button type="button" data-mood="tired">😮‍💨<span>お疲れ</span></button>
           </div>
+          <p id="reviewStatus" class="status-text"></p>
         </article>
-
-        <div class="lucky-grid">
-          <article class="lucky-card">
-            <span class="lucky-label">カラー</span>
-            <span class="color-dot" aria-hidden="true"></span>
-            <strong>サンドベージュ</strong>
-          </article>
-
-          <article class="lucky-card">
-            <span class="lucky-label">タイム</span>
-            <span class="lucky-value">10:40</span>
-            <strong>午前の休憩前</strong>
-          </article>
-
-          <article class="lucky-card">
-            <span class="lucky-label">アイテム</span>
-            <span class="lucky-value lucky-emoji" aria-hidden="true">☕</span>
-            <strong>お気に入りのマグ</strong>
-          </article>
-        </div>
       </section>
 
-      <section class="quote-card" aria-labelledby="quoteTitle">
-        <span class="quote-mark" aria-hidden="true">“</span>
-        <p class="section-kicker">TODAY'S WORD</p>
-        <h2 id="quoteTitle">今日のひと言</h2>
-        <blockquote>
-          大きく変えなくていい。<br />
-          小さく整えるだけで、今日の流れは変わる。
-        </blockquote>
+      <section class="page" data-page-panel="settings" aria-labelledby="settingsTitle">
+        <div class="page-intro"><p class="section-kicker">SETTINGS</p><h2 id="settingsTitle">設定</h2><p>保存データは、このiPhone・ブラウザの中だけに保存されます。</p></div>
+        <article class="simple-card settings-card">
+          <div><strong>バージョン</strong><span>v0.4.0</span></div>
+          <button id="clearDataButton" class="danger-button" type="button">保存データをすべて削除</button>
+        </article>
       </section>
-
-      <p class="footer-note">今日も、あなたらしい一日を。</p>
     </main>
 
     <nav class="bottom-nav" aria-label="メインメニュー">
-      <button class="nav-item is-active" type="button" data-page="today">
-        <span class="nav-icon" aria-hidden="true">☀</span>
-        <span>今日</span>
-      </button>
-      <button class="nav-item" type="button" data-page="history">
-        <span class="nav-icon" aria-hidden="true">◷</span>
-        <span>履歴</span>
-      </button>
-      <button class="nav-item" type="button" data-page="favorites">
-        <span class="nav-icon" aria-hidden="true">♡</span>
-        <span>お気に入り</span>
-      </button>
-      <button class="nav-item" type="button" data-page="review">
-        <span class="nav-icon" aria-hidden="true">✓</span>
-        <span>振り返り</span>
-      </button>
-      <button class="nav-item" type="button" data-page="settings">
-        <span class="nav-icon" aria-hidden="true">⚙</span>
-        <span>設定</span>
-      </button>
+      <button class="nav-item is-active" type="button" data-page="today"><span class="nav-icon" aria-hidden="true">☀</span><span>今日</span></button>
+      <button class="nav-item" type="button" data-page="history"><span class="nav-icon" aria-hidden="true">◷</span><span>履歴</span></button>
+      <button class="nav-item" type="button" data-page="favorites"><span class="nav-icon" aria-hidden="true">♡</span><span>お気に入り</span></button>
+      <button class="nav-item" type="button" data-page="review"><span class="nav-icon" aria-hidden="true">✓</span><span>振り返り</span></button>
+      <button class="nav-item" type="button" data-page="settings"><span class="nav-icon" aria-hidden="true">⚙</span><span>設定</span></button>
     </nav>
-
     <div id="toast" class="toast" role="status" aria-live="polite"></div>
   </div>
-
-  <script src="script.js"></script>
+  <script src="script.js?v=0.4.0"></script>
 </body>
 </html>
