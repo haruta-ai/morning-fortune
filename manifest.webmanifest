@@ -1,0 +1,12 @@
+{
+  "name": "毎朝の運勢",
+  "short_name": "毎朝の運勢",
+  "description": "外部APIを使わず、毎日の運勢と振り返りを端末内で管理するアプリ",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#fff8ef",
+  "theme_color": "#fff8ef",
+  "lang": "ja",
+  "orientation": "portrait-primary"
+}
