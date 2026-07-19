@@ -1,5 +1,5 @@
-/* 毎朝の運勢 v0.8.0 Service Worker */
-const CACHE_NAME = "morning-fortune-v0.8.0";
+/* 毎朝の運勢 v0.8.1 Service Worker */
+const CACHE_NAME = "morning-fortune-v0.8.1";
 const APP_FILES = [
   "./", "./index.html", "./style.css?v=0.8.0", "./script.js?v=0.8.0",
   "./manifest.json", "./icon-192.png", "./icon-512.png"

@@ -1,7 +1,7 @@
-/* 毎朝の運勢 v0.8.0 */
+/* 毎朝の運勢 v0.8.1 */
 "use strict";
 
-const VERSION = "0.8.0";
+const VERSION = "0.8.1";
 const STORAGE_KEYS = {
   favorites: "morningFortuneFavoritesV1",
   history: "morningFortuneHistoryV1",
