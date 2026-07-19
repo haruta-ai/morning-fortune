@@ -1,12 +1,14 @@
-/* 毎朝の運勢 v0.4.0 */
+/* 毎朝の運勢 v0.5.0 */
 "use strict";
 
-const VERSION = "0.4.0";
+const VERSION = "0.5.0";
 const STORAGE_KEYS = {
   favorites: "morningFortuneFavoritesV1",
   history: "morningFortuneHistoryV1",
   missions: "morningFortuneMissionsV1",
-  moods: "morningFortuneMoodsV1"
+  moods: "morningFortuneMoodsV1",
+  notes: "morningFortuneNotesV1",
+  settings: "morningFortuneSettingsV1"
 };
 
 const DATA = {
@@ -160,6 +162,156 @@ function badgeFor(score) {
   return "SLOW DAY";
 }
 
+
+function getSettings() {
+  return { fontSize: "normal", reduceMotion: false, ...readStore(STORAGE_KEYS.settings, {}) };
+}
+
+function applySettings() {
+  const settings = getSettings();
+  document.documentElement.dataset.fontSize = settings.fontSize;
+  document.documentElement.classList.toggle("reduce-motion", settings.reduceMotion);
+  const fontSelect = $("#fontSizeSelect");
+  const motionToggle = $("#motionToggle");
+  if (fontSelect) fontSelect.value = settings.fontSize;
+  if (motionToggle) motionToggle.checked = settings.reduceMotion;
+}
+
+function calculateStreak(history) {
+  if (!history.length) return 0;
+  const keys = new Set(history.map((item) => item.dateKey));
+  const cursor = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  let streak = 0;
+  while (keys.has(toDateKey(cursor))) {
+    streak += 1;
+    cursor.setDate(cursor.getDate() - 1);
+  }
+  return streak;
+}
+
+function renderActivitySummary() {
+  const history = readStore(STORAGE_KEYS.history, []);
+  const missions = readStore(STORAGE_KEYS.missions, {});
+  const moods = readStore(STORAGE_KEYS.moods, {});
+  $("#streakDays").textContent = `${Math.max(1, calculateStreak(history))}日`;
+  $("#missionCount").textContent = `${Object.values(missions).filter(Boolean).length}回`;
+  $("#reviewCount").textContent = `${Object.keys(moods).length}回`;
+}
+
+function renderHistorySummary() {
+  const history = readStore(STORAGE_KEYS.history, []);
+  const scores = history.map((item) => Number(item.overall)).filter(Number.isFinite);
+  $("#historyDays").textContent = history.length;
+  $("#historyAverage").textContent = scores.length ? Math.round(scores.reduce((sum, score) => sum + score, 0) / scores.length) : "--";
+  $("#historyBest").textContent = scores.length ? Math.max(...scores) : "--";
+}
+
+const MOOD_LABELS = {
+  great: ["😊", "とても良い"],
+  good: ["🙂", "良い"],
+  normal: ["😐", "ふつう"],
+  tired: ["😮‍💨", "お疲れ"]
+};
+
+function renderReviewHistory() {
+  const moods = readStore(STORAGE_KEYS.moods, {});
+  const notes = readStore(STORAGE_KEYS.notes, {});
+  const keys = [...new Set([...Object.keys(moods), ...Object.keys(notes)])]
+    .sort((a, b) => b.localeCompare(a))
+    .slice(0, 7);
+  const target = $("#reviewHistoryList");
+  if (!target) return;
+  target.innerHTML = keys.length ? keys.map((key) => {
+    const mood = MOOD_LABELS[moods[key]] || ["✎", "メモ"];
+    const note = notes[key]?.trim() || "ひと言メモはありません。";
+    return `<article class="review-record"><div class="review-record-icon" aria-hidden="true">${mood[0]}</div><div><span>${formatDate(key)}</span><strong>${mood[1]}</strong><p>${escapeHtml(note)}</p></div></article>`;
+  }).join("") : '<div class="empty-state">振り返りはまだありません。<br>今日の気分やメモを残してみましょう。</div>';
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function renderReviewNote() {
+  const notes = readStore(STORAGE_KEYS.notes, {});
+  const input = $("#reviewNote");
+  if (!input) return;
+  input.value = notes[dateKey] || "";
+  updateNoteCount();
+}
+
+function updateNoteCount() {
+  const input = $("#reviewNote");
+  const count = $("#noteCount");
+  if (input && count) count.textContent = `${input.value.length} / 120`;
+}
+
+function saveReview() {
+  const input = $("#reviewNote");
+  const notes = readStore(STORAGE_KEYS.notes, {});
+  const value = input.value.trim();
+  if (value) notes[dateKey] = value;
+  else delete notes[dateKey];
+  writeStore(STORAGE_KEYS.notes, notes);
+  renderReviewHistory();
+  renderActivitySummary();
+  showToast("振り返りを保存しました");
+}
+
+function saveSetting(name, value) {
+  const settings = getSettings();
+  settings[name] = value;
+  writeStore(STORAGE_KEYS.settings, settings);
+  applySettings();
+}
+
+function exportData() {
+  const data = {
+    app: "毎朝の運勢",
+    version: VERSION,
+    exportedAt: new Date().toISOString(),
+    data: Object.fromEntries(Object.entries(STORAGE_KEYS).map(([name, key]) => [name, readStore(key, name === "history" || name === "favorites" ? [] : {})]))
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `morning-fortune-backup-${dateKey}.json`;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+  showToast("バックアップを書き出しました");
+}
+
+async function importData(file) {
+  if (!file) return;
+  try {
+    const parsed = JSON.parse(await file.text());
+    if (!parsed?.data || typeof parsed.data !== "object") throw new Error("invalid");
+    Object.entries(STORAGE_KEYS).forEach(([name, key]) => {
+      if (Object.prototype.hasOwnProperty.call(parsed.data, name)) writeStore(key, parsed.data[name]);
+    });
+    saveTodayToHistory();
+    renderToday();
+    renderRecords();
+    renderHistorySummary();
+    renderReviewHistory();
+    renderActivitySummary();
+    applySettings();
+    showToast("バックアップを復元しました");
+  } catch {
+    showToast("バックアップを読み込めませんでした");
+  } finally {
+    $("#importFile").value = "";
+  }
+}
+
 function renderToday() {
   $("#todayDate").textContent = new Intl.DateTimeFormat("ja-JP", { year: "numeric", month: "long", day: "numeric", weekday: "long" }).format(today);
   $("#themeTitle").textContent = fortune.themeTitle;
@@ -198,6 +350,8 @@ function renderToday() {
   renderFavoriteState();
   renderMissionState();
   renderMoodState();
+  renderReviewNote();
+  renderActivitySummary();
 }
 
 function saveTodayToHistory() {
@@ -254,6 +408,7 @@ function renderRecords() {
   const favorites = getFavorites();
   $("#historyList").innerHTML = history.length ? history.map((r) => recordCard(r)).join("") : '<div class="empty-state">まだ履歴はありません。<br>今日の運勢を開くと自動で保存されます。</div>';
   $("#favoritesList").innerHTML = favorites.length ? favorites.map((r) => recordCard(r, true)).join("") : '<div class="empty-state">お気に入りはまだありません。<br>右上の♡を押して保存できます。</div>';
+  renderHistorySummary();
   $$('[data-remove-favorite]').forEach((button) => button.addEventListener("click", () => {
     writeStore(STORAGE_KEYS.favorites, getFavorites().filter((item) => item.dateKey !== button.dataset.removeFavorite));
     renderFavoriteState();
@@ -274,6 +429,8 @@ function saveMood(mood) {
   moods[dateKey] = mood;
   writeStore(STORAGE_KEYS.moods, moods);
   renderMoodState();
+  renderReviewHistory();
+  renderActivitySummary();
   showToast("今日の気分を保存しました");
 }
 
@@ -306,6 +463,8 @@ function openPage(page) {
   const titles = { today: "毎朝の運勢", history: "運勢の履歴", favorites: "お気に入り", review: "今日の振り返り", settings: "設定" };
   $("#pageTitle").textContent = titles[page];
   if (page === "history" || page === "favorites") renderRecords();
+  if (page === "review") { renderMoodState(); renderReviewNote(); renderReviewHistory(); }
+  if (page === "settings") applySettings();
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
@@ -322,7 +481,7 @@ function registerServiceWorker() {
   if (!("serviceWorker" in navigator)) return;
   window.addEventListener("load", async () => {
     try {
-      const registration = await navigator.serviceWorker.register("./sw.js?v=0.4.0");
+      const registration = await navigator.serviceWorker.register("./sw.js?v=0.5.0");
       registration.update();
     } catch (error) {
       console.warn("Service Workerの登録に失敗しました。", error);
@@ -335,14 +494,24 @@ function bindEvents() {
   $("#missionButton").addEventListener("click", toggleMission);
   $("#shareButton").addEventListener("click", shareFortune);
   $("#clearDataButton").addEventListener("click", clearAllData);
+  $("#saveReviewButton").addEventListener("click", saveReview);
+  $("#reviewNote").addEventListener("input", updateNoteCount);
+  $("#fontSizeSelect").addEventListener("change", (event) => saveSetting("fontSize", event.target.value));
+  $("#motionToggle").addEventListener("change", (event) => saveSetting("reduceMotion", event.target.checked));
+  $("#exportButton").addEventListener("click", exportData);
+  $("#importButton").addEventListener("click", () => $("#importFile").click());
+  $("#importFile").addEventListener("change", (event) => importData(event.target.files[0]));
   $$(".nav-item").forEach((item) => item.addEventListener("click", () => openPage(item.dataset.page)));
   $$("#moodButtons button").forEach((button) => button.addEventListener("click", () => saveMood(button.dataset.mood)));
   window.addEventListener("load", () => setTimeout(() => $("#splashScreen").classList.add("is-hidden"), 500));
 }
 
+applySettings();
 saveTodayToHistory();
 renderToday();
 renderRecords();
+renderReviewHistory();
+renderActivitySummary();
 bindEvents();
 registerServiceWorker();
 console.info(`毎朝の運勢 v${VERSION}`);

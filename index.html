@@ -13,7 +13,7 @@
   <link rel="manifest" href="manifest.json" />
   <link rel="apple-touch-icon" href="icon-192.png" />
   <link rel="icon" href="icon-192.png" />
-  <link rel="stylesheet" href="style.css?v=0.4.0" />
+  <link rel="stylesheet" href="style.css?v=0.5.0" />
 </head>
 <body>
   <div id="splashScreen" class="splash-screen" aria-hidden="true">
@@ -48,6 +48,12 @@
               <p id="themeText"></p>
             </div>
           </div>
+        </section>
+
+        <section class="streak-panel" aria-label="利用状況">
+          <div><span class="streak-icon" aria-hidden="true">🔥</span><strong id="streakDays">1日</strong><small>連続利用</small></div>
+          <div><span class="streak-icon" aria-hidden="true">✓</span><strong id="missionCount">0回</strong><small>ミッション達成</small></div>
+          <div><span class="streak-icon" aria-hidden="true">✎</span><strong id="reviewCount">0回</strong><small>振り返り記録</small></div>
         </section>
 
         <section class="section-block" aria-labelledby="fortuneTitle">
@@ -106,6 +112,11 @@
 
       <section class="page" data-page-panel="history" aria-labelledby="historyTitle">
         <div class="page-intro"><p class="section-kicker">HISTORY</p><h2 id="historyTitle">運勢の履歴</h2><p>アプリを開いた日の運勢を、端末内に30日分保存します。</p></div>
+        <section class="history-summary" aria-label="履歴の集計">
+          <div><span>記録日数</span><strong id="historyDays">0</strong><small>日</small></div>
+          <div><span>平均点</span><strong id="historyAverage">--</strong><small>点</small></div>
+          <div><span>最高点</span><strong id="historyBest">--</strong><small>点</small></div>
+        </section>
         <div id="historyList" class="record-list"></div>
       </section>
 
@@ -124,14 +135,40 @@
             <button type="button" data-mood="normal">😐<span>ふつう</span></button>
             <button type="button" data-mood="tired">😮‍💨<span>お疲れ</span></button>
           </div>
+          <label class="note-label" for="reviewNote">今日のひと言メモ</label>
+          <textarea id="reviewNote" class="review-note" maxlength="120" rows="4" placeholder="良かったこと、気づいたことを短く残しましょう。"></textarea>
+          <div class="note-actions">
+            <span id="noteCount">0 / 120</span>
+            <button id="saveReviewButton" class="secondary-button" type="button">振り返りを保存</button>
+          </div>
           <p id="reviewStatus" class="status-text"></p>
         </article>
+        <section class="review-history-section" aria-labelledby="recentReviewTitle">
+          <div class="section-heading"><div><p class="section-kicker">RECENT</p><h2 id="recentReviewTitle">最近の振り返り</h2></div></div>
+          <div id="reviewHistoryList" class="record-list"></div>
+        </section>
       </section>
 
       <section class="page" data-page-panel="settings" aria-labelledby="settingsTitle">
         <div class="page-intro"><p class="section-kicker">SETTINGS</p><h2 id="settingsTitle">設定</h2><p>保存データは、このiPhone・ブラウザの中だけに保存されます。</p></div>
         <article class="simple-card settings-card">
-          <div><strong>バージョン</strong><span>v0.4.0</span></div>
+          <div class="setting-row"><div><strong>文字サイズ</strong><span>読みやすさを切り替えます</span></div>
+            <select id="fontSizeSelect" aria-label="文字サイズ">
+              <option value="normal">標準</option>
+              <option value="large">大きめ</option>
+            </select>
+          </div>
+          <div class="setting-row"><div><strong>アニメーション</strong><span>画面の動きを抑えられます</span></div>
+            <label class="switch"><input id="motionToggle" type="checkbox"><span></span></label>
+          </div>
+          <div class="setting-row"><div><strong>データのバックアップ</strong><span>端末変更に備えて保存できます</span></div>
+            <button id="exportButton" class="mini-button" type="button">書き出す</button>
+          </div>
+          <div class="setting-row"><div><strong>データの復元</strong><span>バックアップファイルを読み込みます</span></div>
+            <button id="importButton" class="mini-button" type="button">読み込む</button>
+            <input id="importFile" type="file" accept="application/json,.json" hidden>
+          </div>
+          <div class="version-row"><strong>バージョン</strong><span>v0.5.0</span></div>
           <button id="clearDataButton" class="danger-button" type="button">保存データをすべて削除</button>
         </article>
       </section>
@@ -146,6 +183,6 @@
     </nav>
     <div id="toast" class="toast" role="status" aria-live="polite"></div>
   </div>
-  <script src="script.js?v=0.4.0"></script>
+  <script src="script.js?v=0.5.0"></script>
 </body>
 </html>
