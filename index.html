@@ -64,39 +64,84 @@
         <span id="buttonLabel">今日の運勢を見る</span>
       </button>
 
-      <p class="fortune-note" id="fortuneNote">
-        運勢は毎日変わります。
-      </p>
+      <p class="fortune-note" id="fortuneNote">運勢は毎日変わります。</p>
+    </section>
+
+    <section class="summary-strip" aria-label="今日の運勢一覧">
+      <article><span>💼</span><small>仕事運</small><strong id="workStarsMini">☆☆☆☆☆</strong></article>
+      <article><span>❤️</span><small>恋愛運</small><strong id="loveStarsMini">☆☆☆☆☆</strong></article>
+      <article><span>💰</span><small>金運</small><strong id="moneyStarsMini">☆☆☆☆☆</strong></article>
+      <article><span>💪</span><small>健康運</small><strong id="healthStarsMini">☆☆☆☆☆</strong></article>
+    </section>
+
+    <section class="category-section" aria-label="項目別の運勢">
+      <button class="section-toggle" id="detailToggle" type="button" aria-expanded="false" aria-controls="categoryDetails">
+        <span>
+          <small>FORTUNE DETAILS</small>
+          <strong>詳しい運勢を見る</strong>
+        </span>
+        <span class="toggle-icon" aria-hidden="true">⌄</span>
+      </button>
+
+      <div class="category-list" id="categoryDetails" hidden>
+        <article class="category-card">
+          <div class="category-top">
+            <span class="category-icon">💼</span>
+            <div><p>仕事運</p><strong id="workStars">☆☆☆☆☆</strong></div>
+          </div>
+          <p id="workMessage">運勢を見ると表示されます。</p>
+        </article>
+
+        <article class="category-card">
+          <div class="category-top">
+            <span class="category-icon">❤️</span>
+            <div><p>恋愛運</p><strong id="loveStars">☆☆☆☆☆</strong></div>
+          </div>
+          <p id="loveMessage">運勢を見ると表示されます。</p>
+        </article>
+
+        <article class="category-card">
+          <div class="category-top">
+            <span class="category-icon">💰</span>
+            <div><p>金運</p><strong id="moneyStars">☆☆☆☆☆</strong></div>
+          </div>
+          <p id="moneyMessage">運勢を見ると表示されます。</p>
+        </article>
+
+        <article class="category-card">
+          <div class="category-top">
+            <span class="category-icon">💪</span>
+            <div><p>健康運</p><strong id="healthStars">☆☆☆☆☆</strong></div>
+          </div>
+          <p id="healthMessage">運勢を見ると表示されます。</p>
+        </article>
+      </div>
     </section>
 
     <section class="detail-grid" aria-label="今日の開運情報">
       <article class="detail-card">
         <span class="detail-emoji">🍀</span>
-        <div>
-          <p>開運アクション</p>
-          <strong id="luckyAction">運勢を見ると表示されます</strong>
-        </div>
+        <div><p>開運アクション</p><strong id="luckyAction">運勢を見ると表示されます</strong></div>
       </article>
       <article class="detail-card">
         <span class="detail-emoji">🎨</span>
-        <div>
-          <p>ラッキーカラー</p>
-          <strong id="luckyColor">—</strong>
-        </div>
+        <div><p>ラッキーカラー</p><strong id="luckyColor">—</strong></div>
+      </article>
+      <article class="detail-card">
+        <span class="detail-emoji">🎁</span>
+        <div><p>ラッキーアイテム</p><strong id="luckyItem">—</strong></div>
+      </article>
+      <article class="detail-card">
+        <span class="detail-emoji">🔢</span>
+        <div><p>ラッキーナンバー</p><strong id="luckyNumber">—</strong></div>
       </article>
       <article class="detail-card">
         <span class="detail-emoji">⏰</span>
-        <div>
-          <p>ラッキータイム</p>
-          <strong id="luckyTime">—</strong>
-        </div>
+        <div><p>ラッキータイム</p><strong id="luckyTime">—</strong></div>
       </article>
       <article class="detail-card">
         <span class="detail-emoji">🧭</span>
-        <div>
-          <p>今日の注意点</p>
-          <strong id="caution">無理をしすぎないこと</strong>
-        </div>
+        <div><p>今日の注意点</p><strong id="caution">無理をしすぎないこと</strong></div>
       </article>
     </section>
 
@@ -106,24 +151,19 @@
     </section>
 
     <section class="status-card">
-      <div>
-        <span class="status-dot" aria-hidden="true"></span>
-        <p id="statusText">オフラインでも使えます</p>
-      </div>
-      <small id="versionText">RC1</small>
+      <div><span class="status-dot" aria-hidden="true"></span><p id="statusText">オフラインでも使えます</p></div>
+      <small id="versionText">RC3</small>
     </section>
 
-    <footer>
-      <p>毎朝、小さな前向きを。</p>
-    </footer>
+    <footer><p>毎朝、小さな前向きを。</p></footer>
   </main>
 
   <dialog class="help-dialog" id="helpDialog">
     <form method="dialog">
       <button class="dialog-close" aria-label="閉じる">×</button>
       <h2>使い方</h2>
-      <p>「今日の運勢を見る」を押すだけで、その日の運勢と開運情報が表示されます。</p>
-      <p>一度開いた運勢は、その日の間は同じ内容です。翌日になると新しく切り替わります。</p>
+      <p>「今日の運勢を見る」を押すと、今日の総合運と4項目の運勢、開運情報が表示されます。</p>
+      <p>詳しいアドバイスは「詳しい運勢を見る」から開けます。翌日になると内容が切り替わります。</p>
       <button class="dialog-button" value="close">わかりました</button>
     </form>
   </dialog>
@@ -131,10 +171,7 @@
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
   <section class="update-banner" id="updateBanner" aria-live="polite">
-    <div>
-      <strong>新しいバージョンがあります</strong>
-      <span>更新して最新の内容を使えます。</span>
-    </div>
+    <div><strong>新しいバージョンがあります</strong><span>更新して最新の内容を使えます。</span></div>
     <button id="updateButton" type="button">更新</button>
   </section>
 

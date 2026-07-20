@@ -1,5 +1,5 @@
 "use strict";
-const CACHE_NAME="morning-fortune-0.9.0-rc1";
+const CACHE_NAME="morning-fortune-0.9.0-rc3";
 const FILES=[
   "./","./index.html","./style.css","./app.js","./manifest.json",
   "./icons/icon-192.png","./icons/icon-192-maskable.png",
@@ -20,9 +20,9 @@ self.addEventListener("activate",event=>{
 
 self.addEventListener("fetch",event=>{
   const request=event.request;
-  if(request.method!=="GET") return;
+  if(request.method!=="GET")return;
   const url=new URL(request.url);
-  if(url.origin!==self.location.origin) return;
+  if(url.origin!==self.location.origin)return;
 
   if(request.mode==="navigate"){
     event.respondWith(
@@ -40,7 +40,7 @@ self.addEventListener("fetch",event=>{
   }
 
   event.respondWith(
-    caches.match(request).then(cached=>cached || fetch(request).then(response=>{
+    caches.match(request).then(cached=>cached||fetch(request).then(response=>{
       if(response.ok){
         const copy=response.clone();
         caches.open(CACHE_NAME).then(cache=>cache.put(request,copy));
@@ -51,5 +51,5 @@ self.addEventListener("fetch",event=>{
 });
 
 self.addEventListener("message",event=>{
-  if(event.data?.type==="SKIP_WAITING") self.skipWaiting();
+  if(event.data?.type==="SKIP_WAITING")self.skipWaiting();
 });
