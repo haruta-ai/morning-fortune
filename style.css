@@ -1,4 +1,4 @@
-/* 毎朝の運勢 RC3 */
+/* 毎朝の運勢 RC4 */
 :root{
   color-scheme:dark;
   --bg1:#18112f;--bg2:#3b245c;--bg3:#a84f76;
@@ -53,7 +53,7 @@ button{font:inherit}
 .greeting{margin:0 0 6px;color:var(--gold);font-size:13px;font-weight:800}
 .welcome h1{margin:0;font-size:clamp(36px,11vw,52px);line-height:1.05;letter-spacing:.04em;text-shadow:0 10px 30px rgba(13,7,30,.28)}
 .welcome>p:last-child{margin:10px 0 0;color:var(--muted);font-size:13px;font-weight:650}
-.fortune-card,.summary-strip,.section-toggle,.category-card,.detail-card,.quote-card,.status-card{
+.fortune-card,.summary-strip,.category-card,.detail-card,.quote-card,.status-card{
   background:linear-gradient(145deg,rgba(255,255,255,.17),rgba(255,255,255,.07));
   border:1px solid var(--border);box-shadow:var(--shadow);
   -webkit-backdrop-filter:blur(22px) saturate(135%);backdrop-filter:blur(22px) saturate(135%)
@@ -101,31 +101,26 @@ button{font:inherit}
 .summary-strip small{margin-top:4px;color:var(--muted);font-size:9px;font-weight:800}
 .summary-strip strong{margin-top:4px;color:var(--gold);font-size:8px;letter-spacing:-.03em}
 .category-section{display:grid;gap:11px}
-.section-toggle{
-  width:100%;padding:15px 16px;display:flex;align-items:center;justify-content:space-between;
-  color:var(--text);border-radius:18px;cursor:pointer;text-align:left
-}
-.section-toggle small,.section-toggle strong{display:block}
-.section-toggle small{margin-bottom:4px;color:var(--gold);font-size:9px;font-weight:900;letter-spacing:.16em}
-.section-toggle strong{font-size:15px}
-.toggle-icon{font-size:26px;transition:transform .22s ease}
-.section-toggle[aria-expanded="true"] .toggle-icon{transform:rotate(180deg)}
+.section-heading{display:flex;align-items:flex-end;justify-content:space-between;padding:4px 3px 0}
+.section-heading p{margin:0 0 4px;color:var(--gold);font-size:9px;font-weight:900;letter-spacing:.16em}
+.section-heading h2{margin:0;font-size:20px}
+.section-heading>span{color:var(--muted);font-size:10px;font-weight:800}
 .category-list{display:grid;gap:11px}
-.category-card{padding:15px 16px;border-radius:var(--radius-lg)}
+.category-card{padding:14px 15px;border-radius:var(--radius-lg)}
 .category-top{display:flex;align-items:center;gap:11px}
 .category-icon{width:42px;height:42px;display:grid;place-items:center;border-radius:14px;background:rgba(255,255,255,.09);font-size:22px}
 .category-top div{min-width:0;flex:1}
 .category-top p{margin:0 0 3px;color:var(--soft);font-size:13px;font-weight:850}
 .category-top strong{color:var(--gold);font-size:16px;letter-spacing:.09em}
-.category-card>p{margin:11px 0 0;color:var(--soft);font-size:13px;font-weight:650;line-height:1.65}
+.category-card>p{margin:9px 0 0;color:var(--soft);font-size:13px;font-weight:650;line-height:1.55}
 .detail-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px;animation:rise .82s .14s ease both}
 .detail-card{min-height:108px;padding:15px 13px;display:flex;align-items:flex-start;gap:10px;border-radius:var(--radius-lg)}
 .detail-emoji{flex:0 0 auto;font-size:25px;line-height:1}
 .detail-card p{margin:0 0 8px;color:var(--muted);font-size:10px;font-weight:850;line-height:1.4;letter-spacing:.04em}
 .detail-card strong{display:block;color:var(--soft);font-size:14px;line-height:1.5}
-.quote-card{padding:18px 19px;border-radius:var(--radius-lg);animation:rise .85s .18s ease both}
-.quote-card span{color:var(--gold);font-size:10px;font-weight:900;letter-spacing:.14em}
-.quote-card blockquote{margin:8px 0 0;color:var(--soft);font-size:15px;font-weight:750;line-height:1.7}
+.quote-card{padding:22px 20px;border-radius:var(--radius-lg);animation:rise .85s .18s ease both}
+.quote-card span{color:var(--gold);font-size:11px;font-weight:900;letter-spacing:.14em}
+.quote-card blockquote{margin:10px 0 0;color:var(--text);font-size:21px;font-weight:850;line-height:1.65;letter-spacing:.02em;text-shadow:0 6px 20px rgba(15,8,30,.22)}
 .status-card{padding:13px 15px;display:flex;align-items:center;justify-content:space-between;border-radius:16px;animation:rise .88s .22s ease both}
 .status-card div{display:flex;align-items:center;gap:8px}
 .status-card p,.status-card small{margin:0;color:var(--muted);font-size:11px;font-weight:750}

@@ -1,5 +1,5 @@
 "use strict";
-const CACHE_NAME="morning-fortune-0.9.0-rc3";
+const CACHE_NAME="morning-fortune-0.9.0-rc4";
 const FILES=[
   "./","./index.html","./style.css","./app.js","./manifest.json",
   "./icons/icon-192.png","./icons/icon-192-maskable.png",

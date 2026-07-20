@@ -1,11 +1,10 @@
 "use strict";
 
 const APP = Object.freeze({
-  version: "0.9.0-rc3",
-  storageKey: "morningFortuneStateV4",
-  detailKey: "morningFortuneDetailOpen",
+  version: "0.9.0-rc4",
+  storageKey: "morningFortuneStateV5",
   worker: "./service-worker.js",
-  splashMs: 1000,
+  splashMs: 2000,
   toastMs: 2200,
   dateCheckMs: 60000
 });
@@ -193,20 +192,11 @@ function showToast(message){
   toastTimer=setTimeout(()=>$("toast").classList.remove("is-visible"),APP.toastMs);
 }
 
-function setDetails(open){
-  $("categoryDetails").hidden=!open;
-  $("detailToggle").setAttribute("aria-expanded",String(open));
-  $("detailToggle").querySelector("strong").textContent=open?"詳しい運勢を閉じる":"詳しい運勢を見る";
-  try{localStorage.setItem(APP.detailKey,open?"1":"0");}catch{}
-}
 
 function setupButtons(){
   $("startButton").addEventListener("click",()=>{
     renderFortune(true);
     showToast("今日の運勢を開きました");
-  });
-  $("detailToggle").addEventListener("click",()=>{
-    setDetails($("detailToggle").getAttribute("aria-expanded")!=="true");
   });
   $("helpButton").addEventListener("click",()=>$("helpDialog").showModal());
   $("updateButton").addEventListener("click",()=>waitingWorker?.postMessage({type:"SKIP_WAITING"}));
@@ -266,12 +256,11 @@ async function registerWorker(){
 }
 
 function init(){
-  $("versionText").textContent="RC3";
+  $("versionText").textContent="RC4";
   setupSplash();
   renderDate();
   restore();
   setupButtons();
-  try{setDetails(localStorage.getItem(APP.detailKey)==="1");}catch{setDetails(false);}
   setupDayWatcher();
   window.addEventListener("load",registerWorker,{once:true});
   window.addEventListener("online",()=>$("statusText").textContent="オフラインでも使えます");

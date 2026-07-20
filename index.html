@@ -75,15 +75,15 @@
     </section>
 
     <section class="category-section" aria-label="項目別の運勢">
-      <button class="section-toggle" id="detailToggle" type="button" aria-expanded="false" aria-controls="categoryDetails">
-        <span>
-          <small>FORTUNE DETAILS</small>
-          <strong>詳しい運勢を見る</strong>
-        </span>
-        <span class="toggle-icon" aria-hidden="true">⌄</span>
-      </button>
+      <div class="section-heading">
+        <div>
+          <p>FORTUNE DETAILS</p>
+          <h2>詳しい運勢</h2>
+        </div>
+        <span>5段階</span>
+      </div>
 
-      <div class="category-list" id="categoryDetails" hidden>
+      <div class="category-list" id="categoryDetails">
         <article class="category-card">
           <div class="category-top">
             <span class="category-icon">💼</span>
@@ -152,7 +152,7 @@
 
     <section class="status-card">
       <div><span class="status-dot" aria-hidden="true"></span><p id="statusText">オフラインでも使えます</p></div>
-      <small id="versionText">RC3</small>
+      <small id="versionText">RC4</small>
     </section>
 
     <footer><p>毎朝、小さな前向きを。</p></footer>
@@ -163,7 +163,7 @@
       <button class="dialog-close" aria-label="閉じる">×</button>
       <h2>使い方</h2>
       <p>「今日の運勢を見る」を押すと、今日の総合運と4項目の運勢、開運情報が表示されます。</p>
-      <p>詳しいアドバイスは「詳しい運勢を見る」から開けます。翌日になると内容が切り替わります。</p>
+      <p>仕事運・恋愛運・金運・健康運は、総合運の下にそのまま表示されます。翌日になると内容が切り替わります。</p>
       <button class="dialog-button" value="close">わかりました</button>
     </form>
   </dialog>
