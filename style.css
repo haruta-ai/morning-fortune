@@ -1,4 +1,4 @@
-/* 毎朝の運勢 RC5 */
+/* 毎朝の運勢 RC6 */
 :root{
   color-scheme:dark;
   --bg1:#18112f;--bg2:#3b245c;--bg3:#a84f76;
@@ -87,7 +87,7 @@ button{font:inherit}
   color:#37224f;font-size:16px;font-weight:900;letter-spacing:.03em;
   background:linear-gradient(135deg,#ffe2a2,#ffb95f 48%,#f59ab7);
   box-shadow:0 15px 30px rgba(75,34,94,.28),inset 0 1px 0 rgba(255,255,255,.65);
-  cursor:pointer;touch-action:manipulation;transition:transform .18s ease,filter .18s ease,opacity .18s ease
+  cursor:pointer;touch-action:manipulation;user-select:none;-webkit-user-select:none;transition:transform .18s ease,filter .18s ease,opacity .18s ease
 }
 .main-button:active:not(:disabled){transform:scale(.975);filter:brightness(.97)}
 .main-button:disabled{opacity:.88;cursor:default}
@@ -168,4 +168,8 @@ button:focus-visible{outline:3px solid rgba(255,255,255,.82);outline-offset:4px}
 @media(prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
   .splash{display:none}
+}
+
+@media(max-width:430px) and (min-resolution:2dppx){
+  .fortune-message,.category-card>p,.quote-card blockquote{overflow-wrap:anywhere}
 }

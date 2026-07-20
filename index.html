@@ -6,14 +6,15 @@
   <title>毎朝の運勢</title>
   <meta name="description" content="朝30秒で、今日を少し前向きに始める運勢アプリ。">
   <meta name="theme-color" content="#1c1538">
+  <meta name="application-version" content="0.9.0-rc6">
   <meta name="color-scheme" content="dark">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="毎朝の運勢">
-  <link rel="manifest" href="./manifest.json?v=0.9.0-rc5">
+  <link rel="manifest" href="./manifest.json?v=0.9.0-rc6">
   <link rel="apple-touch-icon" href="./icons/icon-192.png">
   <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png">
-  <link rel="stylesheet" href="./style.css?v=0.9.0-rc5">
+  <link rel="stylesheet" href="./style.css?v=0.9.0-rc6">
 </head>
 <body>
   <div class="background" aria-hidden="true">
@@ -46,7 +47,7 @@
       <p>朝30秒で、今日のヒントを。</p>
     </section>
 
-    <section class="fortune-card" id="fortuneCard">
+    <section class="fortune-card" id="fortuneCard" aria-live="polite" aria-atomic="false">
       <div class="fortune-head">
         <span class="today-chip">TODAY</span>
         <span id="miniDate"></span>
@@ -60,7 +61,7 @@
         ボタンを押して、今日の運勢を受け取りましょう。
       </p>
 
-      <button class="main-button" id="startButton" type="button">
+      <button class="main-button" id="startButton" type="button" aria-describedby="fortuneNote">
         <span id="buttonLabel">今日の運勢を見る</span>
       </button>
 
@@ -152,7 +153,7 @@
 
     <section class="status-card">
       <div><span class="status-dot" aria-hidden="true"></span><p id="statusText">オフラインでも使えます</p></div>
-      <small id="versionText">RC5</small>
+      <small id="versionText">RC6</small>
     </section>
 
     <footer><p>毎朝、小さな前向きを。</p></footer>
@@ -175,6 +176,6 @@
     <button id="updateButton" type="button">更新</button>
   </section>
 
-  <script src="./app.js?v=0.9.0-rc5" defer></script>
+  <script src="./app.js?v=0.9.0-rc6" defer></script>
 </body>
 </html>

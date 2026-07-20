@@ -1,7 +1,7 @@
 "use strict";
 
 const APP = Object.freeze({
-  version: "0.9.0-rc5",
+  version: "0.9.0-rc6",
   storageKey: "morningFortuneStateV6",
   worker: "./service-worker.js",
   splashMs: 3000,
@@ -195,6 +195,10 @@ function showToast(message){
 
 function setupButtons(){
   $("startButton").addEventListener("click",()=>{
+    const button=$("startButton");
+    if(button.disabled)return;
+    button.disabled=true;
+    if("vibrate"in navigator)navigator.vibrate(12);
     renderFortune(true);
     showToast("今日の運勢を開きました");
   });
@@ -256,13 +260,14 @@ async function registerWorker(){
 }
 
 function init(){
-  $("versionText").textContent="RC5";
+  $("versionText").textContent="RC6";
   setupSplash();
   renderDate();
   restore();
   setupButtons();
   setupDayWatcher();
   window.addEventListener("load",registerWorker,{once:true});
+  $("statusText").textContent=navigator.onLine?"オフラインでも使えます":"現在オフラインです";
   window.addEventListener("online",()=>$("statusText").textContent="オフラインでも使えます");
   window.addEventListener("offline",()=>$("statusText").textContent="現在オフラインです");
 }

@@ -1,13 +1,13 @@
 "use strict";
 
 const CACHE_PREFIX = "morning-fortune-";
-const CACHE_NAME = "0.9.0-rc5-shell-v1";
+const CACHE_NAME = "0.9.0-rc6-shell-v1";
 const FILES = [
   "./",
   "./index.html",
-  "./style.css?v=0.9.0-rc5",
-  "./app.js?v=0.9.0-rc5",
-  "./manifest.json?v=0.9.0-rc5",
+  "./style.css?v=0.9.0-rc6",
+  "./app.js?v=0.9.0-rc6",
+  "./manifest.json?v=0.9.0-rc6",
   "./icons/icon-192.png",
   "./icons/icon-192-maskable.png",
   "./icons/icon-512.png",
