@@ -1,25 +1,43 @@
 {
+  "id": "./",
   "name": "毎朝の運勢",
-  "short_name": "朝の運勢",
-  "description": "朝30秒で、一日を前向きに始める運勢アプリ",
+  "short_name": "毎朝の運勢",
+  "description": "朝30秒で、今日を少し前向きに始める運勢アプリ。",
+  "lang": "ja-JP",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#f5efe6",
-  "theme_color": "#f5efe6",
-  "lang": "ja",
   "orientation": "portrait-primary",
-  "id": "./",
+  "background_color": "#18112f",
+  "theme_color": "#1c1538",
+  "categories": [
+    "lifestyle",
+    "entertainment"
+  ],
   "icons": [
     {
-      "src": "icon-192.png",
+      "src": "./icons/icon-192.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
     },
     {
-      "src": "icon-512.png",
+      "src": "./icons/icon-192-maskable.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "./icons/icon-512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icons/icon-512-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ]
 }
