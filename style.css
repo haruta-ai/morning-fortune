@@ -1,4 +1,4 @@
-/* 毎朝の運勢 RC4 */
+/* 毎朝の運勢 RC5 */
 :root{
   color-scheme:dark;
   --bg1:#18112f;--bg2:#3b245c;--bg3:#a84f76;
@@ -31,7 +31,7 @@ button{font:inherit}
 .splash{
   position:fixed;inset:0;z-index:100;display:grid;place-content:center;text-align:center;gap:8px;
   background:radial-gradient(circle at 50% 37%,rgba(255,210,135,.23),transparent 29%),linear-gradient(165deg,#17102d,#43285f 56%,#9d4d70);
-  transition:opacity .42s ease,visibility .42s ease
+  transition:opacity .65s ease,visibility .65s ease
 }
 .splash.is-hidden{opacity:0;visibility:hidden}
 .splash-symbol{font-size:58px;filter:drop-shadow(0 12px 28px rgba(255,202,117,.38));animation:float 1.5s ease-in-out infinite alternate}
@@ -118,9 +118,9 @@ button{font:inherit}
 .detail-emoji{flex:0 0 auto;font-size:25px;line-height:1}
 .detail-card p{margin:0 0 8px;color:var(--muted);font-size:10px;font-weight:850;line-height:1.4;letter-spacing:.04em}
 .detail-card strong{display:block;color:var(--soft);font-size:14px;line-height:1.5}
-.quote-card{padding:22px 20px;border-radius:var(--radius-lg);animation:rise .85s .18s ease both}
+.quote-card{padding:26px 22px;border-radius:var(--radius-lg);animation:rise .85s .18s ease both}
 .quote-card span{color:var(--gold);font-size:11px;font-weight:900;letter-spacing:.14em}
-.quote-card blockquote{margin:10px 0 0;color:var(--text);font-size:21px;font-weight:850;line-height:1.65;letter-spacing:.02em;text-shadow:0 6px 20px rgba(15,8,30,.22)}
+.quote-card blockquote{margin:10px 0 0;color:var(--text);font-size:26px;font-weight:850;line-height:1.6;letter-spacing:.02em;text-shadow:0 6px 20px rgba(15,8,30,.22)}
 .status-card{padding:13px 15px;display:flex;align-items:center;justify-content:space-between;border-radius:16px;animation:rise .88s .22s ease both}
 .status-card div{display:flex;align-items:center;gap:8px}
 .status-card p,.status-card small{margin:0;color:var(--muted);font-size:11px;font-weight:750}

@@ -1,10 +1,10 @@
 "use strict";
 
 const APP = Object.freeze({
-  version: "0.9.0-rc4",
-  storageKey: "morningFortuneStateV5",
+  version: "0.9.0-rc5",
+  storageKey: "morningFortuneStateV6",
   worker: "./service-worker.js",
-  splashMs: 2000,
+  splashMs: 3000,
   toastMs: 2200,
   dateCheckMs: 60000
 });
@@ -256,7 +256,7 @@ async function registerWorker(){
 }
 
 function init(){
-  $("versionText").textContent="RC4";
+  $("versionText").textContent="RC5";
   setupSplash();
   renderDate();
   restore();
