@@ -86,6 +86,37 @@ function clone(value) {
   return JSON.parse(JSON.stringify(value));
 }
 
+
+function initializeStudioTabs() {
+  const buttons = [...document.querySelectorAll("[data-studio-tab]")];
+  const panels = [...document.querySelectorAll("[data-studio-panel]")];
+
+  function activate(tabName) {
+    for (const button of buttons) {
+      const active = button.dataset.studioTab === tabName;
+      button.classList.toggle("is-active", active);
+      button.setAttribute("aria-selected", String(active));
+    }
+
+    for (const panel of panels) {
+      panel.hidden = panel.dataset.studioPanel !== tabName;
+    }
+
+    localStorage.setItem("emf-studio-active-tab", tabName);
+  }
+
+  for (const button of buttons) {
+    button.addEventListener("click", () => {
+      activate(button.dataset.studioTab);
+    });
+  }
+
+  const saved = localStorage.getItem("emf-studio-active-tab");
+  activate(["editor", "quality", "analytics", "backup"].includes(saved)
+    ? saved
+    : "editor");
+}
+
 function percent(part, total) {
   if (!total) return 0;
   return Math.round((part / total) * 100);
@@ -1337,6 +1368,7 @@ ui.clearEditorHistoryButton.addEventListener("click", () => {
   ui.editorMessage.textContent = "編集履歴を消去しました。";
 });
 
+initializeStudioTabs();
 renderAnalytics();
   } catch (error) {
     ui.message.textContent =
@@ -1554,4 +1586,5 @@ ui.clearEditorHistoryButton.addEventListener("click", () => {
   ui.editorMessage.textContent = "編集履歴を消去しました。";
 });
 
+initializeStudioTabs();
 renderAnalytics();

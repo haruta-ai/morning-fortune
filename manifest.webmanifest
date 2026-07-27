@@ -1,7 +1,7 @@
 {
   "name": "Every Morning Fortune",
   "short_name": "Morning Fortune",
-  "description": "毎朝30秒、自分を整える占いアプリ",
+  "description": "毎朝30秒で、その日の気持ちと行動を整える前向きな習慣アプリ。",
   "lang": "ja",
   "start_url": "./index.html",
   "scope": "./",

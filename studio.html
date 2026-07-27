@@ -19,6 +19,22 @@
   </header>
 
   <main class="app-shell">
+
+    <nav class="studio-tabs" aria-label="Studio機能">
+      <button class="studio-tab is-active" type="button" data-studio-tab="editor">
+        編集
+      </button>
+      <button class="studio-tab" type="button" data-studio-tab="quality">
+        品質
+      </button>
+      <button class="studio-tab" type="button" data-studio-tab="analytics">
+        分析
+      </button>
+      <button class="studio-tab" type="button" data-studio-tab="backup">
+        管理
+      </button>
+    </nav>
+
     <article class="hero-card studio-hero">
       <p class="eyebrow">LOCAL ANALYTICS</p>
       <h2>端末内データを分析</h2>
@@ -27,7 +43,7 @@
       </p>
     </article>
 
-    <section class="studio-summary-grid" aria-label="利用概要">
+    <section class="studio-summary-grid" aria-label="利用概要" data-studio-panel="analytics">
       <article class="summary-card">
         <span>朝の利用</span>
         <strong id="morningCount">0</strong>
@@ -50,7 +66,7 @@
       </article>
     </section>
 
-    <article class="card">
+    <article class="card" data-studio-panel="analytics">
       <div class="section-heading">
         <div>
           <p class="eyebrow">STAR DISTRIBUTION</p>
@@ -61,7 +77,7 @@
       <div id="starDistribution" class="analytics-bars"></div>
     </article>
 
-    <article class="card">
+    <article class="card" data-studio-panel="analytics">
       <div class="section-heading">
         <div>
           <p class="eyebrow">THEME DISTRIBUTION</p>
@@ -71,7 +87,7 @@
       <div id="themeDistribution" class="theme-ranking"></div>
     </article>
 
-    <article class="card">
+    <article class="card" data-studio-panel="analytics">
       <div class="section-heading">
         <div>
           <p class="eyebrow">MORNING / NIGHT</p>
@@ -94,7 +110,7 @@
       </div>
     </article>
 
-    <article class="card">
+    <article class="card" data-studio-panel="analytics">
       <div class="section-heading">
         <div>
           <p class="eyebrow">REFLECTION</p>
@@ -119,7 +135,7 @@
 
 
 
-    <article class="card content-editor-card">
+    <article class="card content-editor-card" data-studio-panel="editor">
       <div class="section-heading">
         <div>
           <p class="eyebrow">CONTENT EDITOR</p>
@@ -264,7 +280,7 @@
       </div>
     </article>
 
-    <article class="card quality-dashboard">
+    <article class="card quality-dashboard" data-studio-panel="quality">
       <div class="section-heading">
         <div>
           <p class="eyebrow">CONTENT HEALTH</p>
@@ -315,7 +331,7 @@
       </div>
     </article>
 
-    <article class="card">
+    <article class="card" data-studio-panel="quality">
       <div class="section-heading">
         <div>
           <p class="eyebrow">DUPLICATE FINDER</p>
@@ -325,7 +341,7 @@
       <div id="duplicateList" class="duplicate-list"></div>
     </article>
 
-    <article class="card">
+    <article class="card" data-studio-panel="backup">
       <div class="section-heading">
         <div>
           <p class="eyebrow">DIAGNOSTICS</p>
@@ -338,7 +354,7 @@
       </button>
     </article>
 
-    <article class="card">
+    <article class="card" data-studio-panel="backup">
       <h2>バックアップ</h2>
       <p class="muted">
         端末内データをJSONとして保存・復元できます。

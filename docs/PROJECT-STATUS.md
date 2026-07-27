@@ -1,18 +1,29 @@
 # Project Status
 
 ## 現在の開発段階
-Sprint 9 完了 — Studio編集ワークフロー
+
+Sprint 10 完了 — Release Candidate 1
 
 ## 完了済み
-- Sprint 1〜8
-- 編集差分JSON再読み込み
-- IndexedDB編集内容の自動復元
-- コンテンツ検索
-- 品質問題による絞り込み
-- 問題項目から編集画面へ移動
-- 編集履歴
-- 公開用content.json生成
-- App Version 0.9.0
+
+- Sprint 1〜9
+- 公開画面のUI調整
+- 初回登録コピー改善
+- Studioタブ構成
+- PWA manifest整理
+- 古い補助ファイル整理
+- iPhone実機テストチェックリスト
+- Release Candidate Notes
+- App Version 1.0.0-rc1
 
 ## 次にやること
-Sprint 10 公開候補版UI・PWA・実機テスト
+
+Release Candidate検証
+
+1. Macブラウザ動作確認
+2. iPhone Safari確認
+3. ホーム画面追加確認
+4. PWA再起動確認
+5. オフライン確認
+6. 不具合修正
+7. 正式版1.0.0

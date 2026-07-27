@@ -993,3 +993,84 @@ textarea:focus {
     display: grid;
   }
 }
+
+
+/* =========================================================
+   Sprint 10 — Release Candidate polish
+   ========================================================= */
+
+.app-tagline {
+  margin: 8px 0 0;
+  color: var(--morning-muted);
+  font-size: .88rem;
+}
+
+.primary-button--hero {
+  min-height: 54px;
+  font-size: 1rem;
+}
+
+.app-footer {
+  padding: 12px 0 4px;
+  color: var(--morning-muted);
+  text-align: center;
+}
+
+.app-footer p {
+  margin: 0;
+  color: var(--morning-navy);
+  font-weight: 800;
+}
+
+.app-footer small {
+  display: block;
+  margin-top: 3px;
+}
+
+.studio-tabs {
+  position: sticky;
+  z-index: 40;
+  top: 8px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin: 0 0 16px;
+  padding: 8px;
+  border: 1px solid var(--morning-line);
+  border-radius: 18px;
+  background: rgba(255, 253, 248, .92);
+  box-shadow: 0 12px 35px rgba(11, 24, 48, .12);
+  backdrop-filter: blur(14px);
+}
+
+.studio-tab {
+  min-height: 44px;
+  border: 0;
+  border-radius: 12px;
+  color: var(--morning-muted);
+  background: transparent;
+  font-weight: 800;
+}
+
+.studio-tab.is-active {
+  color: white;
+  background: var(--morning-navy);
+  box-shadow: 0 8px 20px rgba(11, 24, 48, .18);
+}
+
+[data-studio-panel][hidden] {
+  display: none !important;
+}
+
+@media (max-width: 520px) {
+  .studio-tabs {
+    gap: 4px;
+    padding: 6px;
+  }
+
+  .studio-tab {
+    min-height: 42px;
+    padding: 8px 4px;
+    font-size: .84rem;
+  }
+}

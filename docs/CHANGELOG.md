@@ -1,5 +1,18 @@
 # CHANGELOG
 
+## 1.0.0-rc1 — Sprint 10
+
+- 公開画面のコピーと余白を調整
+- 初回登録ボタンを改善
+- アプリフッターを追加
+- Studioを編集・品質・分析・管理の4タブへ整理
+- Studioの選択タブを端末内に記憶
+- PWA manifestを整理
+- 古いSprint補助ファイルを削除
+- iPhone実機テストチェックリストを追加
+- Release Candidate Notesを追加
+
+
 ## 0.9.0 — Sprint 9
 
 - 編集差分JSONの読み込みを追加
