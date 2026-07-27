@@ -27,7 +27,17 @@ const ui = {
   refresh: $("#refreshDiagnostics"),
   exportButton: $("#exportButton"),
   importInput: $("#importInput"),
-  message: $("#studioMessage")
+  message: $("#studioMessage"),
+  qualityStatusBadge: $("#qualityStatusBadge"),
+  qualityScore: $("#qualityScore"),
+  qualitySummary: $("#qualitySummary"),
+  duplicateCount: $("#duplicateCount"),
+  shortTextCount: $("#shortTextCount"),
+  longTextCount: $("#longTextCount"),
+  missingThemeCount: $("#missingThemeCount"),
+  qualityIssues: $("#qualityIssues"),
+  qualityBreakdown: $("#qualityBreakdown"),
+  duplicateList: $("#duplicateList")
 };
 
 function percent(part, total) {
@@ -92,6 +102,350 @@ function createBarRow(label, value, total, suffix = "日") {
   row.append(top, track);
 
   return row;
+}
+
+
+function normalizeText(text) {
+  return String(text || "")
+    .normalize("NFKC")
+    .replace(/\s+/g, "")
+    .replace(/[。、！？!?「」『』（）()・…]/g, "")
+    .toLowerCase();
+}
+
+function bigrams(text) {
+  const normalized = normalizeText(text);
+  const set = new Set();
+
+  for (let index = 0; index < normalized.length - 1; index += 1) {
+    set.add(normalized.slice(index, index + 2));
+  }
+
+  return set;
+}
+
+function similarity(a, b) {
+  const setA = bigrams(a);
+  const setB = bigrams(b);
+
+  if (!setA.size || !setB.size) return 0;
+
+  let overlap = 0;
+  for (const item of setA) {
+    if (setB.has(item)) overlap += 1;
+  }
+
+  return (2 * overlap) / (setA.size + setB.size);
+}
+
+function flattenContent(content) {
+  const rows = [];
+
+  for (const [themeId, variants] of Object.entries(content || {})) {
+    const list = Array.isArray(variants) ? variants : [variants];
+
+    for (const item of list) {
+      rows.push({
+        themeId,
+        id: item.id || `${themeId}-unknown`,
+        season: item.season || "未設定",
+        lead: String(item.lead || ""),
+        key: String(item.key || ""),
+        promise: String(item.promise || ""),
+        action: String(item.action || ""),
+        nightPrompt: String(item.nightPrompt || "")
+      });
+    }
+  }
+
+  return rows;
+}
+
+function findDuplicates(rows) {
+  const candidates = [];
+
+  for (let i = 0; i < rows.length; i += 1) {
+    for (let j = i + 1; j < rows.length; j += 1) {
+      const left = rows[i];
+      const right = rows[j];
+
+      for (const field of ["lead", "key", "promise", "action", "nightPrompt"]) {
+        const score = similarity(left[field], right[field]);
+
+        if (score >= 0.84) {
+          candidates.push({
+            field,
+            score,
+            left,
+            right
+          });
+        }
+      }
+    }
+  }
+
+  return candidates.sort((a, b) => b.score - a.score);
+}
+
+function evaluateQuality(content, themes) {
+  const rows = flattenContent(content);
+  const duplicates = findDuplicates(rows);
+
+  const shortTexts = [];
+  const longTexts = [];
+
+  const lengthRules = {
+    lead: { min: 18, max: 80 },
+    key: { min: 8, max: 40 },
+    promise: { min: 10, max: 46 },
+    action: { min: 10, max: 46 },
+    nightPrompt: { min: 12, max: 60 }
+  };
+
+  for (const row of rows) {
+    for (const [field, rule] of Object.entries(lengthRules)) {
+      const length = [...row[field]].length;
+
+      if (length < rule.min) {
+        shortTexts.push({ ...row, field, length });
+      }
+
+      if (length > rule.max) {
+        longTexts.push({ ...row, field, length });
+      }
+    }
+  }
+
+  const expectedThemeIds = new Set(themes.map(theme => theme.id));
+  const actualThemeIds = new Set(rows.map(row => row.themeId));
+  const missingThemes = [...expectedThemeIds].filter(
+    id => !actualThemeIds.has(id)
+  );
+
+  const themeCounts = {};
+  const seasonCounts = {};
+
+  for (const row of rows) {
+    themeCounts[row.themeId] = (themeCounts[row.themeId] || 0) + 1;
+    seasonCounts[row.season] = (seasonCounts[row.season] || 0) + 1;
+  }
+
+  const expectedPerTheme = rows.length && expectedThemeIds.size
+    ? rows.length / expectedThemeIds.size
+    : 0;
+
+  const themeImbalance = Object.values(themeCounts).filter(
+    count => expectedPerTheme && Math.abs(count - expectedPerTheme) > 1
+  ).length;
+
+  const uniqueExact = new Set(
+    rows.flatMap(row => [
+      normalizeText(row.lead),
+      normalizeText(row.key),
+      normalizeText(row.promise),
+      normalizeText(row.action),
+      normalizeText(row.nightPrompt)
+    ])
+  );
+
+  const totalTexts = rows.length * 5;
+  const exactDuplicateCount = Math.max(0, totalTexts - uniqueExact.size);
+
+  const duplicatePenalty = Math.min(25, duplicates.length * 2);
+  const lengthPenalty = Math.min(
+    20,
+    shortTexts.length + longTexts.length
+  );
+  const themePenalty = Math.min(
+    20,
+    missingThemes.length * 8 + themeImbalance * 3
+  );
+
+  const requiredSeasons = ["spring", "summer", "autumn", "winter"];
+  const missingSeasons = requiredSeasons.filter(
+    season => !seasonCounts[season]
+  );
+  const seasonPenalty = Math.min(15, missingSeasons.length * 4);
+  const exactPenalty = Math.min(20, exactDuplicateCount * 2);
+
+  const score = Math.max(
+    0,
+    Math.round(
+      100 -
+      duplicatePenalty -
+      lengthPenalty -
+      themePenalty -
+      seasonPenalty -
+      exactPenalty
+    )
+  );
+
+  const breakdown = {
+    uniqueness: Math.max(0, 100 - duplicatePenalty - exactPenalty),
+    readability: Math.max(0, 100 - lengthPenalty * 3),
+    themeBalance: Math.max(0, 100 - themePenalty * 4),
+    seasonBalance: Math.max(0, 100 - seasonPenalty * 5)
+  };
+
+  return {
+    rows,
+    duplicates,
+    shortTexts,
+    longTexts,
+    missingThemes,
+    missingSeasons,
+    themeCounts,
+    seasonCounts,
+    exactDuplicateCount,
+    score,
+    breakdown
+  };
+}
+
+function renderQualityIssues(report) {
+  const issues = [];
+
+  if (report.duplicates.length) {
+    issues.push({
+      level: "warning",
+      title: "類似文章があります",
+      detail: `${report.duplicates.length}組を確認してください。`
+    });
+  }
+
+  if (report.shortTexts.length) {
+    issues.push({
+      level: "notice",
+      title: "短すぎる文章があります",
+      detail: `${report.shortTexts.length}件は内容が薄く見える可能性があります。`
+    });
+  }
+
+  if (report.longTexts.length) {
+    issues.push({
+      level: "notice",
+      title: "長すぎる文章があります",
+      detail: `${report.longTexts.length}件は朝30秒体験を圧迫する可能性があります。`
+    });
+  }
+
+  if (report.missingThemes.length) {
+    issues.push({
+      level: "danger",
+      title: "テーマ不足があります",
+      detail: report.missingThemes.join("、")
+    });
+  }
+
+  if (report.missingSeasons.length) {
+    issues.push({
+      level: "danger",
+      title: "季節コンテンツが不足しています",
+      detail: report.missingSeasons.join("、")
+    });
+  }
+
+  if (!issues.length) {
+    issues.push({
+      level: "good",
+      title: "大きな問題は見つかりませんでした",
+      detail: "現在のコンテンツ構成は良好です。"
+    });
+  }
+
+  ui.qualityIssues.replaceChildren(
+    ...issues.map(issue => {
+      const article = document.createElement("article");
+      article.className = `quality-issue quality-issue--${issue.level}`;
+
+      const title = document.createElement("strong");
+      title.textContent = issue.title;
+
+      const detail = document.createElement("p");
+      detail.textContent = issue.detail;
+
+      article.append(title, detail);
+      return article;
+    })
+  );
+}
+
+function renderQualityBreakdown(report) {
+  const labels = {
+    uniqueness: "文章の独自性",
+    readability: "読みやすさ",
+    themeBalance: "テーマ均衡",
+    seasonBalance: "季節均衡"
+  };
+
+  ui.qualityBreakdown.replaceChildren(
+    ...Object.entries(report.breakdown).map(([key, value]) =>
+      createBarRow(labels[key], value, 100, "点")
+    )
+  );
+}
+
+function renderDuplicateList(report) {
+  if (!report.duplicates.length) {
+    const empty = document.createElement("p");
+    empty.className = "muted";
+    empty.textContent = "類似度84%以上の文章は見つかりませんでした。";
+    ui.duplicateList.replaceChildren(empty);
+    return;
+  }
+
+  ui.duplicateList.replaceChildren(
+    ...report.duplicates.slice(0, 20).map(item => {
+      const article = document.createElement("article");
+      article.className = "duplicate-card";
+
+      const header = document.createElement("div");
+      header.className = "duplicate-card__header";
+
+      const field = document.createElement("strong");
+      field.textContent = `${item.field}・類似度${Math.round(item.score * 100)}%`;
+
+      const ids = document.createElement("span");
+      ids.textContent = `${item.left.id} ↔ ${item.right.id}`;
+
+      const left = document.createElement("p");
+      left.textContent = item.left[item.field];
+
+      const right = document.createElement("p");
+      right.textContent = item.right[item.field];
+
+      header.append(field, ids);
+      article.append(header, left, right);
+      return article;
+    })
+  );
+}
+
+function renderQualityReport(report) {
+  ui.qualityScore.textContent = String(report.score);
+
+  const status =
+    report.score >= 90 ? "良好" :
+    report.score >= 75 ? "要確認" :
+    report.score >= 60 ? "改善推奨" :
+    "要修正";
+
+  ui.qualityStatusBadge.textContent = status;
+  ui.qualityStatusBadge.dataset.status = status;
+
+  ui.qualitySummary.textContent =
+    `全${report.rows.length}件を検査しました。` +
+    `重複候補${report.duplicates.length}組、` +
+    `文字数注意${report.shortTexts.length + report.longTexts.length}件です。`;
+
+  ui.duplicateCount.textContent = `${report.duplicates.length}件`;
+  ui.shortTextCount.textContent = `${report.shortTexts.length}件`;
+  ui.longTextCount.textContent = `${report.longTexts.length}件`;
+  ui.missingThemeCount.textContent = `${report.missingThemes.length}件`;
+
+  renderQualityIssues(report);
+  renderQualityBreakdown(report);
+  renderDuplicateList(report);
 }
 
 function renderStarDistribution(results) {
@@ -250,17 +604,23 @@ async function renderAnalytics() {
       reflections,
       events,
       contentItems,
-      themes
+      themes,
+      sourceThemes,
+      sourceContent
     ] = await Promise.all([
       database.getAll("profiles"),
       database.getAll("dailyResults"),
       database.getAll("reflections"),
       database.getAll("analyticsEvents"),
       database.getAll("contentItems"),
-      database.getAll("themes")
+      database.getAll("themes"),
+      fetch("./data/themes.json", { cache: "no-store" }).then(response => response.json()),
+      fetch("./data/content.json", { cache: "no-store" }).then(response => response.json())
     ]);
 
     const summary = renderSummary(results, reflections, events);
+    const qualityReport = evaluateQuality(sourceContent, sourceThemes);
+    renderQualityReport(qualityReport);
 
     renderDiagnostics([
       ["IndexedDB", "正常"],

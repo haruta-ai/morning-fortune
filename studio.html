@@ -117,6 +117,68 @@
       </div>
     </article>
 
+
+    <article class="card quality-dashboard">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">CONTENT HEALTH</p>
+          <h2>品質チェック</h2>
+        </div>
+        <span id="qualityStatusBadge" class="badge">未計測</span>
+      </div>
+
+      <div class="quality-score-panel">
+        <div>
+          <span>総合品質スコア</span>
+          <strong id="qualityScore">0</strong>
+          <small>/ 100</small>
+        </div>
+        <p id="qualitySummary" class="muted">
+          コンテンツを読み込んでいます。
+        </p>
+      </div>
+
+      <div class="quality-metrics-grid">
+        <article class="quality-metric">
+          <span>重複候補</span>
+          <strong id="duplicateCount">0件</strong>
+        </article>
+        <article class="quality-metric">
+          <span>短すぎる文章</span>
+          <strong id="shortTextCount">0件</strong>
+        </article>
+        <article class="quality-metric">
+          <span>長すぎる文章</span>
+          <strong id="longTextCount">0件</strong>
+        </article>
+        <article class="quality-metric">
+          <span>不足テーマ</span>
+          <strong id="missingThemeCount">0件</strong>
+        </article>
+      </div>
+
+      <div class="quality-columns">
+        <section>
+          <h3>改善候補</h3>
+          <div id="qualityIssues" class="quality-list"></div>
+        </section>
+        <section>
+          <h3>品質内訳</h3>
+          <div id="qualityBreakdown" class="analytics-bars"></div>
+        </section>
+      </div>
+    </article>
+
+    <article class="card">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">DUPLICATE FINDER</p>
+          <h2>類似文章候補</h2>
+        </div>
+      </div>
+      <div id="duplicateList" class="duplicate-list"></div>
+    </article>
+
     <article class="card">
       <div class="section-heading">
         <div>
