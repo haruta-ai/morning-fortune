@@ -15,12 +15,31 @@
     <p class="splash__title">Every Morning Fortune</p>
   </div>
 
+  <div id="offlineBanner" class="system-banner" role="status" hidden>
+    オフラインです。保存済みの内容で表示しています。
+  </div>
+
+  <div id="updateBanner" class="system-banner system-banner--action" role="status" hidden>
+    <span>新しいバージョンを利用できます。</span>
+    <button id="applyUpdateButton" type="button">更新する</button>
+  </div>
+
   <header class="app-header">
     <div><p class="eyebrow">EVERY MORNING</p><h1>Fortune</h1></div>
     <button id="openProfileButton" class="icon-button" type="button" aria-label="プロフィールを開く">⚙︎</button>
   </header>
 
   <main class="app-shell">
+    <section id="startupErrorPanel" class="card error-panel" hidden>
+      <p class="eyebrow">RECOVERY</p>
+      <h2>アプリを起動できませんでした</h2>
+      <p id="startupErrorMessage" class="muted" role="alert"></p>
+      <div class="button-row">
+        <button class="primary-button" type="button" data-app-action="reload">もう一度読み込む</button>
+        <button class="secondary-button" type="button" data-app-action="refresh-cache">キャッシュを更新</button>
+      </div>
+    </section>
+
     <section id="welcomePanel" class="card welcome-card" hidden>
       <p class="eyebrow">はじめに</p>
       <h2>あなたの基本情報を登録します</h2>
@@ -121,6 +140,18 @@
       <a class="secondary-button" href="./studio.html">Every Morning Studioを開く</a>
 
     </section>
+    <section class="card app-management" aria-labelledby="appManagementTitle">
+      <p class="eyebrow">APP MANAGEMENT</p>
+      <h2 id="appManagementTitle">アプリ管理</h2>
+      <p class="muted">表示がおかしいときだけ使用してください。プロフィールや振り返りは削除されません。</p>
+      <div class="button-row">
+        <button class="primary-button" type="button" data-app-action="reload">もう一度読み込む</button>
+        <button class="secondary-button" type="button" data-app-action="refresh-cache">キャッシュを更新</button>
+      </div>
+      <p id="appManagementMessage" class="message" role="status"></p>
+      <small>Version <span id="appVersion">1.0.1</span></small>
+    </section>
+
     <footer class="app-footer">
       <p>Every Morning Fortune</p>
       <small>端末内で完結する、毎朝30秒の前向き習慣。</small>

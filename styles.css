@@ -1074,3 +1074,64 @@ textarea:focus {
     font-size: .84rem;
   }
 }
+
+/* Sprint 12: connection, update, recovery, and app management */
+.system-banner {
+  position: relative;
+  z-index: 30;
+  width: 100%;
+  padding: calc(0.65rem + env(safe-area-inset-top, 0px)) 1rem 0.65rem;
+  background: rgba(255, 245, 210, 0.98);
+  color: #473814;
+  font-size: 0.88rem;
+  text-align: center;
+}
+
+.system-banner--action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  background: rgba(225, 239, 255, 0.98);
+  color: #10284f;
+}
+
+.system-banner--action button {
+  min-height: 2.25rem;
+  padding: 0.35rem 0.8rem;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-weight: 700;
+}
+
+.error-panel {
+  border: 1px solid rgba(180, 63, 63, 0.28);
+}
+
+.button-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.button-row > button {
+  flex: 1 1 12rem;
+}
+
+.app-management {
+  margin-top: 1rem;
+}
+
+.app-management h2 {
+  margin-bottom: 0.5rem;
+}
+
+.app-management small {
+  display: block;
+  margin-top: 0.75rem;
+  color: var(--muted, #667085);
+}

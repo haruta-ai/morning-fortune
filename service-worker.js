@@ -1,5 +1,62 @@
-const CACHE_NAME="emf-1-0-0";
-const APP_SHELL=["./","./index.html","./studio.html","./styles.css","./manifest.webmanifest","./data/icon.svg","./data/themes.json","./data/content.json","./js/app.js","./js/studio.js","./js/config.js","./js/database.js","./js/engine.js","./js/fortune-engine.js","./js/models.js","./js/storage.js","./js/utils.js"];
-self.addEventListener("install",e=>{e.waitUntil(caches.open(CACHE_NAME).then(c=>c.addAll(APP_SHELL)));self.skipWaiting();});
-self.addEventListener("activate",e=>{e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE_NAME).map(k=>caches.delete(k)))));self.clients.claim();});
-self.addEventListener("fetch",e=>{if(e.request.method!=="GET")return;e.respondWith(fetch(e.request).then(r=>{if(r&&r.status===200&&r.type==="basic"){const copy=r.clone();caches.open(CACHE_NAME).then(c=>c.put(e.request,copy));}return r;}).catch(()=>caches.match(e.request)));});
+const CACHE_PREFIX = "emf-";
+const CACHE_NAME = `${CACHE_PREFIX}1-0-1`;
+const APP_SHELL = [
+  "./",
+  "./index.html",
+  "./studio.html",
+  "./styles.css",
+  "./manifest.webmanifest",
+  "./data/icon.svg",
+  "./data/themes.json",
+  "./data/content.json",
+  "./js/app.js",
+  "./js/studio.js",
+  "./js/config.js",
+  "./js/database.js",
+  "./js/engine.js",
+  "./js/fortune-engine.js",
+  "./js/models.js",
+  "./js/storage.js",
+  "./js/utils.js"
+];
+
+self.addEventListener("install", event => {
+  event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(APP_SHELL)));
+});
+
+self.addEventListener("activate", event => {
+  event.waitUntil(
+    caches.keys()
+      .then(keys => Promise.all(
+        keys
+          .filter(key => key.startsWith(CACHE_PREFIX) && key !== CACHE_NAME)
+          .map(key => caches.delete(key))
+      ))
+      .then(() => self.clients.claim())
+  );
+});
+
+self.addEventListener("message", event => {
+  if (event.data?.type === "SKIP_WAITING") self.skipWaiting();
+});
+
+self.addEventListener("fetch", event => {
+  if (event.request.method !== "GET") return;
+
+  event.respondWith(
+    fetch(event.request)
+      .then(response => {
+        if (response?.ok && response.type === "basic") {
+          const copy = response.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put(event.request, copy));
+        }
+        return response;
+      })
+      .catch(async () => {
+        const cached = await caches.match(event.request);
+        if (cached) return cached;
+        if (event.request.mode === "navigate") return caches.match("./index.html");
+        return Response.error();
+      })
+  );
+});

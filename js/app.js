@@ -46,7 +46,14 @@ const ui = {
   reflectionMessage: $("#reflectionMessage"),
   reflectionNote: $("#reflectionNote"),
   promiseFulfilled: $("#promiseFulfilled"),
-  nightThemeLead: $("#nightThemeLead")
+  nightThemeLead: $("#nightThemeLead"),
+  offlineBanner: $("#offlineBanner"),
+  updateBanner: $("#updateBanner"),
+  applyUpdate: $("#applyUpdateButton"),
+  startupError: $("#startupErrorPanel"),
+  startupErrorMessage: $("#startupErrorMessage"),
+  appManagementMessage: $("#appManagementMessage"),
+  appVersion: $("#appVersion")
 };
 
 const appState = {
@@ -75,10 +82,63 @@ async function registerServiceWorker() {
   if (!("serviceWorker" in navigator) || !secure) return;
 
   try {
-    await navigator.serviceWorker.register("./service-worker.js");
+    const registration = await navigator.serviceWorker.register("./service-worker.js");
+
+    const offerUpdate = worker => {
+      if (!worker || !navigator.serviceWorker.controller) return;
+      ui.updateBanner.hidden = false;
+      ui.applyUpdate.onclick = () => worker.postMessage({ type: "SKIP_WAITING" });
+    };
+
+    offerUpdate(registration.waiting);
+    registration.addEventListener("updatefound", () => {
+      const worker = registration.installing;
+      worker?.addEventListener("statechange", () => {
+        if (worker.state === "installed") offerUpdate(worker);
+      });
+    });
+
+    let reloading = false;
+    navigator.serviceWorker.addEventListener("controllerchange", () => {
+      if (reloading) return;
+      reloading = true;
+      window.location.reload();
+    });
   } catch (error) {
     console.warn("Service Worker registration failed:", error);
   }
+}
+
+function updateConnectionStatus() {
+  ui.offlineBanner.hidden = navigator.onLine;
+}
+
+function showStartupError(error) {
+  ui.welcome.hidden = true;
+  ui.home.hidden = true;
+  ui.startupError.hidden = false;
+  ui.startupErrorMessage.textContent =
+    `詳細：${error?.message || "不明なエラー"}`;
+}
+
+async function refreshAppCache() {
+  ui.appManagementMessage.textContent = "キャッシュを更新しています…";
+
+  if ("caches" in window) {
+    const keys = await caches.keys();
+    await Promise.all(
+      keys
+        .filter(key => key.startsWith("emf-"))
+        .map(key => caches.delete(key))
+    );
+  }
+
+  if ("serviceWorker" in navigator) {
+    const registration = await navigator.serviceWorker.getRegistration("./");
+    await registration?.update();
+  }
+
+  window.location.reload();
 }
 
 async function getTodayResult() {
@@ -291,12 +351,37 @@ ui.reflectionForm.addEventListener("submit", async event => {
   }
 });
 
+window.addEventListener("online", updateConnectionStatus);
+window.addEventListener("offline", updateConnectionStatus);
+
+document.querySelectorAll('[data-app-action="reload"]').forEach(button => {
+  button.addEventListener("click", () => window.location.reload());
+});
+
+document.querySelectorAll('[data-app-action="refresh-cache"]').forEach(button => {
+  button.addEventListener("click", async () => {
+    const buttons = document.querySelectorAll('[data-app-action="refresh-cache"]');
+    buttons.forEach(item => { item.disabled = true; });
+    try {
+      await refreshAppCache();
+    } catch (error) {
+      buttons.forEach(item => { item.disabled = false; });
+      const message = `キャッシュを更新できませんでした：${error.message}`;
+      ui.appManagementMessage.textContent = message;
+      ui.startupErrorMessage.textContent = message;
+    }
+  });
+});
+
 async function initialize() {
   const hardStop = window.setTimeout(() => {
     ui.splash.classList.add("is-hidden");
   }, 2800);
 
   try {
+    ui.startupError.hidden = true;
+    ui.appVersion.textContent = APP_CONFIG.appVersion;
+    updateConnectionStatus();
     localSettings.set("contentVersion", APP_CONFIG.contentVersion);
     await database.ready();
 
@@ -318,7 +403,7 @@ async function initialize() {
     );
   } catch (error) {
     console.error(error);
-    window.alert(`初期化に失敗しました：${error.message}`);
+    showStartupError(error);
   } finally {
     window.clearTimeout(hardStop);
     window.setTimeout(() => {
