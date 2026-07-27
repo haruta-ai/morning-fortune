@@ -4,6 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#0b1830">
+  <meta name="description" content="Every Morning Fortune 管理・分析画面">
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="stylesheet" href="./styles.css">
   <title>Every Morning Studio</title>
@@ -18,23 +19,126 @@
   </header>
 
   <main class="app-shell">
-    <article class="hero-card">
-      <p class="eyebrow">LOCAL ADMIN TOOL</p>
-      <h2>Studio基盤</h2>
-      <p class="hero-card__lead">編集・分析・品質管理機能は、占いエンジン完成後に段階的に接続します。</p>
+    <article class="hero-card studio-hero">
+      <p class="eyebrow">LOCAL ANALYTICS</p>
+      <h2>端末内データを分析</h2>
+      <p class="hero-card__lead">
+        外部へ送信せず、この端末に保存された利用履歴だけを集計します。
+      </p>
+    </article>
+
+    <section class="studio-summary-grid" aria-label="利用概要">
+      <article class="summary-card">
+        <span>朝の利用</span>
+        <strong id="morningCount">0</strong>
+        <small>回</small>
+      </article>
+      <article class="summary-card">
+        <span>夜の振り返り</span>
+        <strong id="reflectionCount">0</strong>
+        <small>回</small>
+      </article>
+      <article class="summary-card">
+        <span>継続日数</span>
+        <strong id="streakCount">0</strong>
+        <small>日</small>
+      </article>
+      <article class="summary-card">
+        <span>約束達成率</span>
+        <strong id="promiseRate">0%</strong>
+        <small>振り返り内</small>
+      </article>
+    </section>
+
+    <article class="card">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">STAR DISTRIBUTION</p>
+          <h2>総合運の星分布</h2>
+        </div>
+        <span id="resultCountBadge" class="badge">0 DAYS</span>
+      </div>
+      <div id="starDistribution" class="analytics-bars"></div>
     </article>
 
     <article class="card">
-      <h3>現在利用できる診断</h3>
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">THEME DISTRIBUTION</p>
+          <h2>テーマ出現回数</h2>
+        </div>
+      </div>
+      <div id="themeDistribution" class="theme-ranking"></div>
+    </article>
+
+    <article class="card">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">MORNING / NIGHT</p>
+          <h2>朝と夜の利用状況</h2>
+        </div>
+      </div>
+      <div class="morning-night-grid">
+        <div class="usage-panel">
+          <span>朝の運勢を開いた日</span>
+          <strong id="morningDays">0日</strong>
+        </div>
+        <div class="usage-panel">
+          <span>夜まで振り返った日</span>
+          <strong id="nightDays">0日</strong>
+        </div>
+        <div class="usage-panel">
+          <span>朝→夜 完了率</span>
+          <strong id="completionRate">0%</strong>
+        </div>
+      </div>
+    </article>
+
+    <article class="card">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">REFLECTION</p>
+          <h2>振り返りの傾向</h2>
+        </div>
+      </div>
+      <div class="reflection-stats">
+        <div>
+          <span>平均気分</span>
+          <strong id="averageMood">—</strong>
+        </div>
+        <div>
+          <span>メモ記入率</span>
+          <strong id="noteRate">0%</strong>
+        </div>
+        <div>
+          <span>最新の振り返り</span>
+          <strong id="latestReflection">未記録</strong>
+        </div>
+      </div>
+    </article>
+
+    <article class="card">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">DIAGNOSTICS</p>
+          <h2>データ診断</h2>
+        </div>
+      </div>
       <div id="diagnostics" class="stack diagnostics"></div>
-      <button id="refreshDiagnostics" class="primary-button" type="button">再診断</button>
+      <button id="refreshDiagnostics" class="primary-button" type="button">
+        再集計
+      </button>
     </article>
 
     <article class="card">
-      <h3>データ操作</h3>
-      <p class="muted">Sprint 1.1では端末内データの簡易バックアップのみ提供します。</p>
+      <h2>バックアップ</h2>
+      <p class="muted">
+        端末内データをJSONとして保存・復元できます。
+      </p>
       <div class="button-row">
-        <button id="exportButton" class="secondary-button secondary-button--button" type="button">JSONを書き出す</button>
+        <button id="exportButton" class="secondary-button secondary-button--button" type="button">
+          JSONを書き出す
+        </button>
         <label class="secondary-button file-label">
           JSONを読み込む
           <input id="importInput" type="file" accept="application/json,.json" hidden>

@@ -115,3 +115,143 @@ textarea:focus {
   border-color: var(--morning-gold);
   outline: 3px solid rgba(217,180,111,.23);
 }
+
+
+.studio-hero {
+  background:
+    radial-gradient(circle at 95% 10%, rgba(217,180,111,.22), transparent 18rem),
+    linear-gradient(145deg, var(--morning-navy), #14294a);
+}
+
+.studio-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.summary-card {
+  padding: 18px 14px;
+  border: 1px solid rgba(11,24,48,.08);
+  border-radius: 18px;
+  background: var(--morning-paper);
+  box-shadow: 0 10px 28px rgba(11,24,48,.08);
+}
+
+.summary-card span,
+.summary-card strong,
+.summary-card small {
+  display: block;
+}
+
+.summary-card span {
+  color: var(--morning-muted);
+  font-size: .8rem;
+}
+
+.summary-card strong {
+  margin-top: 8px;
+  color: var(--morning-navy);
+  font-size: 1.9rem;
+}
+
+.summary-card small {
+  margin-top: 3px;
+  color: var(--morning-muted);
+}
+
+.analytics-bars,
+.theme-ranking {
+  display: grid;
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.analytics-bar-row {
+  display: grid;
+  gap: 8px;
+}
+
+.analytics-bar-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.analytics-bar-top span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.analytics-bar-track {
+  height: 10px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #ece8de;
+}
+
+.analytics-bar-fill {
+  min-width: 2px;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(
+    90deg,
+    var(--morning-gold),
+    #e7ca91
+  );
+  transition: width .45s ease;
+}
+
+.theme-ranking-row .analytics-bar-fill {
+  background: linear-gradient(
+    90deg,
+    var(--morning-navy-soft),
+    #56749f
+  );
+}
+
+.morning-night-grid,
+.reflection-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.usage-panel,
+.reflection-stats > div {
+  padding: 18px;
+  border-radius: 16px;
+  background: #f3f0e9;
+}
+
+.usage-panel span,
+.usage-panel strong,
+.reflection-stats span,
+.reflection-stats strong {
+  display: block;
+}
+
+.usage-panel span,
+.reflection-stats span {
+  color: var(--morning-muted);
+  font-size: .82rem;
+}
+
+.usage-panel strong,
+.reflection-stats strong {
+  margin-top: 8px;
+  color: var(--morning-navy);
+  font-size: 1.25rem;
+}
+
+@media (max-width: 680px) {
+  .studio-summary-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .morning-night-grid,
+  .reflection-stats {
+    grid-template-columns: 1fr;
+  }
+}

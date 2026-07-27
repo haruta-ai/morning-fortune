@@ -1,20 +1,24 @@
 # CHANGELOG
 
+## 0.4.0 — Sprint 4
+
+- Every Morning Studio分析画面を実装
+- 朝の利用回数を表示
+- 夜の振り返り回数を表示
+- 現在の継続日数を算出
+- Today's Promise達成率を算出
+- 総合運の星分布を表示
+- テーマ出現ランキングを表示
+- 朝→夜の完了率を算出
+- 平均気分を表示
+- メモ記入率を表示
+- 最新の振り返り日を表示
+- データ診断を拡張
+- Service Workerキャッシュを更新
+
 ## 0.3.0 — Sprint 3
 
 - 夜の振り返り画面を追加
 - 朝のテーマを夜まで引き継ぐ構成を実装
 - Reflectionモデルを追加
-- 1〜5の気分記録を追加
-- Today's Promiseの実行チェックを追加
-- 240文字の振り返りメモを追加
-- IndexedDB reflectionsストアへ保存
-- 既存の振り返り再表示を実装
-- reflection_saved分析イベントを追加
-- Service Workerキャッシュを更新
-
-## 0.2.1 — Sprint 2 Phase 1
-
-- Engine facadeを追加
-- UIと占いエンジンの接続を分離
-- 起動状態をappStateへ集約
+- 気分・約束・メモ保存を実装
