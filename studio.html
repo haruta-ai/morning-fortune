@@ -118,6 +118,122 @@
     </article>
 
 
+
+    <article class="card content-editor-card">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">CONTENT EDITOR</p>
+          <h2>コンテンツ編集</h2>
+        </div>
+        <span id="editorStatusBadge" class="badge">未選択</span>
+      </div>
+
+      <div class="editor-toolbar">
+        <label>
+          <span>テーマ</span>
+          <select id="editorThemeSelect"></select>
+        </label>
+
+        <label>
+          <span>季節</span>
+          <select id="editorSeasonSelect">
+            <option value="spring">春</option>
+            <option value="summer">夏</option>
+            <option value="autumn">秋</option>
+            <option value="winter">冬</option>
+          </select>
+        </label>
+
+        <label>
+          <span>文章ID</span>
+          <select id="editorVariantSelect"></select>
+        </label>
+      </div>
+
+      <div class="editor-layout">
+        <form id="contentEditorForm" class="stack">
+          <label>
+            <span>朝のメイン文章</span>
+            <textarea id="editorLead" rows="4" maxlength="120"></textarea>
+            <small id="editorLeadCount" class="character-count">0 / 120</small>
+          </label>
+
+          <label>
+            <span>今日の鍵</span>
+            <textarea id="editorKey" rows="2" maxlength="60"></textarea>
+            <small id="editorKeyCount" class="character-count">0 / 60</small>
+          </label>
+
+          <label>
+            <span>今日の約束</span>
+            <textarea id="editorPromise" rows="2" maxlength="70"></textarea>
+            <small id="editorPromiseCount" class="character-count">0 / 70</small>
+          </label>
+
+          <label>
+            <span>開運アクション</span>
+            <textarea id="editorAction" rows="2" maxlength="70"></textarea>
+            <small id="editorActionCount" class="character-count">0 / 70</small>
+          </label>
+
+          <label>
+            <span>夜の振り返り文</span>
+            <textarea id="editorNightPrompt" rows="4" maxlength="160"></textarea>
+            <small id="editorNightPromptCount" class="character-count">0 / 160</small>
+          </label>
+
+          <div class="button-row">
+            <button id="saveEditorButton" class="primary-button" type="submit">
+              この端末に保存
+            </button>
+            <button id="resetEditorButton" class="secondary-button secondary-button--button" type="button">
+              元に戻す
+            </button>
+          </div>
+
+          <p id="editorMessage" class="message" role="status"></p>
+        </form>
+
+        <section class="content-preview" aria-label="編集プレビュー">
+          <p class="eyebrow">PREVIEW</p>
+          <h3 id="previewTheme">テーマ</h3>
+          <p id="previewLead" class="preview-lead"></p>
+
+          <div class="preview-block">
+            <span>今日の鍵</span>
+            <strong id="previewKey"></strong>
+          </div>
+
+          <div class="preview-block">
+            <span>今日の約束</span>
+            <strong id="previewPromise"></strong>
+          </div>
+
+          <div class="preview-block">
+            <span>開運アクション</span>
+            <strong id="previewAction"></strong>
+          </div>
+
+          <div class="preview-night">
+            <span>夜の振り返り</span>
+            <p id="previewNightPrompt"></p>
+          </div>
+        </section>
+      </div>
+
+      <div class="editor-export">
+        <div>
+          <h3>編集データを書き出す</h3>
+          <p class="muted">
+            Studioで保存した変更をJSONファイルとして書き出します。
+          </p>
+        </div>
+        <button id="exportEditedContentButton" class="secondary-button secondary-button--button" type="button">
+          編集済みJSONを書き出す
+        </button>
+      </div>
+    </article>
+
     <article class="card quality-dashboard">
       <div class="section-heading">
         <div>

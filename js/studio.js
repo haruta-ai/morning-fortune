@@ -37,8 +37,45 @@ const ui = {
   missingThemeCount: $("#missingThemeCount"),
   qualityIssues: $("#qualityIssues"),
   qualityBreakdown: $("#qualityBreakdown"),
-  duplicateList: $("#duplicateList")
+  duplicateList: $("#duplicateList"),
+  editorStatusBadge: $("#editorStatusBadge"),
+  editorThemeSelect: $("#editorThemeSelect"),
+  editorSeasonSelect: $("#editorSeasonSelect"),
+  editorVariantSelect: $("#editorVariantSelect"),
+  contentEditorForm: $("#contentEditorForm"),
+  editorLead: $("#editorLead"),
+  editorKey: $("#editorKey"),
+  editorPromise: $("#editorPromise"),
+  editorAction: $("#editorAction"),
+  editorNightPrompt: $("#editorNightPrompt"),
+  editorLeadCount: $("#editorLeadCount"),
+  editorKeyCount: $("#editorKeyCount"),
+  editorPromiseCount: $("#editorPromiseCount"),
+  editorActionCount: $("#editorActionCount"),
+  editorNightPromptCount: $("#editorNightPromptCount"),
+  resetEditorButton: $("#resetEditorButton"),
+  editorMessage: $("#editorMessage"),
+  previewTheme: $("#previewTheme"),
+  previewLead: $("#previewLead"),
+  previewKey: $("#previewKey"),
+  previewPromise: $("#previewPromise"),
+  previewAction: $("#previewAction"),
+  previewNightPrompt: $("#previewNightPrompt"),
+  exportEditedContentButton: $("#exportEditedContentButton")
 };
+
+const editorState = {
+  themes: [],
+  sourceContent: {},
+  workingContent: {},
+  selectedThemeId: "",
+  selectedSeason: "spring",
+  selectedVariantId: ""
+};
+
+function clone(value) {
+  return JSON.parse(JSON.stringify(value));
+}
 
 function percent(part, total) {
   if (!total) return 0;
@@ -104,6 +141,174 @@ function createBarRow(label, value, total, suffix = "日") {
   return row;
 }
 
+
+
+function getThemeLabel(themeId) {
+  return editorState.themes.find(theme => theme.id === themeId)?.label || themeId;
+}
+
+function getThemeVariants(themeId) {
+  const variants = editorState.workingContent[themeId];
+  return Array.isArray(variants) ? variants : [];
+}
+
+function getFilteredVariants() {
+  return getThemeVariants(editorState.selectedThemeId).filter(
+    item => item.season === editorState.selectedSeason
+  );
+}
+
+function getSelectedVariant() {
+  return getThemeVariants(editorState.selectedThemeId).find(
+    item => item.id === editorState.selectedVariantId
+  ) || null;
+}
+
+function updateCharacterCount(input, counter) {
+  counter.textContent = `${[...input.value].length} / ${input.maxLength}`;
+}
+
+function updateAllCharacterCounts() {
+  updateCharacterCount(ui.editorLead, ui.editorLeadCount);
+  updateCharacterCount(ui.editorKey, ui.editorKeyCount);
+  updateCharacterCount(ui.editorPromise, ui.editorPromiseCount);
+  updateCharacterCount(ui.editorAction, ui.editorActionCount);
+  updateCharacterCount(ui.editorNightPrompt, ui.editorNightPromptCount);
+}
+
+function updateEditorPreview() {
+  ui.previewTheme.textContent = getThemeLabel(editorState.selectedThemeId);
+  ui.previewLead.textContent = ui.editorLead.value || "朝の文章を入力してください。";
+  ui.previewKey.textContent = ui.editorKey.value || "未入力";
+  ui.previewPromise.textContent = ui.editorPromise.value || "未入力";
+  ui.previewAction.textContent = ui.editorAction.value || "未入力";
+  ui.previewNightPrompt.textContent =
+    ui.editorNightPrompt.value || "夜の振り返り文を入力してください。";
+
+  updateAllCharacterCounts();
+}
+
+function renderEditorForm() {
+  const item = getSelectedVariant();
+
+  if (!item) {
+    ui.contentEditorForm.reset();
+    ui.editorStatusBadge.textContent = "未選択";
+    updateEditorPreview();
+    return;
+  }
+
+  ui.editorLead.value = item.lead || "";
+  ui.editorKey.value = item.key || "";
+  ui.editorPromise.value = item.promise || "";
+  ui.editorAction.value = item.action || "";
+  ui.editorNightPrompt.value = item.nightPrompt || "";
+
+  const changed = JSON.stringify(item) !== JSON.stringify(
+    (editorState.sourceContent[editorState.selectedThemeId] || []).find(
+      source => source.id === item.id
+    )
+  );
+
+  ui.editorStatusBadge.textContent = changed ? "編集中" : "原本";
+  ui.editorStatusBadge.dataset.status = changed ? "要確認" : "良好";
+  ui.editorMessage.textContent = "";
+  updateEditorPreview();
+}
+
+function populateVariantSelect() {
+  const variants = getFilteredVariants();
+
+  ui.editorVariantSelect.replaceChildren(
+    ...variants.map(item => {
+      const option = document.createElement("option");
+      option.value = item.id;
+      option.textContent = item.id;
+      return option;
+    })
+  );
+
+  editorState.selectedVariantId =
+    variants.some(item => item.id === editorState.selectedVariantId)
+      ? editorState.selectedVariantId
+      : variants[0]?.id || "";
+
+  ui.editorVariantSelect.value = editorState.selectedVariantId;
+  renderEditorForm();
+}
+
+function initializeContentEditor(themes, content) {
+  editorState.themes = themes;
+  editorState.sourceContent = clone(content);
+  editorState.workingContent = clone(content);
+
+  ui.editorThemeSelect.replaceChildren(
+    ...themes.map(theme => {
+      const option = document.createElement("option");
+      option.value = theme.id;
+      option.textContent = theme.label;
+      return option;
+    })
+  );
+
+  editorState.selectedThemeId = themes[0]?.id || "";
+  editorState.selectedSeason = "spring";
+
+  ui.editorThemeSelect.value = editorState.selectedThemeId;
+  ui.editorSeasonSelect.value = editorState.selectedSeason;
+
+  populateVariantSelect();
+}
+
+function applyEditorFieldsToVariant() {
+  const item = getSelectedVariant();
+  if (!item) return null;
+
+  item.lead = ui.editorLead.value.trim();
+  item.key = ui.editorKey.value.trim();
+  item.promise = ui.editorPromise.value.trim();
+  item.action = ui.editorAction.value.trim();
+  item.nightPrompt = ui.editorNightPrompt.value.trim();
+
+  return item;
+}
+
+function validateEditorFields() {
+  const fields = [
+    ["朝のメイン文章", ui.editorLead.value],
+    ["今日の鍵", ui.editorKey.value],
+    ["今日の約束", ui.editorPromise.value],
+    ["開運アクション", ui.editorAction.value],
+    ["夜の振り返り文", ui.editorNightPrompt.value]
+  ];
+
+  const empty = fields.find(([, value]) => !value.trim());
+
+  if (empty) {
+    throw new Error(`${empty[0]}を入力してください。`);
+  }
+}
+
+function getEditedItems() {
+  const edited = [];
+
+  for (const [themeId, variants] of Object.entries(editorState.workingContent)) {
+    const sourceVariants = editorState.sourceContent[themeId] || [];
+
+    for (const item of variants) {
+      const source = sourceVariants.find(entry => entry.id === item.id);
+
+      if (JSON.stringify(item) !== JSON.stringify(source)) {
+        edited.push({
+          themeId,
+          ...item
+        });
+      }
+    }
+  }
+
+  return edited;
+}
 
 function normalizeText(text) {
   return String(text || "")
@@ -690,6 +895,10 @@ async function renderAnalytics() {
     const qualityReport = evaluateQuality(sourceContent, sourceThemes);
     renderQualityReport(qualityReport);
 
+    if (!editorState.themes.length) {
+      initializeContentEditor(sourceThemes, sourceContent);
+    }
+
     renderDiagnostics([
       ["IndexedDB", "正常"],
       ["プロフィール", `${profiles.length}件`],
@@ -750,13 +959,217 @@ ui.importInput.addEventListener("change", async () => {
 
     ui.message.textContent =
       "バックアップを復元しました。";
-    await renderAnalytics();
+    await 
+ui.editorThemeSelect.addEventListener("change", () => {
+  editorState.selectedThemeId = ui.editorThemeSelect.value;
+  populateVariantSelect();
+});
+
+ui.editorSeasonSelect.addEventListener("change", () => {
+  editorState.selectedSeason = ui.editorSeasonSelect.value;
+  populateVariantSelect();
+});
+
+ui.editorVariantSelect.addEventListener("change", () => {
+  editorState.selectedVariantId = ui.editorVariantSelect.value;
+  renderEditorForm();
+});
+
+for (const input of [
+  ui.editorLead,
+  ui.editorKey,
+  ui.editorPromise,
+  ui.editorAction,
+  ui.editorNightPrompt
+]) {
+  input.addEventListener("input", updateEditorPreview);
+}
+
+ui.contentEditorForm.addEventListener("submit", async event => {
+  event.preventDefault();
+
+  try {
+    validateEditorFields();
+    const item = applyEditorFieldsToVariant();
+
+    if (!item) {
+      throw new Error("編集する文章を選択してください。");
+    }
+
+    await database.put("contentItems", {
+      id: item.id,
+      themeId: editorState.selectedThemeId,
+      season: item.season,
+      lead: item.lead,
+      key: item.key,
+      promise: item.promise,
+      action: item.action,
+      nightPrompt: item.nightPrompt,
+      updatedAt: new Date().toISOString()
+    });
+
+    ui.editorStatusBadge.textContent = "保存済み";
+    ui.editorStatusBadge.dataset.status = "良好";
+    ui.editorMessage.textContent =
+      "この端末のStudio編集データとして保存しました。";
+
+    const qualityReport = evaluateQuality(
+      editorState.workingContent,
+      editorState.themes
+    );
+    renderQualityReport(qualityReport);
+  } catch (error) {
+    ui.editorMessage.textContent = error.message;
+  }
+});
+
+ui.resetEditorButton.addEventListener("click", () => {
+  const source = (
+    editorState.sourceContent[editorState.selectedThemeId] || []
+  ).find(item => item.id === editorState.selectedVariantId);
+
+  const target = getSelectedVariant();
+
+  if (!source || !target) return;
+
+  Object.assign(target, clone(source));
+  renderEditorForm();
+  ui.editorMessage.textContent = "原本の文章へ戻しました。";
+});
+
+ui.exportEditedContentButton.addEventListener("click", () => {
+  const editedItems = getEditedItems();
+
+  if (!editedItems.length) {
+    ui.editorMessage.textContent =
+      "書き出す編集データはまだありません。";
+    return;
+  }
+
+  downloadJson(
+    `every-morning-fortune-edited-content-${toLocalDateKey()}.json`,
+    {
+      format: "every-morning-fortune-content-edits",
+      version: 1,
+      appVersion: APP_CONFIG.appVersion,
+      exportedAt: new Date().toISOString(),
+      editedItems
+    }
+  );
+
+  ui.editorMessage.textContent =
+    `${editedItems.length}件の編集データを書き出しました。`;
+});
+
+renderAnalytics();
   } catch (error) {
     ui.message.textContent =
       `読み込みに失敗しました：${error.message}`;
   } finally {
     ui.importInput.value = "";
   }
+});
+
+
+ui.editorThemeSelect.addEventListener("change", () => {
+  editorState.selectedThemeId = ui.editorThemeSelect.value;
+  populateVariantSelect();
+});
+
+ui.editorSeasonSelect.addEventListener("change", () => {
+  editorState.selectedSeason = ui.editorSeasonSelect.value;
+  populateVariantSelect();
+});
+
+ui.editorVariantSelect.addEventListener("change", () => {
+  editorState.selectedVariantId = ui.editorVariantSelect.value;
+  renderEditorForm();
+});
+
+for (const input of [
+  ui.editorLead,
+  ui.editorKey,
+  ui.editorPromise,
+  ui.editorAction,
+  ui.editorNightPrompt
+]) {
+  input.addEventListener("input", updateEditorPreview);
+}
+
+ui.contentEditorForm.addEventListener("submit", async event => {
+  event.preventDefault();
+
+  try {
+    validateEditorFields();
+    const item = applyEditorFieldsToVariant();
+
+    if (!item) {
+      throw new Error("編集する文章を選択してください。");
+    }
+
+    await database.put("contentItems", {
+      id: item.id,
+      themeId: editorState.selectedThemeId,
+      season: item.season,
+      lead: item.lead,
+      key: item.key,
+      promise: item.promise,
+      action: item.action,
+      nightPrompt: item.nightPrompt,
+      updatedAt: new Date().toISOString()
+    });
+
+    ui.editorStatusBadge.textContent = "保存済み";
+    ui.editorStatusBadge.dataset.status = "良好";
+    ui.editorMessage.textContent =
+      "この端末のStudio編集データとして保存しました。";
+
+    const qualityReport = evaluateQuality(
+      editorState.workingContent,
+      editorState.themes
+    );
+    renderQualityReport(qualityReport);
+  } catch (error) {
+    ui.editorMessage.textContent = error.message;
+  }
+});
+
+ui.resetEditorButton.addEventListener("click", () => {
+  const source = (
+    editorState.sourceContent[editorState.selectedThemeId] || []
+  ).find(item => item.id === editorState.selectedVariantId);
+
+  const target = getSelectedVariant();
+
+  if (!source || !target) return;
+
+  Object.assign(target, clone(source));
+  renderEditorForm();
+  ui.editorMessage.textContent = "原本の文章へ戻しました。";
+});
+
+ui.exportEditedContentButton.addEventListener("click", () => {
+  const editedItems = getEditedItems();
+
+  if (!editedItems.length) {
+    ui.editorMessage.textContent =
+      "書き出す編集データはまだありません。";
+    return;
+  }
+
+  downloadJson(
+    `every-morning-fortune-edited-content-${toLocalDateKey()}.json`,
+    {
+      format: "every-morning-fortune-content-edits",
+      version: 1,
+      appVersion: APP_CONFIG.appVersion,
+      exportedAt: new Date().toISOString(),
+      editedItems
+    }
+  );
+
+  ui.editorMessage.textContent =
+    `${editedItems.length}件の編集データを書き出しました。`;
 });
 
 renderAnalytics();
