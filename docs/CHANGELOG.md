@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## 0.6.1 — Sprint 6 Style Fix
+
+- styles.cssに欠けていた基本デザインを復元
+- Morning Navyブランド配色を復元
+- 初回登録画面をカードレイアウトへ修正
+- 入力欄とボタンをiPhone向けサイズへ修正
+- 起動アニメーション表示を修正
+- セーフエリアとreduced-motionに対応
+
+
 ## 0.6.0 — Sprint 6
 
 - Content Pack 1を実装
