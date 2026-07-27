@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## 1.0.0 — Final Candidate
+
+- Sprint 10 RC1の安定構成を正式版ベースとして採用
+- App Versionを1.0.0へ更新
+- Service Workerのキャッシュ名を正式版へ更新
+- Sprint 11で混入した未定義関数参照とStudio構文破損を排除
+- JavaScript全ファイルの構文検査を実施
+- Chromiumによる公開画面・Studioの起動スモークテストを実施
+- 外部API・従量課金サービスは未使用
+
 ## 1.0.0-rc1 — Sprint 10
 
 - 公開画面のコピーと余白を調整

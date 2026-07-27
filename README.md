@@ -4,9 +4,9 @@
 
 ## 現在の状態
 
-- App Version: 0.2.0
+- App Version: 1.0.0
 - Engine Version: 1.0.0
-- Content Version: 0.2.0-seed
+- Content Version: 1.0.1-night-prompts
 - 外部APIなし
 - 外部分析なし
 - GitHub Pages対応
