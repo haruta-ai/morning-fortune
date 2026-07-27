@@ -1,5 +1,23 @@
 # CHANGELOG
 
+## 0.7.2 — Duplicate Grouping Fix
+
+- 完全に同じ文章を1グループにまとめて表示
+- key・promise・actionの組み合わせ重複表示を解消
+- 使用件数と使用コンテンツIDを表示
+- 類似文章は異なる文章同士だけを比較
+- 重複候補の件数表記をグループ単位へ変更
+
+
+## 0.7.1 — Night Prompt Fix
+
+- 64件すべてのnightPromptを専用文へ変更
+- テーマ別の振り返り内容を追加
+- 季節別の導入・結び表現を追加
+- nightPromptの完全重複を解消
+- Content Versionを1.0.1-night-promptsへ更新
+
+
 ## 0.7.0 — Sprint 7
 
 - Studio品質チェックを本実装

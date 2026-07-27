@@ -162,18 +162,61 @@ function flattenContent(content) {
 }
 
 function findDuplicates(rows) {
-  const candidates = [];
+  const fields = ["lead", "key", "promise", "action", "nightPrompt"];
+  const exactGroups = [];
+  const similarPairs = [];
 
-  for (let i = 0; i < rows.length; i += 1) {
-    for (let j = i + 1; j < rows.length; j += 1) {
-      const left = rows[i];
-      const right = rows[j];
+  for (const field of fields) {
+    const groups = new Map();
 
-      for (const field of ["lead", "key", "promise", "action", "nightPrompt"]) {
+    for (const row of rows) {
+      const normalized = normalizeText(row[field]);
+      if (!normalized) continue;
+
+      if (!groups.has(normalized)) {
+        groups.set(normalized, {
+          type: "exact",
+          field,
+          text: row[field],
+          items: []
+        });
+      }
+
+      groups.get(normalized).items.push({
+        id: row.id,
+        themeId: row.themeId,
+        season: row.season
+      });
+    }
+
+    for (const group of groups.values()) {
+      if (group.items.length >= 2) {
+        exactGroups.push({
+          ...group,
+          score: 1
+        });
+      }
+    }
+
+    const uniqueRows = [];
+    const seenTexts = new Set();
+
+    for (const row of rows) {
+      const normalized = normalizeText(row[field]);
+      if (!normalized || seenTexts.has(normalized)) continue;
+      seenTexts.add(normalized);
+      uniqueRows.push(row);
+    }
+
+    for (let i = 0; i < uniqueRows.length; i += 1) {
+      for (let j = i + 1; j < uniqueRows.length; j += 1) {
+        const left = uniqueRows[i];
+        const right = uniqueRows[j];
         const score = similarity(left[field], right[field]);
 
-        if (score >= 0.84) {
-          candidates.push({
+        if (score >= 0.84 && score < 1) {
+          similarPairs.push({
+            type: "similar",
             field,
             score,
             left,
@@ -184,7 +227,14 @@ function findDuplicates(rows) {
     }
   }
 
-  return candidates.sort((a, b) => b.score - a.score);
+  exactGroups.sort((a, b) =>
+    b.items.length - a.items.length ||
+    a.field.localeCompare(b.field)
+  );
+
+  similarPairs.sort((a, b) => b.score - a.score);
+
+  return [...exactGroups, ...similarPairs];
 }
 
 function evaluateQuality(content, themes) {
@@ -395,18 +445,36 @@ function renderDuplicateList(report) {
   }
 
   ui.duplicateList.replaceChildren(
-    ...report.duplicates.slice(0, 20).map(item => {
+    ...report.duplicates.slice(0, 30).map(item => {
       const article = document.createElement("article");
       article.className = "duplicate-card";
 
       const header = document.createElement("div");
       header.className = "duplicate-card__header";
 
-      const field = document.createElement("strong");
-      field.textContent = `${item.field}・類似度${Math.round(item.score * 100)}%`;
+      const title = document.createElement("strong");
+      const meta = document.createElement("span");
 
-      const ids = document.createElement("span");
-      ids.textContent = `${item.left.id} ↔ ${item.right.id}`;
+      if (item.type === "exact") {
+        title.textContent =
+          `${item.field}・完全一致・${item.items.length}件で使用`;
+
+        meta.textContent = item.items
+          .map(entry => entry.id)
+          .join("、");
+
+        const text = document.createElement("p");
+        text.textContent = item.text;
+
+        header.append(title, meta);
+        article.append(header, text);
+        return article;
+      }
+
+      title.textContent =
+        `${item.field}・類似度${Math.round(item.score * 100)}%`;
+
+      meta.textContent = `${item.left.id} ↔ ${item.right.id}`;
 
       const left = document.createElement("p");
       left.textContent = item.left[item.field];
@@ -414,7 +482,7 @@ function renderDuplicateList(report) {
       const right = document.createElement("p");
       right.textContent = item.right[item.field];
 
-      header.append(field, ids);
+      header.append(title, meta);
       article.append(header, left, right);
       return article;
     })
@@ -435,10 +503,10 @@ function renderQualityReport(report) {
 
   ui.qualitySummary.textContent =
     `全${report.rows.length}件を検査しました。` +
-    `重複候補${report.duplicates.length}組、` +
+    `重複・類似候補${report.duplicates.length}グループ、` +
     `文字数注意${report.shortTexts.length + report.longTexts.length}件です。`;
 
-  ui.duplicateCount.textContent = `${report.duplicates.length}件`;
+  ui.duplicateCount.textContent = `${report.duplicates.length}グループ`;
   ui.shortTextCount.textContent = `${report.shortTexts.length}件`;
   ui.longTextCount.textContent = `${report.longTexts.length}件`;
   ui.missingThemeCount.textContent = `${report.missingThemes.length}件`;
