@@ -1,8 +1,8 @@
 export const APP_CONFIG = Object.freeze({
   appName: "Every Morning Fortune",
-  appVersion: "0.4.0",
+  appVersion: "0.6.0",
   engineVersion: "1.0.0",
-  contentVersion: "0.2.0-seed",
+  contentVersion: "1.0.0-pack-1",
   databaseName: "everyMorningFortuneDB",
   databaseVersion: 1,
   stores: Object.freeze([
@@ -22,5 +22,5 @@ export const STORAGE_KEYS = Object.freeze({
   initialized: "emf.initialized",
   appearance: "emf.appearance",
   engineVersion: "emf.engineVersion",
-  contentVersion: "emf.contentVersion"
+  contentVersion: "1.0.0-pack-1"
 });

@@ -192,7 +192,39 @@ export async function generateDailyFortune(profile, targetDate=new Date(), theme
   const signals=createSignals(profileVector,dayVector);
   const axes=calculateAxes(signals,dayVector.hash);
   const theme=selectTheme(signals,axes,themeData,dayVector.seasonId,profileVector.hash+dayVector.hash);
-  const c=contentData[theme.id] || {};
+  const variants = Array.isArray(contentData[theme.id])
+    ? contentData[theme.id]
+    : [contentData[theme.id] || {}];
+  const seed = parseInt(
+    `${profileVector.hash}${dayVector.hash}`.slice(0, 8),
+    16
+  );
+  const seasonMatches = variants.filter(
+    item => item.season === dayVector.seasonId ||
+      (dayVector.seasonId.includes("spring") && item.season === "spring") ||
+      (["early_summer", "rainy", "summer"].includes(dayVector.seasonId) &&
+        item.season === "summer") ||
+      (dayVector.seasonId === "autumn" && item.season === "autumn") ||
+      (["early_winter", "winter"].includes(dayVector.seasonId) &&
+        item.season === "winter")
+  );
+  const candidates = seasonMatches.length ? seasonMatches : variants;
+  const c = candidates[seed % candidates.length] || {};
+
+  const luckyColors = [
+    { label: "モーニングネイビー", value: "#0b1830" },
+    { label: "やわらかい金色", value: "#d9b46f" },
+    { label: "若葉グリーン", value: "#77966d" },
+    { label: "空色", value: "#759bbd" },
+    { label: "桜色", value: "#d8a5ad" },
+    { label: "生成り", value: "#e8dfcf" },
+    { label: "葡萄色", value: "#79566e" },
+    { label: "珊瑚色", value: "#cf806b" }
+  ];
+  const luckyHours = [7, 8, 9, 10, 11, 12, 14, 15, 16, 18, 19, 20];
+  const colorIndex = parseInt(dayVector.hash.slice(8, 10), 16) % luckyColors.length;
+  const hourIndex = parseInt(profileVector.hash.slice(8, 10), 16) % luckyHours.length;
+  const luckyHour = luckyHours[hourIndex];
   const dateKey=toLocalDateKey(targetDate);
   return {
     id:`primary:${dateKey}:${APP_CONFIG.engineVersion}:${APP_CONFIG.contentVersion}`,
@@ -209,10 +241,16 @@ export async function generateDailyFortune(profile, targetDate=new Date(), theme
     signals,
     axes,
     content:{
+      id: c.id || theme.id,
+      season: c.season || dayVector.seasonId,
       lead:c.lead || `今日は「${theme.label}」がテーマです。`,
       key:c.key || "一つずつ、丁寧に進める。",
       promise:c.promise || "今日の自分に合う歩幅を選びます。",
       action:c.action || "深呼吸して、最初の一歩を決める。",
+      nightPrompt:
+        c.nightPrompt || "できたことを一つ見つけて、今日を閉じましょう。",
+      luckyColor: luckyColors[colorIndex],
+      luckyTime: `${String(luckyHour).padStart(2, "0")}:00〜${String(luckyHour + 1).padStart(2, "0")}:00`,
       axisMessages:Object.fromEntries(AXES.map(k=>[k,axisMessage(k,axes[k].stars,theme.label)]))
     }
   };

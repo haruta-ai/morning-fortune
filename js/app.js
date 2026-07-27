@@ -1,7 +1,11 @@
 import { APP_CONFIG } from "./config.js";
 import { database } from "./database.js";
 import { fortuneEngine } from "./engine.js";
-import { createAnalyticsEvent, createProfile, createReflection } from "./models.js";
+import {
+  createAnalyticsEvent,
+  createProfile,
+  createReflection
+} from "./models.js";
 import { localSettings } from "./storage.js";
 import { formatJapaneseDate, toLocalDateKey } from "./utils.js";
 
@@ -30,6 +34,8 @@ const ui = {
   key: $("#todayKey"),
   action: $("#luckyAction"),
   promise: $("#todayPromise"),
+  luckyColor: $("#luckyColor"),
+  luckyTime: $("#luckyTime"),
   overallMessage: $("#overallMessage"),
   axisMessages: $("#axisMessages"),
   openProfile: $("#openProfileButton"),
@@ -47,7 +53,6 @@ const appState = {
   profile: null,
   themes: [],
   content: {},
-  initialized: false,
   currentResult: null
 };
 
@@ -64,12 +69,10 @@ async function loadJson(path) {
 }
 
 async function registerServiceWorker() {
-  const isSecure =
+  const secure =
     location.protocol === "https:" || location.hostname === "localhost";
 
-  if (!("serviceWorker" in navigator) || !isSecure) {
-    return;
-  }
+  if (!("serviceWorker" in navigator) || !secure) return;
 
   try {
     await navigator.serviceWorker.register("./service-worker.js");
@@ -98,7 +101,8 @@ async function getTodayResult() {
       "analyticsEvents",
       createAnalyticsEvent("fortune_generated", {
         themeId: result.themeId,
-        stars: result.axes.overall.stars
+        stars: result.axes.overall.stars,
+        contentId: result.content.id
       })
     );
   }
@@ -109,26 +113,22 @@ async function getTodayResult() {
 function renderProfileSummary() {
   const profile = appState.profile;
 
-  if (!profile) {
-    ui.summary.textContent = "";
-    return;
-  }
-
-  ui.summary.textContent = [
-    `表示名：${profile.displayName || "未設定"}`,
-    `生年月日：${profile.birthDate}`,
-    `血液型：${profile.bloodType ? `${profile.bloodType}型` : "未設定"}`
-  ].join("\n");
+  ui.summary.textContent = profile
+    ? [
+        `表示名：${profile.displayName || "未設定"}`,
+        `生年月日：${profile.birthDate}`,
+        `血液型：${profile.bloodType ? `${profile.bloodType}型` : "未設定"}`
+      ].join("\n")
+    : "";
 }
 
 async function renderHome() {
   const result = await getTodayResult();
   appState.currentResult = result;
-  const profile = appState.profile;
 
   ui.date.textContent = formatJapaneseDate();
   ui.greeting.textContent =
-    `おはようございます、${profile.displayName || "あなた"}さん`;
+    `おはようございます、${appState.profile.displayName || "あなた"}さん`;
 
   ui.overallStars.textContent = starText(result.axes.overall.stars);
   ui.theme.textContent = result.themeLabel;
@@ -143,6 +143,8 @@ async function renderHome() {
   ui.key.textContent = result.content.key;
   ui.action.textContent = result.content.action;
   ui.promise.textContent = result.content.promise;
+  ui.luckyColor.textContent = result.content.luckyColor.label;
+  ui.luckyTime.textContent = result.content.luckyTime;
   ui.overallMessage.textContent = result.content.axisMessages.overall;
 
   const axisNames = {
@@ -155,13 +157,12 @@ async function renderHome() {
     ...["love", "money", "work"].map(axis => {
       const paragraph = document.createElement("p");
       const strong = document.createElement("strong");
-      const lineBreak = document.createElement("br");
-      const message = document.createTextNode(
-        result.content.axisMessages[axis]
-      );
-
       strong.textContent = axisNames[axis];
-      paragraph.append(strong, lineBreak, message);
+      paragraph.append(
+        strong,
+        document.createElement("br"),
+        document.createTextNode(result.content.axisMessages[axis])
+      );
       return paragraph;
     })
   );
@@ -170,11 +171,11 @@ async function renderHome() {
 
   ui.nightThemeLead.textContent =
     `今朝のテーマは「${result.themeLabel}」でした。` +
-    "できたことを一つ見つけて、今日を閉じましょう。";
+    result.content.nightPrompt;
 
   const reflection = await database.get(
     "reflections",
-    `${profile.id}:${result.dateKey}`
+    `${appState.profile.id}:${result.dateKey}`
   );
 
   if (reflection) {
@@ -186,102 +187,22 @@ async function renderHome() {
     ui.reflectionNote.value = reflection.note;
     ui.reflectionMessage.textContent = "今日の振り返りは保存済みです。";
   } else {
+    ui.reflectionForm.reset();
+    const defaultMood = ui.reflectionForm.querySelector(
+      'input[name="mood"][value="3"]'
+    );
+    if (defaultMood) defaultMood.checked = true;
     ui.reflectionMessage.textContent = "";
   }
 }
 
 async function render() {
   const hasProfile = Boolean(appState.profile);
-
   ui.welcome.hidden = hasProfile;
   ui.home.hidden = !hasProfile;
 
   if (hasProfile) {
     await renderHome();
-  }
-}
-
-async function initialize() {
-  const hardStop = window.setTimeout(() => {
-    ui.splash.classList.add("is-hidden");
-  }, 2800);
-
-  try {
-    localSettings.
-ui.reflectionForm.addEventListener("submit", async event => {
-  event.preventDefault();
-
-  if (!appState.profile || !appState.currentResult) {
-    ui.reflectionMessage.textContent =
-      "今日の運勢を読み込んでから保存してください。";
-    return;
-  }
-
-  try {
-    const mood =
-      ui.reflectionForm.querySelector('input[name="mood"]:checked')?.value || 3;
-
-    const reflection = createReflection({
-      profileId: appState.profile.id,
-      dateKey: appState.currentResult.dateKey,
-      themeId: appState.currentResult.themeId,
-      themeLabel: appState.currentResult.themeLabel,
-      mood,
-      fulfilled: ui.promiseFulfilled.checked,
-      note: ui.reflectionNote.value
-    });
-
-    const existing = await database.get("reflections", reflection.id);
-    if (existing) {
-      reflection.createdAt = existing.createdAt;
-    }
-
-    await database.put("reflections", reflection);
-    await database.put(
-      "analyticsEvents",
-      createAnalyticsEvent("reflection_saved", {
-        themeId: reflection.themeId,
-        mood: reflection.mood,
-        fulfilled: reflection.fulfilled
-      })
-    );
-
-    ui.reflectionMessage.textContent =
-      "今日の振り返りを保存しました。おつかれさまでした。";
-  } catch (error) {
-    ui.reflectionMessage.textContent =
-      `保存できませんでした：${error.message}`;
-  }
-});
-
-initialize();
-    await database.ready();
-
-    [appState.themes, appState.content] = await Promise.all([
-      loadJson("./data/themes.json"),
-      loadJson("./data/content.json")
-    ]);
-
-    appState.profile = await database.get("profiles", "primary");
-    appState.initialized = true;
-
-    await render();
-    await registerServiceWorker();
-
-    await database.put(
-      "analyticsEvents",
-      createAnalyticsEvent("app_open", {
-        appVersion: APP_CONFIG.appVersion
-      })
-    );
-  } catch (error) {
-    console.error(error);
-    window.alert(`初期化に失敗しました：${error.message}`);
-  } finally {
-    window.clearTimeout(hardStop);
-    window.setTimeout(() => {
-      ui.splash.classList.add("is-hidden");
-    }, 1850);
   }
 }
 
@@ -309,16 +230,13 @@ ui.form.addEventListener("submit", async event => {
 });
 
 ui.openProfile.addEventListener("click", () => {
-  if (appState.profile) {
-    renderProfileSummary();
-    ui.dialog.showModal();
-  }
+  if (!appState.profile) return;
+  renderProfileSummary();
+  ui.dialog.showModal();
 });
 
 ui.reset.addEventListener("click", async () => {
-  if (!window.confirm("プロフィールを削除しますか？")) {
-    return;
-  }
+  if (!window.confirm("プロフィールを削除しますか？")) return;
 
   await database.delete("profiles", "primary");
   appState.profile = null;
@@ -326,7 +244,6 @@ ui.reset.addEventListener("click", async () => {
   ui.form.reset();
   await render();
 });
-
 
 ui.reflectionForm.addEventListener("submit", async event => {
   event.preventDefault();
@@ -339,7 +256,9 @@ ui.reflectionForm.addEventListener("submit", async event => {
 
   try {
     const mood =
-      ui.reflectionForm.querySelector('input[name="mood"]:checked')?.value || 3;
+      ui.reflectionForm.querySelector(
+        'input[name="mood"]:checked'
+      )?.value || 3;
 
     const reflection = createReflection({
       profileId: appState.profile.id,
@@ -352,9 +271,7 @@ ui.reflectionForm.addEventListener("submit", async event => {
     });
 
     const existing = await database.get("reflections", reflection.id);
-    if (existing) {
-      reflection.createdAt = existing.createdAt;
-    }
+    if (existing) reflection.createdAt = existing.createdAt;
 
     await database.put("reflections", reflection);
     await database.put(
@@ -373,5 +290,41 @@ ui.reflectionForm.addEventListener("submit", async event => {
       `保存できませんでした：${error.message}`;
   }
 });
+
+async function initialize() {
+  const hardStop = window.setTimeout(() => {
+    ui.splash.classList.add("is-hidden");
+  }, 2800);
+
+  try {
+    localSettings.set("contentVersion", APP_CONFIG.contentVersion);
+    await database.ready();
+
+    [appState.themes, appState.content] = await Promise.all([
+      loadJson("./data/themes.json"),
+      loadJson("./data/content.json")
+    ]);
+
+    appState.profile = await database.get("profiles", "primary");
+
+    await render();
+    await registerServiceWorker();
+
+    await database.put(
+      "analyticsEvents",
+      createAnalyticsEvent("app_open", {
+        appVersion: APP_CONFIG.appVersion
+      })
+    );
+  } catch (error) {
+    console.error(error);
+    window.alert(`初期化に失敗しました：${error.message}`);
+  } finally {
+    window.clearTimeout(hardStop);
+    window.setTimeout(() => {
+      ui.splash.classList.add("is-hidden");
+    }, 1850);
+  }
+}
 
 initialize();
