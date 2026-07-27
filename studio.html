@@ -128,6 +128,23 @@
         <span id="editorStatusBadge" class="badge">未選択</span>
       </div>
 
+      <div class="editor-search-row">
+        <label>
+          <span>コンテンツ検索</span>
+          <input id="editorSearchInput" type="search" placeholder="文章・ID・テーマ名で検索">
+        </label>
+        <label>
+          <span>問題項目</span>
+          <select id="editorIssueSelect">
+            <option value="">すべて</option>
+            <option value="duplicate">重複・類似候補</option>
+            <option value="short">短すぎる文章</option>
+            <option value="long">長すぎる文章</option>
+          </select>
+        </label>
+        <button id="clearEditorSearchButton" class="secondary-button secondary-button--button" type="button">検索解除</button>
+      </div>
+
       <div class="editor-toolbar">
         <label>
           <span>テーマ</span>
@@ -221,16 +238,29 @@
         </section>
       </div>
 
-      <div class="editor-export">
+      <div class="editor-export editor-export--stack">
         <div>
-          <h3>編集データを書き出す</h3>
-          <p class="muted">
-            Studioで保存した変更をJSONファイルとして書き出します。
-          </p>
+          <h3>編集データを管理</h3>
+          <p class="muted">編集内容の読み込み、差分書き出し、公開用content.json生成ができます。</p>
         </div>
-        <button id="exportEditedContentButton" class="secondary-button secondary-button--button" type="button">
-          編集済みJSONを書き出す
-        </button>
+        <div class="button-row">
+          <label class="secondary-button file-label">
+            編集済みJSONを読み込む
+            <input id="importEditedContentInput" type="file" accept="application/json,.json" hidden>
+          </label>
+          <button id="exportEditedContentButton" class="secondary-button secondary-button--button" type="button">編集差分を書き出す</button>
+          <button id="exportPublishedContentButton" class="primary-button" type="button">公開用content.jsonを生成</button>
+        </div>
+        <div class="editor-history-panel">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">EDIT HISTORY</p>
+              <h3>編集履歴</h3>
+            </div>
+            <button id="clearEditorHistoryButton" class="text-button" type="button">履歴を消去</button>
+          </div>
+          <div id="editorHistoryList" class="editor-history-list"></div>
+        </div>
       </div>
     </article>
 

@@ -1,31 +1,18 @@
 # Project Status
 
 ## 現在の開発段階
-
-Sprint 8 完了 — Studioコンテンツ編集機能
+Sprint 9 完了 — Studio編集ワークフロー
 
 ## 完了済み
-
-- Sprint 1〜7.2
-- テーマ選択
-- 季節選択
-- コンテンツID選択
-- lead / key / promise / action / nightPrompt編集
-- 文字数カウンター
-- リアルタイムプレビュー
-- 端末内保存
-- 原本へ戻す
-- 編集済みJSON書き出し
-- 編集内容を品質チェックへ即時反映
-- App Version 0.8.0
+- Sprint 1〜8
+- 編集差分JSON再読み込み
+- IndexedDB編集内容の自動復元
+- コンテンツ検索
+- 品質問題による絞り込み
+- 問題項目から編集画面へ移動
+- 編集履歴
+- 公開用content.json生成
+- App Version 0.9.0
 
 ## 次にやること
-
-Sprint 9
-
-1. 編集済みJSONの再読み込み
-2. コンテンツ検索
-3. 問題項目から編集画面へ直接移動
-4. 編集履歴
-5. 一括置換
-6. 公開用content.json生成
+Sprint 10 公開候補版UI・PWA・実機テスト
