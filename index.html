@@ -72,7 +72,43 @@
         <div id="axisMessages" class="axis-messages"></div>
       </details>
 
+      
+      <section id="nightReflectionSection" class="night-section">
+        <article class="night-card">
+          <p class="eyebrow">NIGHT REFLECTION</p>
+          <h2>今日を静かに振り返る</h2>
+          <p id="nightThemeLead" class="muted"></p>
+
+          <form id="reflectionForm" class="stack">
+            <fieldset class="mood-fieldset">
+              <legend>今日の気分</legend>
+              <div class="mood-options">
+                <label><input type="radio" name="mood" value="1"><span>1</span></label>
+                <label><input type="radio" name="mood" value="2"><span>2</span></label>
+                <label><input type="radio" name="mood" value="3" checked><span>3</span></label>
+                <label><input type="radio" name="mood" value="4"><span>4</span></label>
+                <label><input type="radio" name="mood" value="5"><span>5</span></label>
+              </div>
+            </fieldset>
+
+            <label class="check-row">
+              <input id="promiseFulfilled" type="checkbox">
+              <span>今日の約束を少しでも意識できた</span>
+            </label>
+
+            <label>
+              <span>ひとことメモ</span>
+              <textarea id="reflectionNote" rows="4" maxlength="240" placeholder="今日できたこと、気づいたこと"></textarea>
+            </label>
+
+            <button class="primary-button" type="submit">今日の振り返りを保存</button>
+            <p id="reflectionMessage" class="message" role="status"></p>
+          </form>
+        </article>
+      </section>
+
       <a class="secondary-button" href="./studio.html">Every Morning Studioを開く</a>
+
     </section>
   </main>
 

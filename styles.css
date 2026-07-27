@@ -18,3 +18,100 @@ details summary{cursor:pointer;font-weight:800}
 .axis-messages p{padding-top:13px;border-top:1px solid #ece8de;line-height:1.7}
 .preserve-lines{white-space:pre-line}
 @media(max-width:560px){.axis-grid{grid-template-columns:1fr}.axis-card{display:grid;grid-template-columns:1fr auto auto;align-items:center;gap:10px}.axis-card strong{margin:0}.fortune-hero__top{display:block}.stars{margin-top:14px}}
+
+
+.night-section {
+  margin-top: 18px;
+}
+
+.night-card {
+  margin-bottom: 16px;
+  padding: 24px;
+  border: 1px solid rgba(11,24,48,.08);
+  border-radius: var(--radius-lg);
+  background:
+    radial-gradient(circle at 100% 0%, rgba(217,180,111,.16), transparent 18rem),
+    linear-gradient(180deg, #f3f0f7 0%, #fffdf8 100%);
+  box-shadow: var(--shadow-card);
+}
+
+.night-card h2 {
+  margin-top: 0;
+}
+
+.mood-fieldset {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.mood-fieldset legend {
+  margin-bottom: 10px;
+  font-weight: 700;
+}
+
+.mood-options {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+}
+
+.mood-options label {
+  display: block;
+}
+
+.mood-options input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.mood-options span {
+  display: grid;
+  place-items: center;
+  min-height: 48px;
+  border: 1px solid #cad0d9;
+  border-radius: 13px;
+  background: white;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.mood-options input:checked + span {
+  border-color: var(--morning-gold);
+  background: var(--morning-gold-soft);
+  color: var(--morning-navy);
+  outline: 3px solid rgba(217,180,111,.18);
+}
+
+.check-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.check-row input {
+  width: 22px;
+  min-height: 22px;
+  margin-top: 1px;
+}
+
+.check-row > span {
+  margin: 0;
+  line-height: 1.6;
+}
+
+textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #cad0d9;
+  border-radius: 13px;
+  background: white;
+  color: var(--morning-ink);
+  resize: vertical;
+}
+
+textarea:focus {
+  border-color: var(--morning-gold);
+  outline: 3px solid rgba(217,180,111,.23);
+}

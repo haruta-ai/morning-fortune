@@ -1,7 +1,7 @@
 import { APP_CONFIG } from "./config.js";
 import { database } from "./database.js";
 import { fortuneEngine } from "./engine.js";
-import { createAnalyticsEvent, createProfile } from "./models.js";
+import { createAnalyticsEvent, createProfile, createReflection } from "./models.js";
 import { localSettings } from "./storage.js";
 import { formatJapaneseDate, toLocalDateKey } from "./utils.js";
 
@@ -35,14 +35,20 @@ const ui = {
   openProfile: $("#openProfileButton"),
   dialog: $("#profileDialog"),
   summary: $("#profileSummary"),
-  reset: $("#resetProfileButton")
+  reset: $("#resetProfileButton"),
+  reflectionForm: $("#reflectionForm"),
+  reflectionMessage: $("#reflectionMessage"),
+  reflectionNote: $("#reflectionNote"),
+  promiseFulfilled: $("#promiseFulfilled"),
+  nightThemeLead: $("#nightThemeLead")
 };
 
 const appState = {
   profile: null,
   themes: [],
   content: {},
-  initialized: false
+  initialized: false,
+  currentResult: null
 };
 
 function starText(stars) {
@@ -117,6 +123,7 @@ function renderProfileSummary() {
 
 async function renderHome() {
   const result = await getTodayResult();
+  appState.currentResult = result;
   const profile = appState.profile;
 
   ui.date.textContent = formatJapaneseDate();
@@ -160,6 +167,27 @@ async function renderHome() {
   );
 
   renderProfileSummary();
+
+  ui.nightThemeLead.textContent =
+    `今朝のテーマは「${result.themeLabel}」でした。` +
+    "できたことを一つ見つけて、今日を閉じましょう。";
+
+  const reflection = await database.get(
+    "reflections",
+    `${profile.id}:${result.dateKey}`
+  );
+
+  if (reflection) {
+    const moodInput = ui.reflectionForm.querySelector(
+      `input[name="mood"][value="${reflection.mood}"]`
+    );
+    if (moodInput) moodInput.checked = true;
+    ui.promiseFulfilled.checked = reflection.fulfilled;
+    ui.reflectionNote.value = reflection.note;
+    ui.reflectionMessage.textContent = "今日の振り返りは保存済みです。";
+  } else {
+    ui.reflectionMessage.textContent = "";
+  }
 }
 
 async function render() {
@@ -179,7 +207,54 @@ async function initialize() {
   }, 2800);
 
   try {
-    localSettings.initialize();
+    localSettings.
+ui.reflectionForm.addEventListener("submit", async event => {
+  event.preventDefault();
+
+  if (!appState.profile || !appState.currentResult) {
+    ui.reflectionMessage.textContent =
+      "今日の運勢を読み込んでから保存してください。";
+    return;
+  }
+
+  try {
+    const mood =
+      ui.reflectionForm.querySelector('input[name="mood"]:checked')?.value || 3;
+
+    const reflection = createReflection({
+      profileId: appState.profile.id,
+      dateKey: appState.currentResult.dateKey,
+      themeId: appState.currentResult.themeId,
+      themeLabel: appState.currentResult.themeLabel,
+      mood,
+      fulfilled: ui.promiseFulfilled.checked,
+      note: ui.reflectionNote.value
+    });
+
+    const existing = await database.get("reflections", reflection.id);
+    if (existing) {
+      reflection.createdAt = existing.createdAt;
+    }
+
+    await database.put("reflections", reflection);
+    await database.put(
+      "analyticsEvents",
+      createAnalyticsEvent("reflection_saved", {
+        themeId: reflection.themeId,
+        mood: reflection.mood,
+        fulfilled: reflection.fulfilled
+      })
+    );
+
+    ui.reflectionMessage.textContent =
+      "今日の振り返りを保存しました。おつかれさまでした。";
+  } catch (error) {
+    ui.reflectionMessage.textContent =
+      `保存できませんでした：${error.message}`;
+  }
+});
+
+initialize();
     await database.ready();
 
     [appState.themes, appState.content] = await Promise.all([
@@ -250,6 +325,53 @@ ui.reset.addEventListener("click", async () => {
   ui.dialog.close();
   ui.form.reset();
   await render();
+});
+
+
+ui.reflectionForm.addEventListener("submit", async event => {
+  event.preventDefault();
+
+  if (!appState.profile || !appState.currentResult) {
+    ui.reflectionMessage.textContent =
+      "今日の運勢を読み込んでから保存してください。";
+    return;
+  }
+
+  try {
+    const mood =
+      ui.reflectionForm.querySelector('input[name="mood"]:checked')?.value || 3;
+
+    const reflection = createReflection({
+      profileId: appState.profile.id,
+      dateKey: appState.currentResult.dateKey,
+      themeId: appState.currentResult.themeId,
+      themeLabel: appState.currentResult.themeLabel,
+      mood,
+      fulfilled: ui.promiseFulfilled.checked,
+      note: ui.reflectionNote.value
+    });
+
+    const existing = await database.get("reflections", reflection.id);
+    if (existing) {
+      reflection.createdAt = existing.createdAt;
+    }
+
+    await database.put("reflections", reflection);
+    await database.put(
+      "analyticsEvents",
+      createAnalyticsEvent("reflection_saved", {
+        themeId: reflection.themeId,
+        mood: reflection.mood,
+        fulfilled: reflection.fulfilled
+      })
+    );
+
+    ui.reflectionMessage.textContent =
+      "今日の振り返りを保存しました。おつかれさまでした。";
+  } catch (error) {
+    ui.reflectionMessage.textContent =
+      `保存できませんでした：${error.message}`;
+  }
 });
 
 initialize();
