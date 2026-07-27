@@ -1,12 +1,20 @@
 {
-  "name": "毎朝の運勢",
-  "short_name": "毎朝の運勢",
-  "description": "外部APIを使わず、毎日の運勢と振り返りを端末内で管理するアプリ",
-  "start_url": "./",
+  "name": "Every Morning Fortune",
+  "short_name": "Morning Fortune",
+  "description": "毎朝30秒、自分を整える占いアプリ",
+  "lang": "ja",
+  "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#fff8ef",
-  "theme_color": "#fff8ef",
-  "lang": "ja",
-  "orientation": "portrait-primary"
+  "background_color": "#0b1830",
+  "theme_color": "#0b1830",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "./data/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
 }

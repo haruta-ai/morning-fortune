@@ -1,0 +1,433 @@
+[
+  {
+    "id": "begin",
+    "label": "はじめる",
+    "target": {
+      "vitality": 68,
+      "receptivity": 55,
+      "connection": 55,
+      "expression": 58,
+      "focus": 56,
+      "material": 48,
+      "caution": 34,
+      "recovery": 45
+    },
+    "preferredOverallStars": [
+      3,
+      4,
+      5
+    ],
+    "dominantSignals": [
+      "vitality",
+      "expression"
+    ],
+    "seasonBoost": [
+      "spring",
+      "early_spring"
+    ]
+  },
+  {
+    "id": "advance",
+    "label": "一歩進める",
+    "target": {
+      "vitality": 76,
+      "receptivity": 55,
+      "connection": 52,
+      "expression": 62,
+      "focus": 72,
+      "material": 50,
+      "caution": 34,
+      "recovery": 42
+    },
+    "preferredOverallStars": [
+      4,
+      5
+    ],
+    "dominantSignals": [
+      "vitality",
+      "focus"
+    ],
+    "seasonBoost": [
+      "spring",
+      "summer"
+    ]
+  },
+  {
+    "id": "connect",
+    "label": "つながる",
+    "target": {
+      "vitality": 58,
+      "receptivity": 70,
+      "connection": 80,
+      "expression": 65,
+      "focus": 50,
+      "material": 48,
+      "caution": 38,
+      "recovery": 52
+    },
+    "preferredOverallStars": [
+      3,
+      4,
+      5
+    ],
+    "dominantSignals": [
+      "connection",
+      "receptivity"
+    ],
+    "seasonBoost": [
+      "spring",
+      "autumn"
+    ]
+  },
+  {
+    "id": "express",
+    "label": "伝える",
+    "target": {
+      "vitality": 64,
+      "receptivity": 62,
+      "connection": 68,
+      "expression": 82,
+      "focus": 58,
+      "material": 45,
+      "caution": 38,
+      "recovery": 45
+    },
+    "preferredOverallStars": [
+      3,
+      4,
+      5
+    ],
+    "dominantSignals": [
+      "expression",
+      "connection"
+    ],
+    "seasonBoost": [
+      "spring",
+      "summer"
+    ]
+  },
+  {
+    "id": "receive",
+    "label": "受け取る",
+    "target": {
+      "vitality": 54,
+      "receptivity": 82,
+      "connection": 68,
+      "expression": 55,
+      "focus": 46,
+      "material": 58,
+      "caution": 34,
+      "recovery": 62
+    },
+    "preferredOverallStars": [
+      3,
+      4,
+      5
+    ],
+    "dominantSignals": [
+      "receptivity",
+      "recovery"
+    ],
+    "seasonBoost": [
+      "autumn",
+      "winter"
+    ]
+  },
+  {
+    "id": "choose",
+    "label": "選ぶ",
+    "target": {
+      "vitality": 48,
+      "receptivity": 50,
+      "connection": 48,
+      "expression": 46,
+      "focus": 72,
+      "material": 66,
+      "caution": 66,
+      "recovery": 58
+    },
+    "preferredOverallStars": [
+      2,
+      3,
+      4
+    ],
+    "dominantSignals": [
+      "focus",
+      "caution"
+    ],
+    "seasonBoost": [
+      "autumn",
+      "rainy"
+    ]
+  },
+  {
+    "id": "focus",
+    "label": "集中する",
+    "target": {
+      "vitality": 66,
+      "receptivity": 48,
+      "connection": 44,
+      "expression": 52,
+      "focus": 86,
+      "material": 58,
+      "caution": 42,
+      "recovery": 42
+    },
+    "preferredOverallStars": [
+      3,
+      4,
+      5
+    ],
+    "dominantSignals": [
+      "focus",
+      "vitality"
+    ],
+    "seasonBoost": [
+      "winter",
+      "early_winter"
+    ]
+  },
+  {
+    "id": "organize",
+    "label": "整える",
+    "target": {
+      "vitality": 52,
+      "receptivity": 58,
+      "connection": 52,
+      "expression": 48,
+      "focus": 72,
+      "material": 60,
+      "caution": 58,
+      "recovery": 66
+    },
+    "preferredOverallStars": [
+      2,
+      3,
+      4
+    ],
+    "dominantSignals": [
+      "focus",
+      "recovery"
+    ],
+    "seasonBoost": [
+      "rainy",
+      "autumn"
+    ]
+  },
+  {
+    "id": "protect",
+    "label": "守る",
+    "target": {
+      "vitality": 42,
+      "receptivity": 48,
+      "connection": 45,
+      "expression": 40,
+      "focus": 58,
+      "material": 52,
+      "caution": 82,
+      "recovery": 68
+    },
+    "preferredOverallStars": [
+      1,
+      2,
+      3
+    ],
+    "dominantSignals": [
+      "caution",
+      "recovery"
+    ],
+    "seasonBoost": [
+      "winter",
+      "rainy"
+    ]
+  },
+  {
+    "id": "rest",
+    "label": "休ませる",
+    "target": {
+      "vitality": 34,
+      "receptivity": 58,
+      "connection": 46,
+      "expression": 38,
+      "focus": 42,
+      "material": 44,
+      "caution": 64,
+      "recovery": 88
+    },
+    "preferredOverallStars": [
+      1,
+      2,
+      3
+    ],
+    "dominantSignals": [
+      "recovery",
+      "caution"
+    ],
+    "seasonBoost": [
+      "summer",
+      "winter"
+    ]
+  },
+  {
+    "id": "release",
+    "label": "手放す",
+    "target": {
+      "vitality": 45,
+      "receptivity": 66,
+      "connection": 48,
+      "expression": 46,
+      "focus": 54,
+      "material": 46,
+      "caution": 58,
+      "recovery": 76
+    },
+    "preferredOverallStars": [
+      2,
+      3,
+      4
+    ],
+    "dominantSignals": [
+      "recovery",
+      "receptivity"
+    ],
+    "seasonBoost": [
+      "autumn",
+      "early_winter"
+    ]
+  },
+  {
+    "id": "trust",
+    "label": "信じる",
+    "target": {
+      "vitality": 58,
+      "receptivity": 72,
+      "connection": 58,
+      "expression": 62,
+      "focus": 54,
+      "material": 52,
+      "caution": 40,
+      "recovery": 64
+    },
+    "preferredOverallStars": [
+      3,
+      4,
+      5
+    ],
+    "dominantSignals": [
+      "receptivity",
+      "expression"
+    ],
+    "seasonBoost": [
+      "spring",
+      "summer"
+    ]
+  },
+  {
+    "id": "enjoy",
+    "label": "味わう",
+    "target": {
+      "vitality": 70,
+      "receptivity": 72,
+      "connection": 66,
+      "expression": 60,
+      "focus": 42,
+      "material": 58,
+      "caution": 30,
+      "recovery": 62
+    },
+    "preferredOverallStars": [
+      3,
+      4,
+      5
+    ],
+    "dominantSignals": [
+      "vitality",
+      "receptivity"
+    ],
+    "seasonBoost": [
+      "summer",
+      "autumn"
+    ]
+  },
+  {
+    "id": "nurture",
+    "label": "育てる",
+    "target": {
+      "vitality": 58,
+      "receptivity": 66,
+      "connection": 62,
+      "expression": 52,
+      "focus": 66,
+      "material": 60,
+      "caution": 44,
+      "recovery": 70
+    },
+    "preferredOverallStars": [
+      2,
+      3,
+      4
+    ],
+    "dominantSignals": [
+      "recovery",
+      "focus"
+    ],
+    "seasonBoost": [
+      "spring",
+      "rainy"
+    ]
+  },
+  {
+    "id": "review",
+    "label": "見直す",
+    "target": {
+      "vitality": 46,
+      "receptivity": 50,
+      "connection": 46,
+      "expression": 44,
+      "focus": 78,
+      "material": 64,
+      "caution": 70,
+      "recovery": 60
+    },
+    "preferredOverallStars": [
+      1,
+      2,
+      3
+    ],
+    "dominantSignals": [
+      "focus",
+      "caution"
+    ],
+    "seasonBoost": [
+      "autumn",
+      "winter"
+    ]
+  },
+  {
+    "id": "prepare",
+    "label": "備える",
+    "target": {
+      "vitality": 54,
+      "receptivity": 48,
+      "connection": 50,
+      "expression": 48,
+      "focus": 76,
+      "material": 70,
+      "caution": 62,
+      "recovery": 56
+    },
+    "preferredOverallStars": [
+      2,
+      3,
+      4
+    ],
+    "dominantSignals": [
+      "focus",
+      "material"
+    ],
+    "seasonBoost": [
+      "early_winter",
+      "winter"
+    ]
+  }
+]

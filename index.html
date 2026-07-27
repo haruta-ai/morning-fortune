@@ -1,181 +1,89 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>毎朝の運勢</title>
-  <meta name="description" content="朝30秒で、今日を少し前向きに始める運勢アプリ。">
-  <meta name="theme-color" content="#1c1538">
-  <meta name="application-version" content="0.9.0-rc6">
-  <meta name="color-scheme" content="dark">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="毎朝の運勢">
-  <link rel="manifest" href="./manifest.json?v=0.9.0-rc6">
-  <link rel="apple-touch-icon" href="./icons/icon-192.png">
-  <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png">
-  <link rel="stylesheet" href="./style.css?v=0.9.0-rc6">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#0b1830">
+  <meta name="description" content="毎朝30秒、自分を整える占いアプリ Every Morning Fortune">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="stylesheet" href="./styles.css">
+  <title>Every Morning Fortune</title>
 </head>
 <body>
-  <div class="background" aria-hidden="true">
-    <span class="sunrise"></span>
-    <span class="glow glow-a"></span>
-    <span class="glow glow-b"></span>
-    <span class="spark spark-a">✦</span>
-    <span class="spark spark-b">✧</span>
-    <span class="spark spark-c">✦</span>
+  <div id="splash" class="splash" aria-hidden="true">
+    <div class="splash__ring"></div>
+    <p class="splash__title">Every Morning Fortune</p>
   </div>
 
-  <div class="splash" id="splash" aria-hidden="true">
-    <div class="splash-symbol">☀️</div>
-    <p>おはようございます</p>
-    <small>今日も、よい一日を。</small>
-  </div>
+  <header class="app-header">
+    <div><p class="eyebrow">EVERY MORNING</p><h1>Fortune</h1></div>
+    <button id="openProfileButton" class="icon-button" type="button" aria-label="プロフィールを開く">⚙︎</button>
+  </header>
 
-  <main class="app">
-    <header class="hero">
-      <div>
-        <p class="eyebrow">MORNING FORTUNE</p>
-        <p class="date" id="todayDate"></p>
-      </div>
-      <button class="icon-button" id="helpButton" type="button" aria-label="使い方を見る">?</button>
-    </header>
-
-    <section class="welcome">
-      <p class="greeting" id="greeting">おはようございます</p>
-      <h1>今日の運勢</h1>
-      <p>朝30秒で、今日のヒントを。</p>
+  <main class="app-shell">
+    <section id="welcomePanel" class="card welcome-card" hidden>
+      <p class="eyebrow">はじめに</p>
+      <h2>あなたの基本情報を登録します</h2>
+      <p class="muted">入力内容と占い結果は、この端末内だけに保存されます。</p>
+      <form id="profileForm" class="stack">
+        <label><span>表示名</span><input id="displayName" maxlength="24" placeholder="例：ハルタ"></label>
+        <label><span>生年月日</span><input id="birthDate" type="date" required></label>
+        <label><span>血液型</span><select id="bloodType"><option value="">未設定</option><option>A</option><option>B</option><option>O</option><option>AB</option></select></label>
+        <button class="primary-button" type="submit">保存して占う</button>
+      </form>
     </section>
 
-    <section class="fortune-card" id="fortuneCard" aria-live="polite" aria-atomic="false">
-      <div class="fortune-head">
-        <span class="today-chip">TODAY</span>
-        <span id="miniDate"></span>
-      </div>
-
-      <div class="fortune-symbol" id="fortuneIcon" aria-hidden="true">✨</div>
-      <p class="fortune-label">総合運</p>
-      <h2 id="fortuneRank">？？</h2>
-      <p class="stars" id="fortuneStars" aria-label="運勢レベル">☆☆☆☆☆</p>
-      <p class="fortune-message" id="fortuneMessage">
-        ボタンを押して、今日の運勢を受け取りましょう。
-      </p>
-
-      <button class="main-button" id="startButton" type="button" aria-describedby="fortuneNote">
-        <span id="buttonLabel">今日の運勢を見る</span>
-      </button>
-
-      <p class="fortune-note" id="fortuneNote">運勢は毎日変わります。</p>
-    </section>
-
-    <section class="summary-strip" aria-label="今日の運勢一覧">
-      <article><span>💼</span><small>仕事運</small><strong id="workStarsMini">☆☆☆☆☆</strong></article>
-      <article><span>❤️</span><small>恋愛運</small><strong id="loveStarsMini">☆☆☆☆☆</strong></article>
-      <article><span>💰</span><small>金運</small><strong id="moneyStarsMini">☆☆☆☆☆</strong></article>
-      <article><span>💪</span><small>健康運</small><strong id="healthStarsMini">☆☆☆☆☆</strong></article>
-    </section>
-
-    <section class="category-section" aria-label="項目別の運勢">
-      <div class="section-heading">
-        <div>
-          <p>FORTUNE DETAILS</p>
-          <h2>詳しい運勢</h2>
+    <section id="homePanel" hidden>
+      <article class="fortune-hero">
+        <div class="fortune-hero__top">
+          <div><p id="todayLabel" class="eyebrow"></p><p id="greeting" class="small-greeting"></p></div>
+          <div id="overallStars" class="stars"></div>
         </div>
-        <span>5段階</span>
-      </div>
+        <p class="theme-caption">今日のテーマ</p>
+        <h2 id="themeLabel" class="theme-title"></h2>
+        <p id="themeLead" class="theme-lead"></p>
+        <div class="overall-score"><span>総合運</span><strong id="overallScore"></strong></div>
+      </article>
 
-      <div class="category-list" id="categoryDetails">
-        <article class="category-card">
-          <div class="category-top">
-            <span class="category-icon">💼</span>
-            <div><p>仕事運</p><strong id="workStars">☆☆☆☆☆</strong></div>
-          </div>
-          <p id="workMessage">運勢を見ると表示されます。</p>
-        </article>
+      <section class="axis-grid" aria-label="4つの運勢">
+        <article class="axis-card"><span>恋愛運</span><strong id="loveStars"></strong><small id="loveScore"></small></article>
+        <article class="axis-card"><span>金運</span><strong id="moneyStars"></strong><small id="moneyScore"></small></article>
+        <article class="axis-card"><span>仕事運</span><strong id="workStars"></strong><small id="workScore"></small></article>
+      </section>
 
-        <article class="category-card">
-          <div class="category-top">
-            <span class="category-icon">❤️</span>
-            <div><p>恋愛運</p><strong id="loveStars">☆☆☆☆☆</strong></div>
-          </div>
-          <p id="loveMessage">運勢を見ると表示されます。</p>
-        </article>
+      <article class="card">
+        <p class="eyebrow">TODAY'S KEY</p>
+        <h3 id="todayKey"></h3>
+        <p id="overallMessage" class="muted"></p>
+      </article>
 
-        <article class="category-card">
-          <div class="category-top">
-            <span class="category-icon">💰</span>
-            <div><p>金運</p><strong id="moneyStars">☆☆☆☆☆</strong></div>
-          </div>
-          <p id="moneyMessage">運勢を見ると表示されます。</p>
-        </article>
+      <article class="card">
+        <p class="eyebrow">LUCKY ACTION</p>
+        <h3 id="luckyAction"></h3>
+      </article>
 
-        <article class="category-card">
-          <div class="category-top">
-            <span class="category-icon">💪</span>
-            <div><p>健康運</p><strong id="healthStars">☆☆☆☆☆</strong></div>
-          </div>
-          <p id="healthMessage">運勢を見ると表示されます。</p>
-        </article>
-      </div>
+      <article class="promise-card">
+        <p class="eyebrow">TODAY'S PROMISE</p>
+        <p id="todayPromise"></p>
+      </article>
+
+      <details class="card">
+        <summary>4運勢のメッセージ</summary>
+        <div id="axisMessages" class="axis-messages"></div>
+      </details>
+
+      <a class="secondary-button" href="./studio.html">Every Morning Studioを開く</a>
     </section>
-
-    <section class="detail-grid" aria-label="今日の開運情報">
-      <article class="detail-card">
-        <span class="detail-emoji">🍀</span>
-        <div><p>開運アクション</p><strong id="luckyAction">運勢を見ると表示されます</strong></div>
-      </article>
-      <article class="detail-card">
-        <span class="detail-emoji">🎨</span>
-        <div><p>ラッキーカラー</p><strong id="luckyColor">—</strong></div>
-      </article>
-      <article class="detail-card">
-        <span class="detail-emoji">🎁</span>
-        <div><p>ラッキーアイテム</p><strong id="luckyItem">—</strong></div>
-      </article>
-      <article class="detail-card">
-        <span class="detail-emoji">🔢</span>
-        <div><p>ラッキーナンバー</p><strong id="luckyNumber">—</strong></div>
-      </article>
-      <article class="detail-card">
-        <span class="detail-emoji">⏰</span>
-        <div><p>ラッキータイム</p><strong id="luckyTime">—</strong></div>
-      </article>
-      <article class="detail-card">
-        <span class="detail-emoji">🧭</span>
-        <div><p>今日の注意点</p><strong id="caution">無理をしすぎないこと</strong></div>
-      </article>
-    </section>
-
-    <section class="quote-card">
-      <span>今日のひとこと</span>
-      <blockquote id="dailyWord">今日という日は、まだ何色にでも変えられます。</blockquote>
-    </section>
-
-    <section class="status-card">
-      <div><span class="status-dot" aria-hidden="true"></span><p id="statusText">オフラインでも使えます</p></div>
-      <small id="versionText">RC6</small>
-    </section>
-
-    <footer><p>毎朝、小さな前向きを。</p></footer>
   </main>
 
-  <dialog class="help-dialog" id="helpDialog">
-    <form method="dialog">
-      <button class="dialog-close" aria-label="閉じる">×</button>
-      <h2>使い方</h2>
-      <p>「今日の運勢を見る」を押すと、今日の総合運と4項目の運勢、開運情報が表示されます。</p>
-      <p>仕事運・恋愛運・金運・健康運は、総合運の下にそのまま表示されます。翌日になると内容が切り替わります。</p>
-      <button class="dialog-button" value="close">わかりました</button>
+  <dialog id="profileDialog">
+    <form method="dialog" class="dialog-card">
+      <div class="section-heading"><h2>プロフィール</h2><button class="icon-button" value="cancel">×</button></div>
+      <p id="profileSummary" class="muted preserve-lines"></p>
+      <button id="resetProfileButton" class="danger-button" type="button">プロフィールを削除</button>
     </form>
   </dialog>
 
-  <div class="toast" id="toast" role="status" aria-live="polite"></div>
-
-  <section class="update-banner" id="updateBanner" aria-live="polite">
-    <div><strong>新しいバージョンがあります</strong><span>更新して最新の内容を使えます。</span></div>
-    <button id="updateButton" type="button">更新</button>
-  </section>
-
-  <script src="./app.js?v=0.9.0-rc6" defer></script>
+  <script type="module" src="./js/app.js"></script>
 </body>
 </html>

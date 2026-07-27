@@ -1,24 +1,79 @@
-# 毎朝の運勢 0.9.0-rc6
+# Every Morning Fortune
 
-公開直前の最終確認版 RC6 です。
+毎朝30秒、自分を整える占いPWAです。
 
-## 今回の仕上げ
-- 現在のデザインと文章はそのまま維持
-- 運勢表示部分へ読み上げ支援を追加
-- ボタンの二重タップ防止を強化
-- 対応端末では運勢表示時にごく短い触覚フィードバック
-- 起動直後からオンライン／オフライン状態を正しく表示
-- ホーム画面ショートカット情報をManifestへ追加
-- 大きな文字設定でも文章が崩れにくいよう調整
-- Service Workerと全アセットをRC6へ更新
+## 現在の状態
 
-## GitHub Pagesへの反映
-ZIP内のファイルをリポジトリ直下へすべて上書きしてください。
+- App Version: 0.2.0
+- Engine Version: 1.0.0
+- Content Version: 0.2.0-seed
+- 外部APIなし
+- 外部分析なし
+- GitHub Pages対応
+- iPhone / Safari / PWA対応
+- IndexedDBによる端末内保存
 
-## 最終確認項目
-1. 起動画面が約3秒表示される
-2. 「詳しい運勢を見る」ボタンが存在しない
-3. 4項目の運勢が最初から表示される
-4. 「今日のひとこと」が大きく読みやすい
-5. 日付が変わると新しい運勢へ切り替わる
-6. オフラインでも一度読み込んだ画面を開ける
+## 実装済み
+
+- Every Morning共通スプラッシュ
+- プロフィール登録
+- Profile Vector
+- Day Vector
+- 8 Signals
+- 総合運
+- 恋愛運
+- 金運
+- 仕事運
+- 星1〜5評価
+- 16テーマ選定
+- Today's Key
+- Lucky Action
+- Today's Promise
+- 当日結果のIndexedDB保存
+- Every Morning Studio基盤
+- JSONバックアップ／復元
+- Service Worker
+- PWA manifest
+
+## ローカルで確認する方法
+
+VS Codeでこのフォルダを開き、ターミナルで以下を実行します。
+
+```bash
+python3 -m http.server 8000
+```
+
+Safariで以下を開きます。
+
+```text
+http://localhost:8000
+```
+
+## GitHub Pages
+
+リポジトリの `main` ブランチ直下を公開対象にします。
+
+Settings → Pages → Deploy from a branch → main / root
+
+## 主要ファイル
+
+```text
+/
+├── index.html
+├── studio.html
+├── styles.css
+├── manifest.webmanifest
+├── service-worker.js
+├── data/
+├── docs/
+└── js/
+```
+
+## 次の開発予定
+
+- 夜の振り返り
+- Studio編集機能
+- 重複文章チェック
+- コンテンツ品質チェック
+- 利用分析
+- 月次振り返り
