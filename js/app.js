@@ -89,6 +89,29 @@ function scoreOutlook(score) {
   return "守りを大切にしたい日です。無理に動かず、確認と休息を増やすほど流れが落ち着きます。";
 }
 
+function themeHeadline(themeId, fallbackLabel) {
+  const headlines = {
+    begin: "小さくはじめる一歩が、今日の流れを変えていく",
+    advance: "迷いを越えて、未来へつながる一歩を進める",
+    connect: "心をひらいて、大切な人とのつながりを育てる",
+    express: "素直な言葉で、自分らしい気持ちを伝える",
+    receive: "訪れる好意や幸運を、やわらかく受け取る",
+    choose: "今の自分に本当に必要なものを、丁寧に選ぶ",
+    focus: "大切な一つに心を向けて、静かに集中する",
+    organize: "身の回りと気持ちを整えて、軽やかに進む",
+    protect: "自分のペースと大切なものを、やさしく守る",
+    rest: "頑張る手を少し休めて、心と体を回復させる",
+    release: "抱えすぎたものを手放して、新しい余白をつくる",
+    trust: "積み重ねてきた自分の力を、今日は信じてみる",
+    enjoy: "目の前の小さな喜びを、ゆっくり味わう",
+    nurture: "急がず丁寧に、これから育つものへ心を注ぐ",
+    review: "立ち止まって見直し、よりよい流れへ整える",
+    prepare: "次の一歩を安心して踏み出せるよう、今を備える"
+  };
+
+  return headlines[themeId] || `${fallbackLabel}ことから、今日の流れを整える`;
+}
+
 function axisDetailSections(axis, result) {
   const score = result.axes[axis].score;
   const base = result.content.axisMessages[axis];
@@ -344,7 +367,7 @@ async function renderHome() {
     `おはようございます、${appState.profile.displayName || "あなた"}さん`;
 
   ui.overallStars.textContent = starText(result.axes.overall.stars);
-  ui.theme.textContent = result.themeLabel;
+  ui.theme.textContent = themeHeadline(result.themeId, result.themeLabel);
   ui.lead.textContent = result.content.lead;
   ui.overallScore.textContent = `${result.axes.overall.score} / 100`;
 
@@ -511,6 +534,15 @@ document.querySelectorAll('[data-app-action="refresh-cache"]').forEach(button =>
   });
 });
 
+document.querySelectorAll("details.fortune-score").forEach(card => {
+  card.addEventListener("click", event => {
+    if (card.open && !event.target.closest("summary")) {
+      card.open = false;
+      card.querySelector("summary")?.focus({ preventScroll: true });
+    }
+  });
+});
+
 async function initialize() {
   const splashStartedAt = performance.now();
 
@@ -518,7 +550,7 @@ async function initialize() {
 
   const hardStop = window.setTimeout(() => {
     ui.splash.classList.add("is-hidden");
-  }, 2000);
+  }, 2800);
 
   try {
     ui.startupError.hidden = true;
@@ -550,7 +582,7 @@ async function initialize() {
     const reducedMotion =
       window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const elapsed = performance.now() - splashStartedAt;
-    const remaining = reducedMotion ? 0 : Math.max(0, 1450 - elapsed);
+    const remaining = reducedMotion ? 0 : Math.max(0, 2250 - elapsed);
 
     window.setTimeout(() => {
       ui.splash.classList.add("is-hidden");
