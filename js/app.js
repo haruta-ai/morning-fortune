@@ -374,6 +374,7 @@ document.querySelectorAll('[data-app-action="refresh-cache"]').forEach(button =>
 });
 
 async function initialize() {
+  const splashStartedAt = performance.now();
   const hardStop = window.setTimeout(() => {
     ui.splash.classList.add("is-hidden");
   }, 2800);
@@ -405,10 +406,15 @@ async function initialize() {
     console.error(error);
     showStartupError(error);
   } finally {
-    window.clearTimeout(hardStop);
+    const reducedMotion =
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const elapsed = performance.now() - splashStartedAt;
+    const remaining = reducedMotion ? 0 : Math.max(0, 1850 - elapsed);
+
     window.setTimeout(() => {
       ui.splash.classList.add("is-hidden");
-    }, 1850);
+      window.clearTimeout(hardStop);
+    }, remaining);
   }
 }
 
