@@ -592,11 +592,16 @@ dialog::backdrop {
 
 
 
-.fortune-hero{margin-bottom:14px;padding:clamp(22px,5vw,30px);border-radius:var(--radius-lg);background:linear-gradient(155deg,#101f3b 0%,var(--morning-navy) 64%,#111d34 100%);color:#fff;box-shadow:0 18px 48px rgba(11,24,48,.18)}
+.fortune-hero{position:relative;isolation:isolate;margin-bottom:14px;padding:clamp(22px,5vw,30px);border-radius:var(--radius-lg);background:linear-gradient(155deg,#132542 0%,var(--morning-navy) 64%,#111d34 100%);color:#fff;box-shadow:0 18px 48px rgba(11,24,48,.18);overflow:hidden}
+.fortune-hero::before{position:absolute;z-index:-1;inset:-8rem -10rem auto auto;width:22rem;height:22rem;border-radius:50%;background:radial-gradient(circle,rgba(235,151,130,.22),rgba(215,181,116,.10) 38%,transparent 70%);content:"";pointer-events:none}
+.fortune-hero::after{position:absolute;z-index:-1;inset:auto auto -9rem -9rem;width:21rem;height:21rem;border-radius:50%;background:radial-gradient(circle,rgba(100,157,188,.20),transparent 68%);content:"";pointer-events:none}
 .fortune-hero__top{display:flex;justify-content:space-between;align-items:flex-start;gap:18px}
 .small-greeting{margin:.35rem 0 0;color:rgba(255,255,255,.72)}
 .fortune-score-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:22px}
-.fortune-score{min-width:0;border:1px solid rgba(255,255,255,.13);border-radius:16px;background:rgba(255,255,255,.065);text-align:center;overflow:hidden;transition:border-color .24s ease,background .24s ease,box-shadow .24s ease}
+.fortune-score{--axis-accent:var(--morning-gold-soft);min-width:0;border:1px solid color-mix(in srgb,var(--axis-accent) 38%,transparent);border-radius:16px;background:rgba(255,255,255,.07);text-align:center;overflow:hidden;transition:border-color .24s ease,background .24s ease,box-shadow .24s ease}
+.fortune-score:nth-child(2){--axis-accent:#f0a7af}
+.fortune-score:nth-child(3){--axis-accent:#acd3b1}
+.fortune-score:nth-child(4){--axis-accent:#9dc9e4}
 .fortune-score summary{padding:13px 10px;list-style:none;cursor:pointer;transition:background .2s ease}
 .fortune-score summary::-webkit-details-marker{display:none}
 .fortune-score summary:active{background:rgba(255,255,255,.08)}
@@ -605,16 +610,16 @@ dialog::backdrop {
 .fortune-score__label{color:rgba(255,255,255,.72);font-size:.74rem;font-weight:700}
 .fortune-score small{margin-top:3px;color:rgba(255,255,255,.72)}
 .fortune-score__preview{display:-webkit-box!important;min-height:2.8em;margin-top:8px;color:rgba(255,255,255,.78);font-size:.72rem;font-weight:400;line-height:1.4;overflow:hidden;-webkit-box-orient:vertical;-webkit-line-clamp:2}
-.fortune-score__toggle{margin-top:9px;color:var(--morning-gold-soft)!important;font-size:0;font-weight:750}
+.fortune-score__toggle{margin-top:9px;color:var(--axis-accent)!important;font-size:0;font-weight:750}
 .fortune-score__toggle::before{content:"詳しく見る";font-size:.72rem}
 .fortune-score__toggle::after{content:" ＋";font-size:.72rem}
-.fortune-score[open]{grid-column:1/-1;border-color:rgba(244,223,179,.66);background:rgba(255,255,255,.105);box-shadow:0 12px 30px rgba(0,0,0,.16);cursor:pointer}
+.fortune-score[open]{grid-column:1/-1;border-color:var(--axis-accent);background:rgba(255,255,255,.105);box-shadow:0 12px 30px rgba(0,0,0,.16);cursor:pointer}
 .fortune-score[open] .fortune-score__toggle::before{content:"枠内をタップして一覧へ戻る"}
 .fortune-score[open] .fortune-score__toggle::after{content:" ↑"}
 .fortune-score__detail{padding:0 18px 16px;border-top:1px solid rgba(255,255,255,.12);text-align:left;animation:fortune-detail-in .28s cubic-bezier(.2,.8,.2,1) both}
 .fortune-score__detail p{margin:14px 0 0;color:rgba(255,255,255,.84);font-size:.88rem;line-height:1.75}
-.fortune-score__detail strong{color:var(--morning-gold-soft)}
-.stars{color:var(--morning-gold);font-size:clamp(.82rem,2.6vw,1rem);letter-spacing:.02em;white-space:nowrap}
+.fortune-score__detail strong{color:var(--axis-accent)}
+.stars{color:var(--axis-accent);font-size:clamp(.82rem,2.6vw,1rem);letter-spacing:.02em;white-space:nowrap}
 .theme-caption{margin:25px 0 7px;color:var(--morning-gold-soft);font-size:.78rem;font-weight:800;letter-spacing:.14em}
 .theme-title{max-width:38rem;margin:0;font-size:clamp(1.72rem,7.6vw,3.3rem);line-height:1.28;letter-spacing:-.012em}
 .theme-lead{max-width:36rem;margin:15px 0 24px;color:rgba(255,255,255,.78);font-size:.96rem;line-height:1.82}

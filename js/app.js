@@ -76,19 +76,6 @@ function starText(stars) {
   return "★".repeat(stars) + "☆".repeat(5 - stars);
 }
 
-function scoreOutlook(score) {
-  if (score >= 75) {
-    return "追い風を感じやすい日です。遠慮しすぎず、準備してきたことを一歩前へ進めてください。";
-  }
-  if (score >= 60) {
-    return "安定した流れです。急いで結果を求めるより、丁寧な積み重ねが成果につながります。";
-  }
-  if (score >= 45) {
-    return "小さな調整が効く日です。一度に全部を変えず、優先順位を一つに絞ると整います。";
-  }
-  return "守りを大切にしたい日です。無理に動かず、確認と休息を増やすほど流れが落ち着きます。";
-}
-
 function themeHeadline(themeId, fallbackLabel) {
   const headlines = {
     begin: "小さくはじめる一歩が、今日の流れを変えていく",
@@ -112,10 +99,64 @@ function themeHeadline(themeId, fallbackLabel) {
   return headlines[themeId] || `${fallbackLabel}ことから、今日の流れを整える`;
 }
 
+function dailyHeartLine(result) {
+  const score = result.axes.overall.score;
+  const index = Number.parseInt(result.dayVector.hash.slice(0, 2), 16) % 4;
+  const lines = score >= 70
+    ? [
+        "ここまで積み重ねてきたことを、今日は信じて大丈夫です。",
+        "遠慮して小さくまとまるより、自分の可能性へ心をひらいて。",
+        "あなたの中にある準備は、思っている以上に整っています。",
+        "うれしい予感を疑わず、今日できる一歩へ変えてみましょう。"
+      ]
+    : score >= 45
+      ? [
+          "全部を完璧にしなくて大丈夫。今の自分に合う歩幅で進みましょう。",
+          "迷いがあるのは、真剣に今日を選ぼうとしている証拠です。",
+          "大きな変化より、心が少し軽くなる選択を重ねて。",
+          "焦らなくても大丈夫。整えた分だけ、今日の景色は変わります。"
+        ]
+      : [
+          "思うように動けない朝もあります。今日は自分を守ることから始めて。",
+          "元気を出そうとしなくて大丈夫。静かに過ごすことも立派な選択です。",
+          "立ち止まる日は、後退ではありません。心と体が追いつく時間です。",
+          "今日は頑張る量ではなく、自分へのやさしさを大切にして。"
+        ];
+
+  return lines[index];
+}
+
+function axisHeartLine(axis, score) {
+  const level = score >= 65 ? "high" : score >= 40 ? "middle" : "low";
+  const lines = {
+    overall: {
+      high: "あなたが選んできた道に、今日は追い風が重なります。",
+      middle: "少し迷っても大丈夫。整えながら進むことが、今日の正解です。",
+      low: "うまく進めない自分を責めないで。守る選択にも意味があります。"
+    },
+    love: {
+      high: "誰かを大切に思う気持ちは、言葉にしたとき初めて相手へ届きます。",
+      middle: "近づきたい気持ちと、自分を守りたい気持ち。どちらも本音で大丈夫です。",
+      low: "相手の反応で、あなたの価値が決まるわけではありません。"
+    },
+    money: {
+      high: "豊かさは増やすことだけでなく、納得して使えることにも宿ります。",
+      middle: "お金の不安は、見えないままのときほど大きく感じるものです。",
+      low: "今の数字だけで、これまでの努力まで否定しなくて大丈夫です。"
+    },
+    work: {
+      high: "積み重ねてきた力を、今日は形にして見せられる日です。",
+      middle: "頑張っている人ほど、まだ足りないと感じてしまうものです。",
+      low: "仕事が進まない日にも、あなた自身の価値は変わりません。"
+    }
+  };
+
+  return lines[axis][level];
+}
+
 function axisDetailSections(axis, result) {
   const score = result.axes[axis].score;
   const base = result.content.axisMessages[axis];
-  const outlook = scoreOutlook(score);
   const luckyTime = result.content.luckyTime;
   const luckyColor = result.content.luckyColor.label;
 
@@ -164,7 +205,7 @@ function axisDetailSections(axis, result) {
   };
 
   return [
-    ["今日の流れ", `${base} ${outlook}`],
+    ["今日の流れ", `${axisHeartLine(axis, score)} ${base}`],
     ["具体的な行動", plans[axis].action],
     ["おすすめの時間と色", plans[axis].timing],
     ["気をつけること", plans[axis].caution]
@@ -368,7 +409,7 @@ async function renderHome() {
 
   ui.overallStars.textContent = starText(result.axes.overall.stars);
   ui.theme.textContent = themeHeadline(result.themeId, result.themeLabel);
-  ui.lead.textContent = result.content.lead;
+  ui.lead.textContent = `${dailyHeartLine(result)} ${result.content.lead}`;
   ui.overallScore.textContent = `${result.axes.overall.score} / 100`;
 
   for (const axis of ["love", "money", "work"]) {
