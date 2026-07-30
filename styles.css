@@ -153,6 +153,33 @@ button {
   font-weight: 700;
 }
 
+.birth-date-fieldset {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.birth-date-fieldset legend {
+  margin-bottom: 7px;
+  color: var(--morning-navy);
+  font-size: .88rem;
+  font-weight: 700;
+}
+
+.birth-date-grid {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 1fr;
+  gap: 8px;
+}
+
+.birth-date-grid label > span {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+
 input,
 select,
 textarea {

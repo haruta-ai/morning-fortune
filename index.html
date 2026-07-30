@@ -48,7 +48,14 @@
       <p class="muted">入力内容と占い結果は、この端末内だけに保存されます。</p>
       <form id="profileForm" class="stack">
         <label><span>表示名</span><input id="displayName" maxlength="24" placeholder="例：ハルタ"></label>
-        <label><span>生年月日</span><input id="birthDate" type="date" required></label>
+        <fieldset class="birth-date-fieldset">
+          <legend>生年月日</legend>
+          <div class="birth-date-grid">
+            <label><span>年</span><select id="birthYear" required><option value="">年</option></select></label>
+            <label><span>月</span><select id="birthMonth" required><option value="">月</option></select></label>
+            <label><span>日</span><select id="birthDay" required disabled><option value="">日</option></select></label>
+          </div>
+        </fieldset>
         <label><span>血液型</span><select id="bloodType"><option value="">未設定</option><option>A</option><option>B</option><option>O</option><option>AB</option></select></label>
         <button class="primary-button" type="submit">保存して占う</button>
       </form>
@@ -99,7 +106,7 @@
         <p id="todayPromise"></p>
       </article>
 
-      <details class="card">
+      <details class="card" open>
         <summary>4運勢のメッセージ</summary>
         <div id="axisMessages" class="axis-messages"></div>
       </details>
@@ -139,7 +146,7 @@
         </article>
       </section>
 
-      <a class="secondary-button" href="./studio.html">Every Morning Studioを開く</a>
+      <a id="openStudioLink" class="secondary-button" href="./studio.html">Every Morning Studioを開く</a>
 
     </section>
     <section class="card app-management" aria-labelledby="appManagementTitle">
@@ -151,7 +158,7 @@
         <button class="secondary-button" type="button" data-app-action="refresh-cache">キャッシュを更新</button>
       </div>
       <p id="appManagementMessage" class="message" role="status"></p>
-      <small>Version <span id="appVersion">1.0.1</span></small>
+      <small>Version <span id="appVersion">1.0.2</span></small>
     </section>
 
     <footer class="app-footer">

@@ -17,7 +17,9 @@ const ui = {
   home: $("#homePanel"),
   form: $("#profileForm"),
   name: $("#displayName"),
-  birth: $("#birthDate"),
+  birthYear: $("#birthYear"),
+  birthMonth: $("#birthMonth"),
+  birthDay: $("#birthDay"),
   blood: $("#bloodType"),
   date: $("#todayLabel"),
   greeting: $("#greeting"),
@@ -53,7 +55,8 @@ const ui = {
   startupError: $("#startupErrorPanel"),
   startupErrorMessage: $("#startupErrorMessage"),
   appManagementMessage: $("#appManagementMessage"),
-  appVersion: $("#appVersion")
+  appVersion: $("#appVersion"),
+  openStudio: $("#openStudioLink")
 };
 
 const appState = {
@@ -65,6 +68,65 @@ const appState = {
 
 function starText(stars) {
   return "★".repeat(stars) + "☆".repeat(5 - stars);
+}
+
+function appendOption(select, value, label) {
+  const option = document.createElement("option");
+  option.value = String(value);
+  option.textContent = label;
+  select.append(option);
+}
+
+function updateBirthDayOptions() {
+  const previousDay = Number.parseInt(ui.birthDay.value, 10);
+  const year = Number.parseInt(ui.birthYear.value, 10);
+  const month = Number.parseInt(ui.birthMonth.value, 10);
+
+  ui.birthDay.replaceChildren(new Option("日", ""));
+
+  if (!year || !month) {
+    ui.birthDay.disabled = true;
+    return;
+  }
+
+  const daysInMonth = new Date(year, month, 0).getDate();
+  for (let day = 1; day <= daysInMonth; day += 1) {
+    appendOption(ui.birthDay, day, `${day}日`);
+  }
+
+  ui.birthDay.disabled = false;
+  if (previousDay && previousDay <= daysInMonth) {
+    ui.birthDay.value = String(previousDay);
+  }
+}
+
+function initializeBirthDateSelectors() {
+  const currentYear = new Date().getFullYear();
+
+  for (let year = currentYear; year >= 1900; year -= 1) {
+    appendOption(ui.birthYear, year, `${year}年`);
+  }
+
+  for (let month = 1; month <= 12; month += 1) {
+    appendOption(ui.birthMonth, month, `${month}月`);
+  }
+
+  ui.birthYear.addEventListener("change", updateBirthDayOptions);
+  ui.birthMonth.addEventListener("change", updateBirthDayOptions);
+}
+
+function getBirthDate() {
+  const year = ui.birthYear.value;
+  const month = ui.birthMonth.value.padStart(2, "0");
+  const day = ui.birthDay.value.padStart(2, "0");
+
+  if (!year || !ui.birthMonth.value || !ui.birthDay.value) return "";
+
+  const birthDate = `${year}-${month}-${day}`;
+  if (birthDate > toLocalDateKey()) {
+    throw new Error("未来の生年月日は登録できません。");
+  }
+  return birthDate;
 }
 
 async function loadJson(path) {
@@ -272,7 +334,7 @@ ui.form.addEventListener("submit", async event => {
   try {
     const profile = createProfile({
       displayName: ui.name.value,
-      birthDate: ui.birth.value,
+      birthDate: getBirthDate(),
       bloodType: ui.blood.value
     });
 
@@ -302,6 +364,7 @@ ui.reset.addEventListener("click", async () => {
   appState.profile = null;
   ui.dialog.close();
   ui.form.reset();
+  updateBirthDayOptions();
   await render();
 });
 
@@ -373,8 +436,19 @@ document.querySelectorAll('[data-app-action="refresh-cache"]').forEach(button =>
   });
 });
 
+ui.openStudio.addEventListener("click", () => {
+  sessionStorage.setItem("emf.skip-splash-on-return", "1");
+});
+
 async function initialize() {
   const splashStartedAt = performance.now();
+  const skipSplash =
+    sessionStorage.getItem("emf.skip-splash-on-return") === "1";
+  sessionStorage.removeItem("emf.skip-splash-on-return");
+
+  initializeBirthDateSelectors();
+  if (skipSplash) ui.splash.classList.add("is-hidden");
+
   const hardStop = window.setTimeout(() => {
     ui.splash.classList.add("is-hidden");
   }, 2300);
@@ -409,7 +483,8 @@ async function initialize() {
     const reducedMotion =
       window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const elapsed = performance.now() - splashStartedAt;
-    const remaining = reducedMotion ? 0 : Math.max(0, 1850 - elapsed);
+    const remaining =
+      reducedMotion || skipSplash ? 0 : Math.max(0, 1850 - elapsed);
 
     window.setTimeout(() => {
       ui.splash.classList.add("is-hidden");

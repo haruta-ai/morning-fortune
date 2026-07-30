@@ -1,5 +1,5 @@
 const CACHE_PREFIX = "emf-";
-const CACHE_NAME = `${CACHE_PREFIX}1-0-1-r4`;
+const CACHE_NAME = `${CACHE_PREFIX}1-0-2-r2`;
 const APP_SHELL = [
   "./",
   "./index.html",
@@ -47,7 +47,7 @@ self.addEventListener("fetch", event => {
   if (event.request.method !== "GET") return;
 
   event.respondWith(
-    fetch(event.request)
+    fetch(event.request, { cache: "no-store" })
       .then(response => {
         if (response?.ok && response.type === "basic") {
           const copy = response.clone();

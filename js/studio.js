@@ -10,6 +10,7 @@ import {
 const $ = selector => document.querySelector(selector);
 
 const ui = {
+  backToFortune: $("#backToFortuneLink"),
   morningCount: $("#morningCount"),
   reflectionCount: $("#reflectionCount"),
   streakCount: $("#streakCount"),
@@ -70,6 +71,15 @@ const ui = {
   editorHistoryList: $("#editorHistoryList"),
   clearEditorHistoryButton: $("#clearEditorHistoryButton")
 };
+
+ui.backToFortune.addEventListener("click", event => {
+  sessionStorage.setItem("emf.skip-splash-on-return", "1");
+
+  if (document.referrer && new URL(document.referrer).origin === location.origin) {
+    event.preventDefault();
+    history.back();
+  }
+});
 
 const editorState = {
   themes: [],
