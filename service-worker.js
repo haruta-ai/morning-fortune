@@ -1,11 +1,14 @@
 const CACHE_PREFIX = "emf-";
-const CACHE_NAME = `${CACHE_PREFIX}1-0-1-r2`;
+const CACHE_NAME = `${CACHE_PREFIX}1-0-1-r3`;
 const APP_SHELL = [
   "./",
   "./index.html",
   "./studio.html",
   "./styles.css",
   "./manifest.webmanifest",
+  "./data/apple-touch-icon.png",
+  "./data/icon-192.png",
+  "./data/icon-512.png",
   "./data/icon.svg",
   "./data/themes.json",
   "./data/content.json",
