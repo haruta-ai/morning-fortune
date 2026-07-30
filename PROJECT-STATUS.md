@@ -2,7 +2,7 @@
 
 ## 現在の開発段階
 
-Version 1.0.1 Release Candidate — Safari実機確認済み、PWA最終確認待ち
+Version 1.0.1 正式版 — 公開・実機確認完了
 
 ## 完了済み
 
@@ -17,13 +17,13 @@ Version 1.0.1 Release Candidate — Safari実機確認済み、PWA最終確認�
 - PWA用PNGアイコンとiPhoneホーム画面用アイコン
 - 小型iPhoneでの振り返り画面の横幅修正
 - iPhone Safariで初回登録、運勢表示、更新、振り返り保存を確認
+- ホーム画面アイコンからのPWA起動を確認
+- オフライン再起動を確認
 - App Version 1.0.1
 
 ## 次にやること
 
-1. ホーム画面アイコンからPWAを起動
-2. オフラインで基本画面が開くことを確認
-3. Version 1.0.1を正式版として確定
+Version 1.0.1の運用を開始。以後の機能追加はVersion 1.1以降で行う。
 
 ## 保留中のアイデア
 
