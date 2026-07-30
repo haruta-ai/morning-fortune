@@ -443,6 +443,12 @@ details summary{cursor:pointer;font-weight:800}
 
 .mood-options input {
   position: absolute;
+  width: 1px;
+  height: 1px;
+  min-height: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
   opacity: 0;
   pointer-events: none;
 }
@@ -463,6 +469,10 @@ details summary{cursor:pointer;font-weight:800}
   background: var(--morning-gold-soft);
   color: var(--morning-navy);
   outline: 3px solid rgba(217,180,111,.18);
+}
+
+.mood-options input:focus-visible + span {
+  outline: 3px solid rgba(217,180,111,.35);
 }
 
 .check-row {
