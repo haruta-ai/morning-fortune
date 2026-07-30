@@ -39,7 +39,14 @@ const ui = {
   luckyColor: $("#luckyColor"),
   luckyTime: $("#luckyTime"),
   overallMessage: $("#overallMessage"),
-  axisMessages: $("#axisMessages"),
+  overallPreview: $("#overallPreview"),
+  overallDetail: $("#overallDetail"),
+  lovePreview: $("#lovePreview"),
+  loveDetail: $("#loveDetail"),
+  moneyPreview: $("#moneyPreview"),
+  moneyDetail: $("#moneyDetail"),
+  workPreview: $("#workPreview"),
+  workDetail: $("#workDetail"),
   openProfile: $("#openProfileButton"),
   dialog: $("#profileDialog"),
   summary: $("#profileSummary"),
@@ -67,6 +74,91 @@ const appState = {
 
 function starText(stars) {
   return "★".repeat(stars) + "☆".repeat(5 - stars);
+}
+
+function scoreOutlook(score) {
+  if (score >= 75) {
+    return "追い風を感じやすい日です。遠慮しすぎず、準備してきたことを一歩前へ進めてください。";
+  }
+  if (score >= 60) {
+    return "安定した流れです。急いで結果を求めるより、丁寧な積み重ねが成果につながります。";
+  }
+  if (score >= 45) {
+    return "小さな調整が効く日です。一度に全部を変えず、優先順位を一つに絞ると整います。";
+  }
+  return "守りを大切にしたい日です。無理に動かず、確認と休息を増やすほど流れが落ち着きます。";
+}
+
+function axisDetailSections(axis, result) {
+  const score = result.axes[axis].score;
+  const base = result.content.axisMessages[axis];
+  const outlook = scoreOutlook(score);
+  const luckyTime = result.content.luckyTime;
+  const luckyColor = result.content.luckyColor.label;
+
+  const plans = {
+    overall: {
+      action:
+        `今日の判断基準は「${result.content.key}」です。` +
+        `最初の具体的な一歩として「${result.content.action}」を実行すると、残りの予定も整いやすくなります。`,
+      timing:
+        `${luckyTime}は、予定の見直しや大切な判断に向く時間です。` +
+        `${luckyColor}を目に入る場所へ置くと、焦ったときに自分のペースを思い出せます。`,
+      caution:
+        `迷ったときは「${result.content.promise}」を思い出してください。` +
+        "人の速度に合わせすぎず、今日できる範囲を終えれば十分です。"
+    },
+    love: {
+      action: score >= 60
+        ? "好意や感謝は、短くても言葉にして伝えてください。相手の話を最後まで聞いてから自分の気持ちを返すと、自然な距離の縮まり方になります。"
+        : "返事の速さや言葉の一部だけで結論を出さず、まず相手の状況を想像してください。連絡するなら、答えを求めすぎない明るい一言が適しています。",
+      timing:
+        `${luckyTime}の連絡や会話は、落ち着いた雰囲気を作りやすいでしょう。` +
+        `${luckyColor}を服や小物に少し取り入れると、柔らかな印象を助けます。`,
+      caution:
+        "遠慮して本音を隠しすぎることと、寂しさから相手を試すことは避けてください。大切なのは、分かってもらう前に自分から穏やかに伝えることです。"
+    },
+    money: {
+      action: score >= 60
+        ? "必要な買い物や手続きは進めて構いません。ただし購入前に価格・利用頻度・保管場所の3点を確認すると、満足度の高い選択になります。"
+        : "今日は大きな買い物を即決せず、欲しい物を一度メモへ移してください。固定費や残高を一項目だけ確認することが、無理のない立て直しにつながります。",
+      timing:
+        `${luckyTime}に財布・口座・今週の予定支出を5分だけ確認してください。` +
+        `${luckyColor}の印を必要な支払いメモへ付けると、優先順位が見やすくなります。`,
+      caution:
+        "気分転換のための衝動買いと、安さだけを理由にしたまとめ買いに注意してください。金額の大小より、買った後に本当に使うかを基準にしましょう。"
+    },
+    work: {
+      action: score >= 60
+        ? "始業後の15分で、今日終えることを三つ以内に絞ってください。重要な連絡や判断を先に済ませると、その後の作業へ集中しやすくなります。"
+        : "難しい仕事を抱え込まず、作業を15分単位まで小さく分けてください。不明点は早めに一つだけ質問し、手戻りを防ぐことが今日の成果になります。",
+      timing:
+        `${luckyTime}は集中作業、確認、相談のいずれか一つへ充てると効果的です。` +
+        `${luckyColor}の付箋や目印を最優先の仕事に使ってください。`,
+      caution:
+        "急な依頼をすべて引き受けず、期限と優先順位を確認してから返事をしてください。完成度を上げ続けるより、必要な品質で一度共有する方が前進します。"
+    }
+  };
+
+  return [
+    ["今日の流れ", `${base} ${outlook}`],
+    ["具体的な行動", plans[axis].action],
+    ["おすすめの時間と色", plans[axis].timing],
+    ["気をつけること", plans[axis].caution]
+  ];
+}
+
+function renderAxisDetail(axis, result) {
+  ui[`${axis}Preview`].textContent = result.content.axisMessages[axis];
+  ui[`${axis}Detail`].replaceChildren(
+    ...axisDetailSections(axis, result).map(([label, text]) => {
+      const paragraph = document.createElement("p");
+      const strong = document.createElement("strong");
+      strong.textContent = label;
+      paragraph.append(strong, document.createElement("br"), text);
+      return paragraph;
+    })
+  );
 }
 
 function appendOption(select, value, label) {
@@ -268,25 +360,9 @@ async function renderHome() {
   ui.luckyTime.textContent = result.content.luckyTime;
   ui.overallMessage.textContent = result.content.axisMessages.overall;
 
-  const axisNames = {
-    love: "恋愛運",
-    money: "金運",
-    work: "仕事運"
-  };
-
-  ui.axisMessages.replaceChildren(
-    ...["love", "money", "work"].map(axis => {
-      const paragraph = document.createElement("p");
-      const strong = document.createElement("strong");
-      strong.textContent = axisNames[axis];
-      paragraph.append(
-        strong,
-        document.createElement("br"),
-        document.createTextNode(result.content.axisMessages[axis])
-      );
-      return paragraph;
-    })
-  );
+  for (const axis of ["overall", "love", "money", "work"]) {
+    renderAxisDetail(axis, result);
+  }
 
   renderProfileSummary();
 

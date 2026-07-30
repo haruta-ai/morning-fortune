@@ -73,31 +73,51 @@
         <div class="fortune-hero__top">
           <div><p id="todayLabel" class="eyebrow"></p><p id="greeting" class="small-greeting"></p></div>
         </div>
-        <section class="fortune-score-grid" aria-label="4つの運勢">
-          <article class="fortune-score">
-            <span>総合運</span>
-            <strong id="overallStars" class="stars"></strong>
-            <small id="overallScore"></small>
-          </article>
-          <article class="fortune-score">
-            <span>恋愛運</span>
-            <strong id="loveStars" class="stars"></strong>
-            <small id="loveScore"></small>
-          </article>
-          <article class="fortune-score">
-            <span>金運</span>
-            <strong id="moneyStars" class="stars"></strong>
-            <small id="moneyScore"></small>
-          </article>
-          <article class="fortune-score">
-            <span>仕事運</span>
-            <strong id="workStars" class="stars"></strong>
-            <small id="workScore"></small>
-          </article>
-        </section>
         <p class="theme-caption">今日のテーマ</p>
         <h2 id="themeLabel" class="theme-title"></h2>
         <p id="themeLead" class="theme-lead"></p>
+        <section class="fortune-score-grid" aria-label="4つの運勢">
+          <details class="fortune-score">
+            <summary>
+              <span class="fortune-score__label">総合運</span>
+              <strong id="overallStars" class="stars"></strong>
+              <small id="overallScore"></small>
+              <span id="overallPreview" class="fortune-score__preview"></span>
+              <span class="fortune-score__toggle">詳しく見る</span>
+            </summary>
+            <div id="overallDetail" class="fortune-score__detail"></div>
+          </details>
+          <details class="fortune-score">
+            <summary>
+              <span class="fortune-score__label">恋愛運</span>
+              <strong id="loveStars" class="stars"></strong>
+              <small id="loveScore"></small>
+              <span id="lovePreview" class="fortune-score__preview"></span>
+              <span class="fortune-score__toggle">詳しく見る</span>
+            </summary>
+            <div id="loveDetail" class="fortune-score__detail"></div>
+          </details>
+          <details class="fortune-score">
+            <summary>
+              <span class="fortune-score__label">金運</span>
+              <strong id="moneyStars" class="stars"></strong>
+              <small id="moneyScore"></small>
+              <span id="moneyPreview" class="fortune-score__preview"></span>
+              <span class="fortune-score__toggle">詳しく見る</span>
+            </summary>
+            <div id="moneyDetail" class="fortune-score__detail"></div>
+          </details>
+          <details class="fortune-score">
+            <summary>
+              <span class="fortune-score__label">仕事運</span>
+              <strong id="workStars" class="stars"></strong>
+              <small id="workScore"></small>
+              <span id="workPreview" class="fortune-score__preview"></span>
+              <span class="fortune-score__toggle">詳しく見る</span>
+            </summary>
+            <div id="workDetail" class="fortune-score__detail"></div>
+          </details>
+        </section>
       </article>
 
       <article class="card">
@@ -127,12 +147,6 @@
         <p id="todayPromise"></p>
       </article>
 
-      <details class="card" open>
-        <summary>4運勢のメッセージ</summary>
-        <div id="axisMessages" class="axis-messages"></div>
-      </details>
-
-      
       <section id="nightReflectionSection" class="night-section">
         <article class="night-card">
           <p class="eyebrow">NIGHT REFLECTION</p>
@@ -177,7 +191,7 @@
         <button class="secondary-button" type="button" data-app-action="refresh-cache">キャッシュを更新</button>
       </div>
       <p id="appManagementMessage" class="message" role="status"></p>
-      <small>Version <span id="appVersion">1.0.3</span></small>
+      <small>Version <span id="appVersion">1.0.4</span></small>
     </section>
 
     <footer class="app-footer">
