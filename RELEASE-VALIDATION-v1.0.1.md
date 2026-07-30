@@ -7,14 +7,21 @@
 - HTMLから参照されるローカルファイル
 - app.jsが参照するHTML ID
 - Service WorkerのAPP_SHELL参照
-- ZIP内の復旧ボタン文言とイベント接続
 - ローカルHTTPで主要ファイルを取得
+- 小型iPhone相当の画面幅で横スクロールがない
+- 初回登録、運勢表示、振り返り保存
+- Service Worker更新通知と更新後の再起動
 
-## 実機確認待ち
+## iPhone実機確認済み
 
 - iPhone Safari
+- Service Worker更新通知
+- キャッシュ更新後の再起動
+- 振り返り画面が横にはみ出さない
+
+## 正式版確定前の最終確認
+
 - PWAホーム画面起動
 - オフライン起動
-- Service Worker更新通知
 
 静的検証の合格は、実機動作を保証するものではありません。

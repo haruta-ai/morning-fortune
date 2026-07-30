@@ -2,7 +2,7 @@
 
 ## 現在の開発段階
 
-Version 1.0.0 Final Candidate — 自動検査完了、実機最終確認待ち
+Version 1.0.1 Release Candidate — Safari実機確認済み、PWA最終確認待ち
 
 ## 完了済み
 
@@ -14,15 +14,16 @@ Version 1.0.0 Final Candidate — 自動検査完了、実機最終確認待ち
 - 公開画面の起動スモークテスト
 - Studioの起動スモークテスト
 - Service Worker登録確認
-- App Version 1.0.0
+- PWA用PNGアイコンとiPhoneホーム画面用アイコン
+- 小型iPhoneでの振り返り画面の横幅修正
+- iPhone Safariで初回登録、運勢表示、更新、振り返り保存を確認
+- App Version 1.0.1
 
 ## 次にやること
 
-1. iPhone Safariで起動確認
-2. プロフィール登録・当日運勢・夜の振り返りを確認
-3. Studioの編集・保存・JSON出力を確認
-4. GitHub Pagesへ反映
-5. キャッシュ更新後の再起動を確認
+1. ホーム画面アイコンからPWAを起動
+2. オフラインで基本画面が開くことを確認
+3. Version 1.0.1を正式版として確定
 
 ## 保留中のアイデア
 
