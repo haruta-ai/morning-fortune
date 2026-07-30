@@ -13,7 +13,14 @@
 </head>
 <body>
   <div id="splash" class="splash" aria-hidden="true">
-    <div class="splash__ring"></div>
+    <div class="splash__scene">
+      <div class="splash__halo"></div>
+      <div class="splash__sun">✦</div>
+      <span class="splash__spark splash__spark--one">✦</span>
+      <span class="splash__spark splash__spark--two">✦</span>
+      <span class="splash__spark splash__spark--three">✦</span>
+    </div>
+    <p class="splash__message">今日も、いい日に。</p>
     <p class="splash__title">Every Morning Fortune</p>
   </div>
 
@@ -65,19 +72,33 @@
       <article class="fortune-hero">
         <div class="fortune-hero__top">
           <div><p id="todayLabel" class="eyebrow"></p><p id="greeting" class="small-greeting"></p></div>
-          <div id="overallStars" class="stars"></div>
         </div>
+        <section class="fortune-score-grid" aria-label="4つの運勢">
+          <article class="fortune-score">
+            <span>総合運</span>
+            <strong id="overallStars" class="stars"></strong>
+            <small id="overallScore"></small>
+          </article>
+          <article class="fortune-score">
+            <span>恋愛運</span>
+            <strong id="loveStars" class="stars"></strong>
+            <small id="loveScore"></small>
+          </article>
+          <article class="fortune-score">
+            <span>金運</span>
+            <strong id="moneyStars" class="stars"></strong>
+            <small id="moneyScore"></small>
+          </article>
+          <article class="fortune-score">
+            <span>仕事運</span>
+            <strong id="workStars" class="stars"></strong>
+            <small id="workScore"></small>
+          </article>
+        </section>
         <p class="theme-caption">今日のテーマ</p>
         <h2 id="themeLabel" class="theme-title"></h2>
         <p id="themeLead" class="theme-lead"></p>
-        <div class="overall-score"><span>総合運</span><strong id="overallScore"></strong></div>
       </article>
-
-      <section class="axis-grid" aria-label="4つの運勢">
-        <article class="axis-card"><span>恋愛運</span><strong id="loveStars"></strong><small id="loveScore"></small></article>
-        <article class="axis-card"><span>金運</span><strong id="moneyStars"></strong><small id="moneyScore"></small></article>
-        <article class="axis-card"><span>仕事運</span><strong id="workStars"></strong><small id="workScore"></small></article>
-      </section>
 
       <article class="card">
         <p class="eyebrow">TODAY'S KEY</p>
@@ -146,8 +167,6 @@
         </article>
       </section>
 
-      <a id="openStudioLink" class="secondary-button" href="./studio.html">Every Morning Studioを開く</a>
-
     </section>
     <section class="card app-management" aria-labelledby="appManagementTitle">
       <p class="eyebrow">APP MANAGEMENT</p>
@@ -158,7 +177,7 @@
         <button class="secondary-button" type="button" data-app-action="refresh-cache">キャッシュを更新</button>
       </div>
       <p id="appManagementMessage" class="message" role="status"></p>
-      <small>Version <span id="appVersion">1.0.2</span></small>
+      <small>Version <span id="appVersion">1.0.3</span></small>
     </section>
 
     <footer class="app-footer">

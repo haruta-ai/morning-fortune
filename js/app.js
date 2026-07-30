@@ -55,8 +55,7 @@ const ui = {
   startupError: $("#startupErrorPanel"),
   startupErrorMessage: $("#startupErrorMessage"),
   appManagementMessage: $("#appManagementMessage"),
-  appVersion: $("#appVersion"),
-  openStudio: $("#openStudioLink")
+  appVersion: $("#appVersion")
 };
 
 const appState = {
@@ -436,22 +435,14 @@ document.querySelectorAll('[data-app-action="refresh-cache"]').forEach(button =>
   });
 });
 
-ui.openStudio.addEventListener("click", () => {
-  sessionStorage.setItem("emf.skip-splash-on-return", "1");
-});
-
 async function initialize() {
   const splashStartedAt = performance.now();
-  const skipSplash =
-    sessionStorage.getItem("emf.skip-splash-on-return") === "1";
-  sessionStorage.removeItem("emf.skip-splash-on-return");
 
   initializeBirthDateSelectors();
-  if (skipSplash) ui.splash.classList.add("is-hidden");
 
   const hardStop = window.setTimeout(() => {
     ui.splash.classList.add("is-hidden");
-  }, 2300);
+  }, 2000);
 
   try {
     ui.startupError.hidden = true;
@@ -483,8 +474,7 @@ async function initialize() {
     const reducedMotion =
       window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const elapsed = performance.now() - splashStartedAt;
-    const remaining =
-      reducedMotion || skipSplash ? 0 : Math.max(0, 1850 - elapsed);
+    const remaining = reducedMotion ? 0 : Math.max(0, 1450 - elapsed);
 
     window.setTimeout(() => {
       ui.splash.classList.add("is-hidden");

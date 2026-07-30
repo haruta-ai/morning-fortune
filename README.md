@@ -4,7 +4,7 @@
 
 ## 現在の状態
 
-- App Version: 1.0.0
+- App Version: 1.0.3
 - Engine Version: 1.0.0
 - Content Version: 1.0.1-night-prompts
 - 外部APIなし
@@ -30,8 +30,6 @@
 - Lucky Action
 - Today's Promise
 - 当日結果のIndexedDB保存
-- Every Morning Studio基盤
-- JSONバックアップ／復元
 - Service Worker
 - PWA manifest
 
@@ -60,7 +58,6 @@ Settings → Pages → Deploy from a branch → main / root
 ```text
 /
 ├── index.html
-├── studio.html
 ├── styles.css
 ├── manifest.webmanifest
 ├── service-worker.js
@@ -69,11 +66,6 @@ Settings → Pages → Deploy from a branch → main / root
 └── js/
 ```
 
-## 次の開発予定
+## 管理用Studio
 
-- 夜の振り返り
-- Studio編集機能
-- 重複文章チェック
-- コンテンツ品質チェック
-- 利用分析
-- 月次振り返り
+Studioは公開サイトから分離し、管理者のMac内だけで運用します。

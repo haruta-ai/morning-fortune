@@ -29,7 +29,8 @@
 
 ## 開発・確認ルール
 
-- 変更前に `index.html`、`studio.html`、`styles.css`、`js/`、manifest、Service Worker、および参照データを確認する。
+- 変更前に `index.html`、`styles.css`、`js/`、manifest、Service Worker、および参照データを確認する。
+- 管理用Studioは公開リポジトリへ戻さず、Mac内の管理者専用環境で維持する。
 - 公開画面が参照する `js/` 配下を正とし、直下の重複 JavaScript は参照関係を確認せず変更しない。
 - 機能追加、不要なリファクタリング、外部依存の追加は行わない。
 - URL とアセット参照はリポジトリのサブパス配信でも動作する相対パスを使う。
