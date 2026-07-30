@@ -41,6 +41,7 @@ body {
   min-width: 320px;
   min-height: 100vh;
   margin: 0;
+  overflow-x: hidden;
   color: var(--morning-text);
   background:
     radial-gradient(circle at 90% 0%, rgba(217, 180, 111, .14), transparent 25rem),
@@ -1114,7 +1115,7 @@ textarea:focus {
   }
 
   .studio-tab {
-    min-height: 42px;
+    min-height: 44px;
     padding: 8px 4px;
     font-size: .84rem;
   }

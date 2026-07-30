@@ -377,7 +377,7 @@ async function initialize() {
   const splashStartedAt = performance.now();
   const hardStop = window.setTimeout(() => {
     ui.splash.classList.add("is-hidden");
-  }, 2800);
+  }, 2300);
 
   try {
     ui.startupError.hidden = true;
