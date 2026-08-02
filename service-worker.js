@@ -1,5 +1,5 @@
 const CACHE_PREFIX = "emf-";
-const CACHE_NAME = `${CACHE_PREFIX}1-0-6-r1`;
+const CACHE_NAME = `${CACHE_PREFIX}1-0-7-r2`;
 const APP_SHELL = [
   "./",
   "./index.html",

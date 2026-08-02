@@ -1,6 +1,6 @@
 export const APP_CONFIG = Object.freeze({
   appName: "Every Morning Fortune",
-  appVersion: "1.0.6",
+  appVersion: "1.0.7",
   engineVersion: "1.0.0",
   contentVersion: "1.0.2-axis-variety",
   databaseName: "everyMorningFortuneDB",

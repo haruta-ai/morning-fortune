@@ -613,11 +613,11 @@ dialog::backdrop {
 .fortune-score__toggle{margin-top:9px;color:var(--axis-accent)!important;font-size:0;font-weight:750}
 .fortune-score__toggle::before{content:"詳しく見る";font-size:.72rem}
 .fortune-score__toggle::after{content:" ＋";font-size:.72rem}
-.fortune-score[open]{grid-column:1/-1;border-color:var(--axis-accent);background:rgba(255,255,255,.105);box-shadow:0 12px 30px rgba(0,0,0,.16);cursor:pointer}
+.fortune-score[open]{order:-1;grid-column:1/-1;border-color:var(--axis-accent);background:rgba(255,255,255,.105);box-shadow:0 12px 30px rgba(0,0,0,.16);cursor:pointer}
 .fortune-score[open] .fortune-score__toggle::before{content:"枠内をタップして一覧へ戻る"}
 .fortune-score[open] .fortune-score__toggle::after{content:" ↑"}
-.fortune-score__detail{padding:0 18px 16px;border-top:1px solid rgba(255,255,255,.12);text-align:left;animation:fortune-detail-in .28s cubic-bezier(.2,.8,.2,1) both}
-.fortune-score__detail p{margin:14px 0 0;color:rgba(255,255,255,.84);font-size:.88rem;line-height:1.75}
+.fortune-score__detail{padding:0 18px 16px;border-top:1px solid rgba(255,255,255,.12);font-family:ui-rounded,"Hiragino Maru Gothic ProN","Hiragino Maru Gothic Pro",sans-serif;text-align:left;animation:fortune-detail-in .28s cubic-bezier(.2,.8,.2,1) both}
+.fortune-score__detail p{margin:14px 0 0;color:rgba(255,255,255,.84);font-size:.96rem;line-height:1.8;letter-spacing:.015em}
 .fortune-score__detail strong{color:var(--axis-accent)}
 .stars{color:var(--axis-accent);font-size:clamp(.82rem,2.6vw,1rem);letter-spacing:.02em;white-space:nowrap}
 .theme-caption{margin:25px 0 7px;color:var(--morning-gold-soft);font-size:.78rem;font-weight:800;letter-spacing:.14em}
