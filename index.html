@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <meta name="theme-color" content="#0b1830">
+  <meta name="theme-color" content="#ffffff">
   <meta name="description" content="毎朝30秒、自分を整える占いアプリ Every Morning Fortune">
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="icon" href="./data/icon.svg" type="image/svg+xml">
@@ -77,23 +77,28 @@
         <div class="fortune-hero__top">
           <div><p id="todayLabel" class="eyebrow"></p><p id="greeting" class="small-greeting"></p></div>
         </div>
-        <p class="theme-caption">今日のテーマ</p>
-        <h2 id="themeLabel" class="theme-title"></h2>
-        <p id="themeLead" class="theme-lead"></p>
-        <section class="fortune-score-grid" aria-label="4つの運勢">
-          <details class="fortune-score">
-            <summary>
-              <span class="fortune-score__label">総合運</span>
+        <section class="daily-fortune" aria-labelledby="todayFortuneTitle">
+          <div class="daily-fortune__heading">
+            <p id="todayFortuneTitle" class="theme-caption">今日の運勢</p>
+            <div class="daily-fortune__rating" aria-label="総合運">
               <strong id="overallStars" class="stars"></strong>
               <small id="overallScore"></small>
-              <span id="overallPreview" class="fortune-score__preview"></span>
-              <span class="fortune-score__toggle">詳しく見る</span>
-            </summary>
-            <div id="overallDetail" class="fortune-score__detail"></div>
-          </details>
-          <details class="fortune-score">
+            </div>
+          </div>
+          <h2 id="themeLabel" class="theme-title"></h2>
+          <p id="themeLead" class="theme-lead"></p>
+          <p id="overallPreview" class="daily-fortune__message"></p>
+          <p id="dailyRhythm" class="daily-fortune__rhythm"></p>
+          <div class="daily-fortune__action">
+            <p class="daily-fortune__action-label">今日できること</p>
+            <h3 id="todayKey"></h3>
+            <p id="luckyAction"></p>
+          </div>
+        </section>
+        <section class="fortune-score-grid" aria-label="恋愛・金運・仕事・健康の4運勢">
+          <details class="fortune-score" data-fortune-axis="love">
             <summary>
-              <span class="fortune-score__label">恋愛運</span>
+              <span class="fortune-score__label">♡ 恋愛運</span>
               <strong id="loveStars" class="stars"></strong>
               <small id="loveScore"></small>
               <span id="lovePreview" class="fortune-score__preview"></span>
@@ -101,9 +106,9 @@
             </summary>
             <div id="loveDetail" class="fortune-score__detail"></div>
           </details>
-          <details class="fortune-score">
+          <details class="fortune-score" data-fortune-axis="money">
             <summary>
-              <span class="fortune-score__label">金運</span>
+              <span class="fortune-score__label">♢ 金運</span>
               <strong id="moneyStars" class="stars"></strong>
               <small id="moneyScore"></small>
               <span id="moneyPreview" class="fortune-score__preview"></span>
@@ -111,9 +116,9 @@
             </summary>
             <div id="moneyDetail" class="fortune-score__detail"></div>
           </details>
-          <details class="fortune-score">
+          <details class="fortune-score" data-fortune-axis="work">
             <summary>
-              <span class="fortune-score__label">仕事運</span>
+              <span class="fortune-score__label">✦ 仕事運</span>
               <strong id="workStars" class="stars"></strong>
               <small id="workScore"></small>
               <span id="workPreview" class="fortune-score__preview"></span>
@@ -121,18 +126,17 @@
             </summary>
             <div id="workDetail" class="fortune-score__detail"></div>
           </details>
+          <details class="fortune-score" data-fortune-axis="health">
+            <summary>
+              <span class="fortune-score__label">☘ 健康運</span>
+              <strong id="healthStars" class="stars"></strong>
+              <small id="healthScore"></small>
+              <span id="healthPreview" class="fortune-score__preview"></span>
+              <span class="fortune-score__toggle">詳しく見る</span>
+            </summary>
+            <div id="healthDetail" class="fortune-score__detail"></div>
+          </details>
         </section>
-      </article>
-
-      <article class="card">
-        <p class="eyebrow">TODAY'S KEY</p>
-        <h3 id="todayKey"></h3>
-        <p id="overallMessage" class="muted"></p>
-      </article>
-
-      <article class="card">
-        <p class="eyebrow">LUCKY ACTION</p>
-        <h3 id="luckyAction"></h3>
       </article>
 
       <section class="lucky-grid" aria-label="今日のラッキー情報">
@@ -195,7 +199,7 @@
         <button class="secondary-button" type="button" data-app-action="refresh-cache">キャッシュを更新</button>
       </div>
       <p id="appManagementMessage" class="message" role="status"></p>
-      <small>Version <span id="appVersion">1.0.7</span></small>
+      <small>Version <span id="appVersion">1.0.8</span></small>
     </section>
 
     <footer class="app-footer">

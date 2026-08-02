@@ -1,7 +1,7 @@
 import { APP_CONFIG } from "./config.js";
 import { clamp, digitalRoot, sha256Hex, toLocalDateKey } from "./utils.js";
 
-const AXES = ["overall", "love", "money", "work"];
+const AXES = ["overall", "love", "money", "work", "health"];
 const SIGNAL_KEYS = ["vitality","receptivity","connection","expression","focus","material","caution","recovery"];
 
 function center(v) { return (v - 0.5) * 2; }
@@ -135,19 +135,53 @@ function calculateAxes(s, dayHash) {
     overall:.20*s.vitality+.14*s.receptivity+.14*s.connection+.12*s.expression+.14*s.focus+.10*s.material+.08*(100-s.caution)+.08*s.recovery,
     love:.30*s.connection+.24*s.receptivity+.22*s.expression+.10*s.vitality+.08*s.recovery+.06*(100-s.caution),
     money:.34*s.material+.22*s.focus+.14*s.caution+.12*s.receptivity+.10*s.recovery+.08*s.vitality,
-    work:.32*s.focus+.20*s.vitality+.16*s.expression+.12*s.connection+.10*s.material+.10*(100-s.caution)
+    work:.32*s.focus+.20*s.vitality+.16*s.expression+.12*s.connection+.10*s.material+.10*(100-s.caution),
+    health:.34*s.recovery+.28*s.vitality+.16*(100-s.caution)+.12*s.focus+.10*s.receptivity
   };
   const adj={
     overall:synergy(s.vitality,s.focus,3)+synergy(s.receptivity,s.recovery,2)-overload(s.caution,s.vitality,3),
     love:synergy(s.connection,s.expression,4)+synergy(s.receptivity,s.recovery,2)-overload(s.caution,s.expression,3),
     money:synergy(s.material,s.focus,3.5)+balancedCaution(s.caution,2.5)-overload(s.caution,s.material,2.5),
-    work:synergy(s.focus,s.vitality,4)+synergy(s.expression,s.connection,2)-overload(s.caution,s.vitality,3)
+    work:synergy(s.focus,s.vitality,4)+synergy(s.expression,s.connection,2)-overload(s.caution,s.vitality,3),
+    health:synergy(s.recovery,s.vitality,3)+balancedCaution(s.caution,1.5)-overload(s.caution,s.recovery,2)
   };
   const axes={};
   AXES.forEach((key,i)=>{
     const score=Math.round(clamp(soften(raw[key])+adj[key]+axisMicro(dayHash,i),0,100));
     axes[key]={score,stars:scoreToStars(score),label:starLabel(scoreToStars(score))};
   });
+  return axes;
+}
+
+const OVERALL_RHYTHM = [18, 100, 50, 78, 20, 100, 56, 84, 24, 98];
+const AXIS_RHYTHMS = {
+  love: [-9, 7, 2, -5, 10, -3, 5],
+  money: [6, -8, 9, -4, 3, -10, 7],
+  work: [-4, 8, -9, 5, 10, -3, 4],
+  health: [7, -5, 3, 9, -8, 4, -6]
+};
+
+function updateAxisScore(axis, score) {
+  axis.score = Math.round(clamp(score, 0, 100));
+  axis.stars = scoreToStars(axis.score);
+  axis.label = starLabel(axis.stars);
+}
+
+function shapeDailyRhythm(axes, dayVector, profileVector) {
+  const overallOffset = parseInt(profileVector.hash.slice(0, 2), 16) % OVERALL_RHYTHM.length;
+  const overallPhase = (dayVector.dayOfYear - 1 + overallOffset) % OVERALL_RHYTHM.length;
+  const target = OVERALL_RHYTHM[overallPhase];
+
+  // 日ごとの高低差を明確にし、低めの日の次には上向くリズムを作る。
+  updateAxisScore(axes.overall, axes.overall.score * .18 + target * .82);
+
+  AXES.slice(1).forEach((axis, index) => {
+    const rhythm = AXIS_RHYTHMS[axis];
+    const offset = parseInt(profileVector.hash.slice(2 + index * 2, 4 + index * 2), 16) % rhythm.length;
+    const phase = (dayVector.dayOfYear - 1 + offset) % rhythm.length;
+    updateAxisScore(axes[axis], axes[axis].score + rhythm[phase]);
+  });
+
   return axes;
 }
 
@@ -166,6 +200,7 @@ function selectTheme(signals,axes,themes,seasonId,seedHash) {
     if(highestAxis==="love" && ["connect","express","receive","trust"].includes(theme.id)) score+=7;
     if(highestAxis==="money" && ["choose","review","protect","prepare","organize"].includes(theme.id)) score+=7;
     if(highestAxis==="work" && ["focus","advance","prepare","organize"].includes(theme.id)) score+=7;
+    if(highestAxis==="health" && ["rest","enjoy","nurture","organize"].includes(theme.id)) score+=7;
     if(signals.recovery>72 && signals.vitality<48 && ["rest","organize","release"].includes(theme.id)) score+=8;
     if(signals.caution>72 && ["protect","review","choose","prepare"].includes(theme.id)) score+=8;
     const tie=parseInt(seedHash.slice((index%16)*2,(index%16)*2+2),16)/255;
@@ -371,6 +406,33 @@ function axisMessage(axis, stars, themeId, themeLabel, variantIndex) {
         `判断を急ぐより、情報をそろえることが先です。重要な決定は可能なら明日へ回して。`,
         `疲れが仕事へ影響しやすい日です。短い休憩を確保し、ミスを防ぐ確認を増やしましょう。`
       ]
+    },
+    health: {
+      5: [
+        `心身ともに軽やかに動けそうです。朝の深呼吸と短い散歩で、心地よいリズムを広げて。`,
+        `元気を前向きに使える日です。好きな音楽に合わせて、無理のない範囲で体を動かしましょう。`,
+        `回復力が高まりやすい一日です。水分と食事を丁寧に取り、好調な流れを育てて。`
+      ],
+      4: [
+        `穏やかな調子を保てそうです。座り続ける前に一度立ち、肩と背中をゆっくり伸ばして。`,
+        `生活の小さな工夫が元気につながります。いつもより少し早めの休憩を予定に入れましょう。`,
+        `体の声を素直に聞ける日です。心地よい食事と軽い運動を一つずつ選んで。`
+      ],
+      3: [
+        `頑張る時間と休む時間のバランスが大切です。一区切りごとに姿勢と呼吸を整えましょう。`,
+        `いつものペースを守るほど安定します。水分を手元に置き、こまめにひと息入れて。`,
+        `小さなセルフケアが役立つ日です。目や肩を休ませる5分を先に確保しましょう。`
+      ],
+      2: [
+        `少し疲れを感じたら、早めに休む合図です。予定を一つ減らし、温かい時間を作って。`,
+        `調子を上げようと急がなくて大丈夫です。消化のよい食事と静かな休憩を優先しましょう。`,
+        `今日は省エネで過ごすほど明日が軽くなります。無理のない歩幅と十分な水分を意識して。`
+      ],
+      1: [
+        `元気が出ない自分を責めなくて大丈夫です。まず横になる、温める、深呼吸するの一つを選んで。`,
+        `回復を最優先にしたい日です。できることを減らし、安心して休める時間を確保しましょう。`,
+        `体調の変化にはやさしく慎重に向き合って。無理をせず、必要なら周囲や専門家を頼ってください。`
+      ]
     }
   };
 
@@ -380,10 +442,123 @@ function axisMessage(axis, stars, themeId, themeLabel, variantIndex) {
   return lens ? `${message} ${lens}` : message;
 }
 
+const DAILY_OPENINGS = [
+  "朝の小さな選択が、夕方の安心につながる日です。",
+  "今日は、気持ちを整えるほど次の一歩が見えやすくなります。",
+  "何気ない会話や予定の中に、うれしい転機の種が隠れています。",
+  "急いで答えを出さなくても、丁寧に向き合ったことが形になりそうです。",
+  "いつもの景色の中で、自分らしさを取り戻せる瞬間があります。",
+  "今のあなたに必要なものは、遠くではなく手の届くところにあります。",
+  "今日は、後回しにしていた気持ちへ優しく光を当てられる日です。",
+  "小さな違和感を見過ごさないことが、心地よい一日を作ります。",
+  "思いがけない言葉が、次の行動を後押ししてくれるかもしれません。",
+  "自分のために選んだ時間が、周りとの関係にも良い余白を生みます。",
+  "完璧に始めるより、今の自分にできる形で動き出すことが大切です。",
+  "今日は、これまでの頑張りを静かに受け取る場面がありそうです。",
+  "迷いがあるからこそ、本当に大切にしたいことがはっきりしてきます。",
+  "ひとつのことを丁寧に扱うほど、気持ちの流れが穏やかに整います。",
+  "少し立ち止まる時間が、次に進むための確かな準備になります。",
+  "人と比べない選択が、あなたらしい魅力をいちばん引き出します。",
+  "今日は、見えないところで積み重ねてきたことが力を発揮しそうです。",
+  "気になっていたことへ、無理のない一歩を向ける好機です。",
+  "心がふっと軽くなる方を選ぶと、今日の流れに乗りやすくなります。",
+  "やさしく断ることも、前向きに進むための大切な行動になります。",
+  "今の自分を信じて言葉にすると、新しい可能性がひらきます。",
+  "今日は、身の回りを少し整えるだけで気分まで変わっていきます。",
+  "小さな約束を守ることが、思っている以上の自信につながります。",
+  "予想どおりに進まない場面にも、あなたの工夫が生きる余地があります。",
+  "誰かの期待より、自分が納得できる選択を大切にしたい一日です。"
+];
+
+const DAILY_FOCUSES = [
+  "午前中に、今日いちばん大切にしたいことを一つだけ言葉にしてみてください。",
+  "返信や決断を急ぐ前に、深呼吸を三回すると気持ちの軸が戻ります。",
+  "気になっている人や場所へ、短くても自分から明るい合図を送ってみましょう。",
+  "予定に五分の余白を入れると、焦りではなく工夫で一日を進められます。",
+  "机、バッグ、画面のどれか一つを整えることが、思考の整理にもつながります。",
+  "迷うことはメモに書き出し、今すぐ決めることと後で考えることを分けましょう。",
+  "感謝を一つ伝えると、あなた自身の心にもあたたかな余韻が残ります。",
+  "最初の十五分だけ集中したいことへ使うと、その後の流れが軽くなります。",
+  "今日は、できなかったことより、すでに進めたことを一つ数えてください。",
+  "予定外の出来事には、正解を急がず『今できること』から手をつけましょう。",
+  "心が疲れたら、画面から目を離して飲み物を一口。小さな休息が判断を助けます。",
+  "大切な話ほど、結論を一つだけ決めてから言葉にするとまっすぐ届きます。",
+  "買い物や約束は、明日の自分も心地よいかを想像して選んでください。",
+  "夕方には、今日うれしかったことを一つ思い出す時間を作りましょう。",
+  "周りの速さに合わせすぎず、自分の呼吸が整うペースを選んで大丈夫です。"
+];
+
+function strongestAxis(axes) {
+  return AXES.slice(1).sort((a, b) => axes[b].score - axes[a].score)[0];
+}
+
+function dailyAxisAction(axis, stars) {
+  const actions = {
+    love: stars >= 4
+      ? "人との縁が動きやすいので、好意や感謝を短い言葉で届けると、思いがけず心地よい返事が返ってくるでしょう。"
+      : "人とのことは答えを急がず、相手にも自分にも余白を残すと、穏やかな関係を育てられます。",
+    money: stars >= 4
+      ? "お金や暮らしの感覚が冴えています。必要なものを一つ見極めると、未来の安心につながる選択になりそうです。"
+      : "お金のことは大きく動かすより、残高や予定を一項目だけ確かめると、不安が具体的な安心へ変わります。",
+    work: stars >= 4
+      ? "仕事や学びでは、先に大事な一件へ手をつけてください。あなたの丁寧さが、今日の信頼と手応えを作ります。"
+      : "仕事や学びでは、目の前の作業を小さく分けるのが近道です。一つ終えるたびに、次の一歩が見えやすくなります。",
+    health: stars >= 4
+      ? "心と体のリズムが味方します。軽く歩く、伸ばす、早めに休むなど、気持ちよい習慣を一つ続けてみましょう。"
+      : "心と体には、少し早めの休息を贈ってください。頑張る量を減らす選択が、明日の軽やかさを育てます。"
+  };
+
+  return actions[axis];
+}
+
+function dailyRhythmNote(dayVector, overallStars) {
+  const rhythms = [
+    "静かな波。予定を詰める前に呼吸を整えると、自分の本音が聞こえてきます。",
+    "ひらく波。気になったことへ一歩近づくほど、今日の景色が明るく変わります。",
+    "満ちる波。受け取った好意や小さな達成を、そのまま喜んで大丈夫です。",
+    "整える波。やることを減らし、いちばん大切な一つへ心を向けましょう。",
+    "つながる波。短い会話や挨拶から、思いがけない安心が生まれそうです。",
+    "進める波。迷いが残っていても、最初の工程だけ始めれば流れが変わります。",
+    "休ませる波。少しの余白を作ることが、明日の自分を助ける準備になります。",
+    "育てる波。すぐに答えを求めず、続けたい習慣へ静かに時間を使いましょう。",
+    "選ぶ波。周りの期待より、あなたが心地よく続けられる方を選んでください。",
+    "ほどく波。抱え込みすぎたことを一つ手放すと、心に新しい余白が戻ります。"
+  ];
+  const index = (dayVector.dayOfYear - 1) % rhythms.length;
+  const encouragement = overallStars <= 2
+    ? "今日は小さく整えるだけで、十分に前へ進んでいます。"
+    : overallStars >= 4
+      ? "この軽やかな流れを、あなたらしい行動へつなげてみましょう。"
+      : "自分のリズムを守るほど、今日の流れは味方になります。";
+
+  return `今日のリズム：${rhythms[index]} ${encouragement}`;
+}
+
+function dailyFortuneNarrative({ dayVector, axes, themeLabel }) {
+  const dayIndex = dayVector.dayOfYear - 1;
+  const opening = DAILY_OPENINGS[dayIndex % DAILY_OPENINGS.length];
+  const focus = DAILY_FOCUSES[Math.floor(dayIndex / DAILY_OPENINGS.length)];
+  const stars = axes.overall.stars;
+  const tone = {
+    5: `「${themeLabel}」を合図に、遠慮していた一歩へ手を伸ばせる日です。`,
+    4: `「${themeLabel}」を意識すると、普段の行動がうれしい流れへつながります。`,
+    3: `今日の鍵は「${themeLabel}」。無理のない選択を重ねるほど、心地よい流れが育ちます。`,
+    2: `「${themeLabel}」を小さく実践して、今日は自分のペースを守りましょう。`,
+    1: `「${themeLabel}」を心に置き、できることを一つ選べれば十分です。`
+  }[stars];
+  const axis = strongestAxis(axes);
+
+  return `${opening} ${tone} ${dailyAxisAction(axis, axes[axis].stars)} ${focus}`;
+}
+
 export async function generateDailyFortune(profile, targetDate=new Date(), themeData=[], contentData={}) {
   const [profileVector,dayVector]=await Promise.all([createProfileVector(profile),createDayVector(targetDate)]);
   const signals=createSignals(profileVector,dayVector);
-  const axes=calculateAxes(signals,dayVector.hash);
+  const axes=shapeDailyRhythm(
+    calculateAxes(signals,dayVector.hash),
+    dayVector,
+    profileVector
+  );
   const theme=selectTheme(signals,axes,themeData,dayVector.seasonId,profileVector.hash+dayVector.hash);
   const variants = Array.isArray(contentData[theme.id])
     ? contentData[theme.id]
@@ -444,6 +619,8 @@ export async function generateDailyFortune(profile, targetDate=new Date(), theme
         c.nightPrompt || "できたことを一つ見つけて、今日を閉じましょう。",
       luckyColor: luckyColors[colorIndex],
       luckyTime: `${String(luckyHour).padStart(2, "0")}:00〜${String(luckyHour + 1).padStart(2, "0")}:00`,
+      dailyFortune: dailyFortuneNarrative({ dayVector, axes, themeLabel: theme.label }),
+      dailyRhythm: dailyRhythmNote(dayVector, axes.overall.stars),
       axisMessages:Object.fromEntries(
         AXES.map((axis, index) => [
           axis,

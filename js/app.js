@@ -26,6 +26,7 @@ const ui = {
   overallStars: $("#overallStars"),
   theme: $("#themeLabel"),
   lead: $("#themeLead"),
+  dailyRhythm: $("#dailyRhythm"),
   overallScore: $("#overallScore"),
   loveStars: $("#loveStars"),
   loveScore: $("#loveScore"),
@@ -38,15 +39,17 @@ const ui = {
   promise: $("#todayPromise"),
   luckyColor: $("#luckyColor"),
   luckyTime: $("#luckyTime"),
-  overallMessage: $("#overallMessage"),
   overallPreview: $("#overallPreview"),
-  overallDetail: $("#overallDetail"),
   lovePreview: $("#lovePreview"),
   loveDetail: $("#loveDetail"),
   moneyPreview: $("#moneyPreview"),
   moneyDetail: $("#moneyDetail"),
   workPreview: $("#workPreview"),
   workDetail: $("#workDetail"),
+  healthStars: $("#healthStars"),
+  healthScore: $("#healthScore"),
+  healthPreview: $("#healthPreview"),
+  healthDetail: $("#healthDetail"),
   openProfile: $("#openProfileButton"),
   dialog: $("#profileDialog"),
   summary: $("#profileSummary"),
@@ -148,6 +151,11 @@ function axisHeartLine(axis, score) {
       high: "積み重ねてきた力を、今日は形にして見せられる日です。",
       middle: "頑張っている人ほど、まだ足りないと感じてしまうものです。",
       low: "仕事が進まない日にも、あなた自身の価値は変わりません。"
+    },
+    health: {
+      high: "心と体の軽やかさを、今日の心地よい習慣につなげましょう。",
+      middle: "小さな休息を選ぶことも、元気を保つ大切な行動です。",
+      low: "調子が出ない日は、回復を優先するだけで十分です。"
     }
   };
 
@@ -201,6 +209,16 @@ function axisDetailSections(axis, result) {
         `${luckyColor}の付箋や目印を最優先の仕事に使ってください。`,
       caution:
         "急な依頼をすべて引き受けず、期限と優先順位を確認してから返事をしてください。完成度を上げ続けるより、必要な品質で一度共有する方が前進します。"
+    },
+    health: {
+      action: score >= 60
+        ? "気持ちよく体を動かせる日です。朝か昼に5分だけ歩く、伸ばす、深呼吸するのどれか一つを選んでください。"
+        : "頑張って運動するより、温かい飲み物と短い休憩を優先してください。肩や首をゆっくり回すだけでも十分です。",
+      timing:
+        `${luckyTime}に一度画面から目を離し、姿勢と呼吸を整えてください。` +
+        `${luckyColor}を目に入る場所へ置くと、休憩の合図にできます。`,
+      caution:
+        "占いの点数だけで体調を決めつけず、実際の体の声を優先してください。つらい症状がある場合は無理をせず、必要な休息や専門家への相談を選びましょう。"
     }
   };
 
@@ -409,10 +427,10 @@ async function renderHome() {
 
   ui.overallStars.textContent = starText(result.axes.overall.stars);
   ui.theme.textContent = themeHeadline(result.themeId, result.themeLabel);
-  ui.lead.textContent = `${dailyHeartLine(result)} ${result.content.lead}`;
+  ui.lead.textContent = dailyHeartLine(result);
   ui.overallScore.textContent = `${result.axes.overall.score} / 100`;
 
-  for (const axis of ["love", "money", "work"]) {
+  for (const axis of ["love", "money", "work", "health"]) {
     ui[`${axis}Stars`].textContent = starText(result.axes[axis].stars);
     ui[`${axis}Score`].textContent = `${result.axes[axis].score}点`;
   }
@@ -422,9 +440,9 @@ async function renderHome() {
   ui.promise.textContent = result.content.promise;
   ui.luckyColor.textContent = result.content.luckyColor.label;
   ui.luckyTime.textContent = result.content.luckyTime;
-  ui.overallMessage.textContent = result.content.axisMessages.overall;
-
-  for (const axis of ["overall", "love", "money", "work"]) {
+  ui.overallPreview.textContent = result.content.dailyFortune;
+  ui.dailyRhythm.textContent = result.content.dailyRhythm;
+  for (const axis of ["love", "money", "work", "health"]) {
     renderAxisDetail(axis, result);
   }
 
@@ -575,7 +593,35 @@ document.querySelectorAll('[data-app-action="refresh-cache"]').forEach(button =>
   });
 });
 
-document.querySelectorAll("details.fortune-score").forEach(card => {
+const fortuneScoreCards = [...document.querySelectorAll("details.fortune-score")];
+const secondaryFortuneCards = fortuneScoreCards.filter(
+  card => card.parentElement?.classList.contains("fortune-score-grid")
+);
+
+function restoreSecondaryFortuneOrder() {
+  const grid = document.querySelector(".fortune-score-grid");
+  if (!grid) return;
+  secondaryFortuneCards.forEach(card => grid.append(card));
+}
+
+fortuneScoreCards.forEach(card => {
+  card.addEventListener("toggle", () => {
+    if (!card.open) {
+      if (!secondaryFortuneCards.some(item => item.open)) {
+        restoreSecondaryFortuneOrder();
+      }
+      return;
+    }
+
+    fortuneScoreCards.forEach(other => {
+      if (other !== card) other.open = false;
+    });
+
+    if (secondaryFortuneCards.includes(card)) {
+      card.parentElement.prepend(card);
+    }
+  });
+
   card.addEventListener("click", event => {
     if (card.open && !event.target.closest("summary")) {
       card.open = false;
